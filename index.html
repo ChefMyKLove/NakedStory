@@ -873,11 +873,9 @@ body::before {
   30%       { opacity: 0.14; }
   68%       { opacity: 0.04; }
 }
-/* Base image: clean drift, no displacement — faces/text untouched */
+/* Base image: static — title stays locked while clouds animate */
 .cover-img-live {
-  animation: cover-drift 44s ease-in-out infinite;
   transform-origin: center center;
-  will-change: transform;
 }
 /* Shared base styles for both cloud overlay layers */
 .cover-cloud-layer,
