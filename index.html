@@ -955,54 +955,30 @@ body::before {
   100% { background-position: 200% 0; opacity: 0; }
 }
 
-/* ── CORNER FOLD — top-right corner beckons before the turn ── */
-.corner-fold {
-  position: absolute;
-  top: 0; right: 0;
-  width: 42px; height: 42px;
-  transition: width 0.38s cubic-bezier(0.34, 1.2, 0.64, 1),
-              height 0.38s cubic-bezier(0.34, 1.2, 0.64, 1);
-  z-index: 10;
+/* ── REALISTIC CANVAS FLIP ────────────────────────────── */
+/* The flip-canvas is a fixed overlay; JS draws the curl frame-by-frame */
+#flip-canvas {
+  position: fixed;
+  inset: 0;
   pointer-events: none;
+  z-index: 300;
 }
-/* Shadow the lifted corner casts on the page beneath it */
-.corner-fold::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg,
-    rgba(0,0,0,0.00) 0%,
-    rgba(0,0,0,0.16) 100%
-  );
-  clip-path: polygon(0% 0%, 0% 100%, 100% 100%);
+
+/* During canvas-driven spread flip: hide the DOM leaf-front so the
+   canvas rendering is the only thing visible on the right half      */
+.leaf.canvas-flipping .leaf-front {
+  opacity: 0;
+  transition: none;
 }
-/* The folded flap — back face of the paper, darkest at the crease */
-.corner-fold::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(315deg,
-    #9c8c74 0%,
-    #bfb09a 22%,
-    #d4c8b4 52%,
-    #ece6d8 100%
-  );
-  clip-path: polygon(0% 0%, 100% 0%, 100% 100%);
-  transform-origin: 100% 0%;
-  animation: corner-breathe 3.8s 1.0s ease-in-out infinite;
+
+/* Hover lift hint — only on reading pages, never on covers or shout pages */
+.leaf:not(.flipped):not(.canvas-flipping)[data-page-type="reading"] .leaf-front .page-surface {
+  transition: box-shadow 0.38s ease;
 }
-@keyframes corner-breathe {
-  0%, 100% { transform: scale(1) rotate(0deg); }
-  55%       { transform: scale(1.14) rotate(-1.8deg); }
-}
-/* Peel open on hover of the leaf */
-.leaf:not(.flipped):hover .corner-fold {
-  width: 68px; height: 68px;
-}
-/* Quick lift at the start of the actual flip */
-.leaf.flipping .corner-fold {
-  width: 60px; height: 60px;
-  transition-duration: 0.14s;
+.leaf:not(.flipped):not(.canvas-flipping)[data-page-type="reading"]:hover .leaf-front .page-surface {
+  box-shadow:
+    -8px 0 28px rgba(0,0,0,0.18),
+     4px 4px 14px rgba(0,0,0,0.07);
 }
 
 /* ═══════════════════════════════════════════════════
@@ -1196,6 +1172,7 @@ body::before {
 <body>
 
 <canvas id="dust-canvas"></canvas>
+<canvas id="flip-canvas"></canvas>
 
 <!-- ════════════════════════════════════════════
      BOOK (desktop)
@@ -1830,6 +1807,9 @@ function curlNoise(x, y) {
   const canvas = document.getElementById('dust-canvas');
   const ctx    = canvas.getContext('2d');
   const replayBtn = document.getElementById('replay-dust');
+  const flipCvs   = document.getElementById('flip-canvas');
+  const flipCtx   = flipCvs.getContext('2d');
+  let   curlRaf   = null;
 
   let currentPage = 0;
   let leaves = [];
@@ -1858,6 +1838,8 @@ function curlNoise(x, y) {
     const leaf = document.createElement('div');
     leaf.className = 'leaf';
     leaf.dataset.index = index;
+    leaf.dataset.pageType = (page.nakedPage || page.id === 'cover' || page.id === 'back-cover')
+      ? 'no-hover' : 'reading';
 
     if (page.type === 'single') {
       // Front: the page content (full width)
@@ -1888,14 +1870,6 @@ function curlNoise(x, y) {
       back.className = 'leaf-back';
       back.innerHTML = `<div class="page-surface">${page.left}</div>`;
       leaf.appendChild(back);
-    }
-
-    // Corner fold — appended to the front face page surface
-    const frontSurface = leaf.querySelector('.leaf-front .page-surface');
-    if (frontSurface) {
-      const fold = document.createElement('div');
-      fold.className = 'corner-fold';
-      frontSurface.appendChild(fold);
     }
 
     leaf.addEventListener('click', () => {
@@ -2076,6 +2050,201 @@ function curlNoise(x, y) {
     });
   }
 
+  // ── DIAGONAL CORNER-DRAG PAGE CURL ────────────────────
+  // Simulates pulling the top-right corner diagonally across the page.
+  // Phase 1 (t 0→0.5): A diagonal fold line sweeps from the right edge
+  //   inward — top moves faster than bottom, creating the corner-pull feel.
+  //   The flat front face is visible left of the fold; the lifted back face
+  //   (foreshortened) is visible to the right.
+  // Phase 2 (t 0.5→1): Back face expands from spine leftward and settles.
+  // DOM swap happens at t=0.5 under the canvas cover.
+  function animatePageCurl(bookRect, onMidpoint, onComplete) {
+    if (curlRaf) { cancelAnimationFrame(curlRaf); curlRaf = null; }
+
+    flipCvs.width  = window.innerWidth;
+    flipCvs.height = window.innerHeight;
+
+    const sx        = bookRect.left + bookRect.width / 2;
+    const pageRight = bookRect.right;
+    const py        = bookRect.top;
+    const ph        = bookRect.height;
+    const pw        = bookRect.width / 2;
+    const dur       = 1100;
+    const t0        = performance.now();
+    let midDone     = false;
+
+    // Cubic ease-in-out
+    function ease(r) {
+      return r < 0.5 ? 4 * r * r * r : 1 - Math.pow(-2 * r + 2, 3) / 2;
+    }
+
+    function drawPoly(pts) {
+      if (pts.length < 3) return;
+      flipCtx.beginPath();
+      flipCtx.moveTo(pts[0].x, pts[0].y);
+      for (let i = 1; i < pts.length; i++) flipCtx.lineTo(pts[i].x, pts[i].y);
+      flipCtx.closePath();
+    }
+
+    function drawFrame(t) {
+      flipCtx.clearRect(0, 0, flipCvs.width, flipCvs.height);
+      flipCtx.save();
+      flipCtx.beginPath();
+      flipCtx.rect(bookRect.left, py, bookRect.width, ph);
+      flipCtx.clip();
+
+      if (t < 0.5) {
+        // ── Phase 1: diagonal corner pull ────────────────
+        const p = t * 2;                              // 0→1
+        const ang = p * Math.PI * 0.5;               // 0→π/2
+        const cosAng = Math.cos(ang);                 // 1→0 (foreshortening)
+
+        // Fold line — top (corner) moves faster than bottom
+        // Both start at pageRight, sweep leftward
+        const topFoldX = pageRight - (pageRight - sx) * p;
+        const botFoldX = pageRight - (pageRight - (sx + pw * 0.42)) * p;
+
+        // ── Flat front face (left of fold line) ──────────
+        drawPoly([
+          { x: sx,        y: py      },
+          { x: topFoldX,  y: py      },
+          { x: botFoldX,  y: py + ph },
+          { x: sx,        y: py + ph }
+        ]);
+        const fg = flipCtx.createLinearGradient(sx, 0, pageRight, 0);
+        fg.addColorStop(0,    'rgba(152,136,115,0.96)');
+        fg.addColorStop(0.06, '#f5ede0');
+        fg.addColorStop(0.60, '#f8f1e6');
+        fg.addColorStop(1,    '#ede5d5');
+        flipCtx.fillStyle = fg;
+        flipCtx.fill();
+
+        // ── Shadow at fold crease on flat face ───────────
+        const shadowW = 32 * (1 - p * 0.45);
+        if (shadowW > 3) {
+          flipCtx.save();
+          drawPoly([
+            { x: sx,        y: py      },
+            { x: topFoldX,  y: py      },
+            { x: botFoldX,  y: py + ph },
+            { x: sx,        y: py + ph }
+          ]);
+          flipCtx.clip();
+          const shG = flipCtx.createLinearGradient(topFoldX - shadowW, 0, topFoldX + 6, 0);
+          shG.addColorStop(0, 'rgba(0,0,0,0)');
+          shG.addColorStop(0.65, 'rgba(0,0,0,0.10)');
+          shG.addColorStop(1,   'rgba(0,0,0,0.23)');
+          flipCtx.fillStyle = shG;
+          flipCtx.fillRect(topFoldX - shadowW, py, shadowW + 6, ph);
+          flipCtx.restore();
+        }
+
+        // ── Lifted flap (back face, foreshortened) ────────
+        const flapTopRight = topFoldX + (pageRight - topFoldX) * cosAng;
+        const flapBotRight = botFoldX + (pageRight - botFoldX) * cosAng;
+        const flapW = Math.max(flapTopRight - topFoldX, flapBotRight - botFoldX);
+
+        if (flapW > 3) {
+          const flapPts = [
+            { x: topFoldX,     y: py      },
+            { x: flapTopRight, y: py      },
+            { x: flapBotRight, y: py + ph },
+            { x: botFoldX,     y: py + ph }
+          ];
+          drawPoly(flapPts);
+          const bg = flipCtx.createLinearGradient(topFoldX, 0, flapTopRight + 10, 0);
+          bg.addColorStop(0,    'rgba(118,104,86,0.96)');
+          bg.addColorStop(0.09, '#e8dcc8');
+          bg.addColorStop(0.58, '#ece0cc');
+          bg.addColorStop(0.93, '#e2d5bf');
+          bg.addColorStop(1,    'rgba(130,115,96,0.90)');
+          flipCtx.fillStyle = bg;
+          flipCtx.fill();
+
+          // Sheen crescent at fold crease edge
+          if (flapW > 12) {
+            drawPoly(flapPts);
+            flipCtx.save();
+            flipCtx.clip();
+            const sg = flipCtx.createLinearGradient(topFoldX, 0, topFoldX + 22, 0);
+            sg.addColorStop(0,    'rgba(255,252,244,0.72)');
+            sg.addColorStop(0.55, 'rgba(255,252,244,0.28)');
+            sg.addColorStop(1,    'rgba(255,252,244,0)');
+            flipCtx.fillStyle = sg;
+            flipCtx.fillRect(topFoldX, py, 22, ph);
+            flipCtx.restore();
+          }
+        }
+
+        // ── Shadow on left (verso) page ───────────────────
+        const leftShW = pw * 0.17 * (1 - p * 0.68);
+        if (leftShW > 2) {
+          const lsG = flipCtx.createLinearGradient(sx - leftShW, 0, sx + 5, 0);
+          lsG.addColorStop(0, 'rgba(0,0,0,0)');
+          lsG.addColorStop(0.7, 'rgba(0,0,0,0.12)');
+          lsG.addColorStop(1,   'rgba(0,0,0,0.24)');
+          flipCtx.fillStyle = lsG;
+          flipCtx.fillRect(sx - leftShW, py, leftShW + 5, ph);
+        }
+
+      } else {
+        // ── Phase 2: back face arriving from spine ────────
+        const p     = (t - 0.5) * 2;
+        const backW = p * pw;
+        const bow   = pw * 0.065 * Math.sin((1 - p) * Math.PI);
+        const foldX = sx - backW;
+
+        drawPoly([
+          { x: sx,               y: py      },
+          { x: sx,               y: py + ph },
+          { x: foldX - bow * 0.4, y: py + ph },
+          { x: foldX - bow,       y: py + ph * 0.72 },
+          { x: foldX - bow,       y: py + ph * 0.28 },
+          { x: foldX - bow * 0.4, y: py      }
+        ]);
+        const g = flipCtx.createLinearGradient(foldX - bow, 0, sx, 0);
+        g.addColorStop(0,    'rgba(128,113,94,0.93)');
+        g.addColorStop(0.12, '#e8dcc8');
+        g.addColorStop(0.55, '#ece0cc');
+        g.addColorStop(0.92, '#e2d6c2');
+        g.addColorStop(1,    'rgba(152,136,116,0.90)');
+        flipCtx.fillStyle = g;
+        flipCtx.fill();
+
+        if (backW > 8) {
+          const shW = backW * 0.24;
+          const shG = flipCtx.createLinearGradient(foldX - shW - bow, 0, foldX - bow + 4, 0);
+          shG.addColorStop(0, 'rgba(0,0,0,0)');
+          shG.addColorStop(1, 'rgba(0,0,0,0.16)');
+          flipCtx.fillStyle = shG;
+          flipCtx.fillRect(foldX - shW - bow, py, shW + 4, ph);
+        }
+      }
+
+      flipCtx.restore();
+    }
+
+    function frame(now) {
+      const raw = Math.min((now - t0) / dur, 1);
+      const t   = ease(raw);
+      drawFrame(t);
+
+      if (raw >= 0.5 && !midDone) {
+        midDone = true;
+        onMidpoint && onMidpoint();
+      }
+
+      if (raw < 1) {
+        curlRaf = requestAnimationFrame(frame);
+      } else {
+        flipCtx.clearRect(0, 0, flipCvs.width, flipCvs.height);
+        onComplete && onComplete();
+      }
+    }
+
+    curlRaf = requestAnimationFrame(frame);
+  }
+
   // ── NAVIGATION ─────────────────────────────────────
   function goNext() {
     if (currentPage >= PAGES.length - 1 || isAnimating) return;
@@ -2084,18 +2253,47 @@ function curlNoise(x, y) {
     isAnimating = true;
 
     if (page.type === 'spread') {
+      const nextPage = PAGES[currentPage + 1];
+      const crossType = nextPage && nextPage.type !== 'spread';
+
+      if (crossType) {
+        // Spread → single: cross-fade to avoid geometry crash from book resize mid-animation
+        book.style.transition = 'opacity 0.38s ease';
+        book.style.opacity = '0';
+        setTimeout(() => {
+          currentPage++;
+          render();
+          book.style.opacity = '1';
+          setTimeout(() => {
+            book.style.transition = '';
+            isAnimating = false;
+          }, 400);
+        }, 380);
+        return;
+      }
+
       const leaf = leaves[0];
-      leaf.classList.add('flipped', 'flipping');
+      leaf.classList.add('canvas-flipping');
       book.classList.add('is-flipping');
 
-      setTimeout(() => {
-        book.classList.remove('is-flipping');
-        currentPage++;
-        isAnimating = false;
-        render();
-      }, 800);
+      const bookRect = book.getBoundingClientRect();
+
+      animatePageCurl(
+        bookRect,
+        () => {
+          // Mid-flip: advance and re-render while canvas covers the transition
+          currentPage++;
+          render();
+        },
+        () => {
+          // Done: canvas cleared, new spread is fully visible
+          book.classList.remove('is-flipping');
+          isAnimating = false;
+        }
+      );
 
     } else {
+      // Single pages keep the CSS 3-D flip (cover open, etc.)
       const leaf = leaves[0];
       leaf.classList.add('flipping');
       leaf.style.transition = `transform var(--flip-dur) cubic-bezier(0.20,0.0,0.10,1.0)`;
