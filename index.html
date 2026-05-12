@@ -971,14 +971,24 @@ body::before {
   transition: none;
 }
 
-/* Hover lift hint — only on reading pages, never on covers or shout pages */
-.leaf:not(.flipped):not(.canvas-flipping)[data-page-type="reading"] .leaf-front .page-surface {
+/* Hover lift hint — recto (right/leaf-front) pages */
+/* Shadow goes on .leaf-front, not .page-surface, because overflow:hidden on leaf-front would clip it */
+.leaf:not(.flipped):not(.canvas-flipping)[data-page-type="reading"] .leaf-front {
   transition: box-shadow 0.38s ease;
 }
-.leaf:not(.flipped):not(.canvas-flipping)[data-page-type="reading"]:hover .leaf-front .page-surface {
+.leaf:not(.flipped):not(.canvas-flipping)[data-page-type="reading"]:hover .leaf-front {
   box-shadow:
     -8px 0 28px rgba(0,0,0,0.18),
      4px 4px 14px rgba(0,0,0,0.07);
+}
+/* Hover lift hint — verso (left/static) pages of spreads */
+.static-page.left .page-surface {
+  transition: box-shadow 0.38s ease;
+}
+.static-page.left:hover .page-surface {
+  box-shadow:
+     8px 0 28px rgba(0,0,0,0.18),
+    -4px 4px 14px rgba(0,0,0,0.07);
 }
 
 /* ═══════════════════════════════════════════════════
