@@ -163,6 +163,20 @@ body::before {
   z-index: 5;
 }
 
+/* ── PAGE FRAME (outer mat border) ─────────────────── */
+.page-frame {
+  width: 100%; height: 100%;
+  background: #fdf9f5;
+  padding: 14px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+.page-frame > .page-surface {
+  flex: 1;
+  min-height: 0;
+}
+
 /* ── PAGE SURFACE ──────────────────────────────────── */
 .page-surface {
   width: 100%; height: 100%;
@@ -172,6 +186,8 @@ body::before {
   position: relative;
   display: flex;
   flex-direction: column;
+  box-shadow: inset 0 0 45px rgba(0,0,0,0.28);
+  transition: box-shadow 0.38s ease;
 }
 
 /* Verso (left) pages get slightly different shade */
@@ -971,24 +987,10 @@ body::before {
   transition: none;
 }
 
-/* Hover lift hint — recto (right/leaf-front) pages */
-/* Shadow goes on .leaf-front, not .page-surface, because overflow:hidden on leaf-front would clip it */
-.leaf:not(.flipped):not(.canvas-flipping)[data-page-type="reading"] .leaf-front {
-  transition: box-shadow 0.38s ease;
-}
-.leaf:not(.flipped):not(.canvas-flipping)[data-page-type="reading"]:hover .leaf-front {
-  box-shadow:
-    -8px 0 28px rgba(0,0,0,0.18),
-     4px 4px 14px rgba(0,0,0,0.07);
-}
-/* Hover lift hint — verso (left/static) pages of spreads */
-.static-page.left .page-surface {
-  transition: box-shadow 0.38s ease;
-}
+/* Page edge shadow deepens on hover */
+.leaf:hover .page-surface,
 .static-page.left:hover .page-surface {
-  box-shadow:
-     8px 0 28px rgba(0,0,0,0.18),
-    -4px 4px 14px rgba(0,0,0,0.07);
+  box-shadow: inset 0 0 65px rgba(0,0,0,0.42);
 }
 
 /* ═══════════════════════════════════════════════════
@@ -1512,7 +1514,6 @@ const PAGES = [
   },
 
   { type: 'single', id: 's2b-left', html: `
-    <div class="page-surface" style="background:var(--paper);">
       <div class="running-head">We're Naked!</div>
       <div class="story-text">
         <p class="no-indent">"What are you doing?" you ask, and there's something in your voice like I've genuinely stumped you, or maybe it's that you already know. Maybe you're waiting to see if I'll actually say it… Maybe you were there this morning, dreaming it too…</p>
@@ -1521,7 +1522,6 @@ const PAGES = [
         <p>I place the blanket on the heater by the door, turn around and—</p>
       </div>
       <span class="pg-num recto" style="right:36px;">9</span>
-    </div>
   `},
 
   // ── YOU'RE NAKED! — shout page ─────────────────────
@@ -1537,14 +1537,12 @@ const PAGES = [
   `},
 
   { type: 'single', id: 's2b-right', html: `
-    <div class="page-surface" style="background:var(--paper-verso);">
       <div class="running-head">A Rapture in Three Acts</div>
       <div class="story-text">
         <p class="no-indent">—and the morning light catches your skin in a way that makes my chest do something complicated. You smile excitedly while you hand me the dust and I hand back the doobie.</p>
         <p>I open the door to the third-floor balcony and this sunny Saturday summer morning pouring in. The air smells like ripe possibility. Like the city breathing in its weekend sigh. Like it had no idea what was about to happen…</p>
       </div>
       <span class="pg-num recto" style="right:36px;">10</span>
-    </div>
   `},
 
   // ── PART TWO TITLE (right page of spread, left blank) ──
@@ -1717,7 +1715,7 @@ const PAGES = [
       <span class="pg-num verso">21</span>
     `,
     right: `
-      <div class="page-surface" style="background:var(--paper-verso);display:flex;align-items:center;justify-content:center;">
+      <div style="flex:1;display:flex;align-items:center;justify-content:center;">
         <div style="font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--ink-faint);font-size:0.72em;letter-spacing:2px;text-align:center;">
           ∞
         </div>
@@ -1737,7 +1735,6 @@ const PAGES = [
 
   // ── ABOUT THE AUTHOR ──────────────────────────────
   { type: 'single', id: 'about', html: `
-    <div class="page-surface">
       <div class="running-head">We're Naked!</div>
       <div class="about-page" style="flex:1;display:flex;flex-direction:column;justify-content:center;">
         <div class="about-head">About the Author</div>
@@ -1752,7 +1749,6 @@ const PAGES = [
           <em>chefmyklove.com/naked</em>
         </div>
       </div>
-    </div>
   `},
 
   // ── BACK COVER ─────────────────────────────────────
@@ -1855,7 +1851,12 @@ function curlNoise(x, y) {
       // Front: the page content (full width)
       const front = document.createElement('div');
       front.className = 'leaf-front';
-      front.innerHTML = `<div class="page-surface" style="width:100%;">${page.html}</div>`;
+      const isSpecial = page.nakedPage || page.id === 'cover' || page.id === 'back-cover';
+      if (isSpecial) {
+        front.innerHTML = `<div class="page-surface" style="width:100%;">${page.html}</div>`;
+      } else {
+        front.innerHTML = `<div class="page-frame"><div class="page-surface">${page.html}</div></div>`;
+      }
       leaf.appendChild(front);
 
       // Back: blank (next single page will cover)
@@ -1866,19 +1867,17 @@ function curlNoise(x, y) {
 
     } else {
       // Spread: front = right (recto) page, back = left (verso) of NEXT spread
-      // We show left page as a static underlay and leaf covers right side
 
       // Front face shows RIGHT page content
       const front = document.createElement('div');
       front.className = 'leaf-front';
-      front.innerHTML = `<div class="page-surface">${page.right}</div>`;
+      front.innerHTML = `<div class="page-frame"><div class="page-surface">${page.right}</div></div>`;
       leaf.appendChild(front);
 
       // Back face (visible after flip) shows LEFT page of THIS spread
-      // (when flipped, it becomes the left page sitting on the left half)
       const back = document.createElement('div');
       back.className = 'leaf-back';
-      back.innerHTML = `<div class="page-surface">${page.left}</div>`;
+      back.innerHTML = `<div class="page-frame"><div class="page-surface">${page.left}</div></div>`;
       leaf.appendChild(back);
     }
 
@@ -1913,7 +1912,7 @@ function curlNoise(x, y) {
       // Static left page (always visible behind the leaf)
       const staticLeft = document.createElement('div');
       staticLeft.className = 'static-page left';
-      staticLeft.innerHTML = `<div class="page-surface">${page.left}</div>`;
+      staticLeft.innerHTML = `<div class="page-frame"><div class="page-surface">${page.left}</div></div>`;
       book.appendChild(staticLeft);
 
       // Leaf covers the RIGHT half, flips to reveal left
