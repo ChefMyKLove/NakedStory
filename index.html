@@ -941,6 +941,7 @@ body::before {
     rgba(220,178,110,0.18) 52%,
     transparent 70%
   );
+  opacity: 0;
   animation: cover-light-pulse 24s 2.5s ease-in-out infinite;
   pointer-events: none;
   mix-blend-mode: screen;
@@ -2887,8 +2888,8 @@ function curlNoise(x, y) {
     if (!turb) return;
     document.querySelectorAll('.cover-cloud-layer, .cover-cloud-layer-2').forEach((el, i) => {
       el.animate(
-        [{ opacity: 0 }, { opacity: 0.74 }],
-        { duration: 2000, delay: i * 500, easing: 'ease-out', fill: 'backwards' }
+        [{ opacity: 0.92 }, { opacity: 0.74 }],
+        { duration: 4500, delay: i * 300, easing: 'ease-in', fill: 'backwards' }
       );
     });
     function tick() {
