@@ -7,7 +7,8 @@
       "Bash(dir img_0288.jpg cover.jpg)",
       "Bash(Select-String -Path \"C:\\\\Users\\\\micha\\\\Desktop\\\\wereNaked_story\\\\index.html\" -Pattern \"cover|flash|canvas|mist|fog|init|load|DOMContent|window\\\\.onload|body.*background|fillRect|clearRect\" -AllMatches)",
       "Bash(Select-Object LineNumber, Line)",
-      "Bash(Select-Object -First 80)"
+      "Bash(Select-Object -First 80)",
+      "Bash(powershell *)"
     ]
   },
   "enableAllProjectMcpServers": true,

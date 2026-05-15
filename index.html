@@ -1180,6 +1180,33 @@ body::before {
   #mobile-fallback { display: block; }
   .book-scene, #dust-canvas, #nav-prev, #nav-next, #page-indicator, #replay-dust, #dust-toggle, #replay-fireworks { display: none !important; }
 }
+
+/* ── MIX PANEL ──────────────────────────────────── */
+#mix-panel{position:fixed;bottom:154px;right:28px;z-index:401;width:274px;background:rgba(10,7,4,0.94);border:1px solid rgba(200,169,106,0.28);border-radius:3px;padding:19px 22px 15px;backdrop-filter:blur(10px);overflow:hidden;opacity:0;pointer-events:none;transform:translateY(6px);transition:opacity 0.2s ease,transform 0.2s ease;}
+#mix-panel.open{opacity:1;pointer-events:all;transform:translateY(0);}
+.mix-head{font-family:'Cormorant Garamond',serif;font-size:0.72em;letter-spacing:3px;color:rgba(200,169,106,0.38);text-transform:uppercase;text-align:center;margin-bottom:16px;padding-bottom:10px;border-bottom:0.5px solid rgba(200,169,106,0.16);}
+.mix-row{display:flex;align-items:center;gap:9px;margin-bottom:13px;}
+.mix-row:last-child{margin-bottom:0;}
+.mix-dot{width:6px;height:6px;border-radius:50%;background:rgba(200,169,106,0.2);flex-shrink:0;transition:background 0.3s;}
+.mix-dot.on{background:rgba(200,169,106,0.82);}
+.mix-lbl{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:0.82em;color:rgba(200,169,106,0.52);letter-spacing:0.8px;width:80px;flex-shrink:0;}
+.mix-slider{flex:1;min-width:0;-webkit-appearance:none;appearance:none;height:2px;background:rgba(200,169,106,0.18);border-radius:1px;outline:none;cursor:pointer;}
+.mix-slider::-webkit-slider-thumb{-webkit-appearance:none;width:13px;height:13px;border-radius:50%;background:rgba(200,169,106,0.82);border:none;cursor:pointer;}
+.mix-slider::-moz-range-thumb{width:13px;height:13px;border-radius:50%;background:rgba(200,169,106,0.82);border:none;cursor:pointer;}
+.mix-val{font-family:'Cormorant Garamond',serif;font-size:0.72em;color:rgba(200,169,106,0.38);width:26px;text-align:right;flex-shrink:0;}
+
+/* ── MIX BUTTON ─── visible immediately ─────────── */
+#mix-btn{position:fixed;bottom:112px;right:28px;z-index:400;background:rgba(200,169,106,0.12);border:1px solid rgba(200,169,106,0.35);color:rgba(200,169,106,0.8);padding:10px 22px;font-family:'Cormorant Garamond',serif;font-size:0.82em;letter-spacing:1.5px;cursor:pointer;border-radius:2px;transition:background 0.3s,border-color 0.3s;backdrop-filter:blur(4px);}
+#mix-btn:hover,#mix-btn.open{background:rgba(200,169,106,0.22);border-color:rgba(200,169,106,0.65);color:rgba(200,169,106,1);}
+
+/* ── SOUND TOGGLE ─── visible immediately ───────── */
+#aud-toggle{position:fixed;bottom:28px;left:28px;z-index:400;background:rgba(200,169,106,0.12);border:1px solid rgba(200,169,106,0.35);color:rgba(200,169,106,0.8);padding:10px 22px;font-family:'Cormorant Garamond',serif;font-size:0.82em;letter-spacing:1.5px;cursor:pointer;border-radius:2px;transition:background 0.3s,border-color 0.3s;backdrop-filter:blur(4px);}
+#aud-toggle:hover{background:rgba(200,169,106,0.25);border-color:rgba(200,169,106,0.7);}
+#aud-toggle.off{color:rgba(200,169,106,0.35);border-color:rgba(200,169,106,0.15);background:transparent;}
+
+/* ── NARRATION INDICATOR ────────────────────────── */
+#aud-nar-ind{position:fixed;bottom:70px;left:28px;z-index:400;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:0.75em;color:rgba(200,169,106,0.5);letter-spacing:1px;opacity:0;transition:opacity 0.4s ease;pointer-events:none;}
+#aud-nar-ind.on{opacity:1;}
 </style>
 </head>
 <body>
@@ -1249,7 +1276,7 @@ body::before {
   <p>"Don't you DARE light that joint 'till I'm done peeing," you laugh from your throne…</p>
   <p>"Are you almost done peeing?"</p><p>"Yeah."</p>
   <p>"I'm lighting it. First toke, my turn today, Love."</p>
-  <p>…<em>click</em>… …<em>fssschhh.</em></p>
+  <p><button onclick="playSFX('lighter')" style="background:none;border:none;cursor:pointer;font-family:'Crimson Text',serif;font-style:italic;color:var(--ink-faint);font-size:inherit;padding:0;display:inline;text-decoration:underline;text-underline-offset:2px;" title="🔊 play sound">…<em>click</em>… …<em>fssschhh.</em>…</button></p>
   <p>…"Good morning! Good morning!" It's the Beatles, they're making their noise as that chillin' cannabis flower smoke drifts softly into the air. I hand off the spliff as you leap from the bathroom to grab it with grace, while I urgently take my place on the potty with pleasure to release with pleasure the stored liquid of a night full of dreaming.</p>
   <p><em><strong>Yeah.</strong> You know how that goes….</em></p>
   <p>"Yeah… I had a wild dream just now," I call through the always open bathroom doorway.</p>
@@ -1265,10 +1292,10 @@ body::before {
   <p>I place the blanket on the heater by the door, turn around and—</p>
   <span class="ms">YOU'RE NAKED! I'M NAKED! WE'RE NAKED!</span>
   <p>—and the morning light catches your skin in a way that makes my chest do something complicated. You smile excitedly while you hand me the dust and I hand back the doobie.</p>
-  <p>I open the door to the third-floor balcony and this sunny Saturday summer morning pouring in. The air smells like ripe possibility. Like the city breathing in its weekend sigh. Like it had no idea what was about to happen…</p>
+  <p>I open the door to the third-floor balcony <button onclick="playSFX('door')" style="background:none;border:1px solid rgba(100,80,60,0.3);border-radius:2px;cursor:pointer;font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--ink-faint);font-size:0.78em;padding:1px 7px;vertical-align:middle;" title="🔊">▶ door</button> and this sunny Saturday summer morning pouring in. The air smells like ripe possibility. Like the city breathing in its weekend sigh. Like it had no idea what was about to happen…</p>
   <h2>Part Two: The Dreaming</h2>
   <p>"It's certainly not the weather of my dream," I say, looking out at the crisp blue sky. "Shit. Where's the fan?"</p>
-  <p>The fan's in the closet. I run quickly to get it, then stop where you're standing—to kiss-kiss you, a kiss-kissy-kiss. You kiss-kissy-kiss me right back, put the joint in my mouth, and start the fan up on</p>
+  <p>The fan's in the closet. I run quickly to get it, then stop where you're standing—to kiss-kiss you, a kiss-kissy-kiss. You kiss-kissy-kiss me right back, put the joint in my mouth, and start the fan up on <button onclick="playSFX('fan')" style="background:none;border:1px solid rgba(100,80,60,0.3);border-radius:2px;cursor:pointer;font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--ink-faint);font-size:0.78em;padding:1px 7px;vertical-align:middle;" title="🔊">▶ fan</button></p>
   <span class="mh">……………High……………</span>
   <p>The blades start to spin and so I begin:</p>
   <p>"Before anything else, there was this: we were at a huge party being thrown in Central Park in New York City. The entire park, you understand? Packed with people! This wasn't a normal party—it was a celebration. A celebration of the day of the apocalypse."</p>
@@ -1321,7 +1348,7 @@ body::before {
     That I can see myself from here…
   </div>
   <p>Dripping with an irony that still stings enough to this day so as to populate such a dream as this...</p>
-  <p>—as you spring from the heater onto the bed, into your rush-ready robe, then right out the door with a thumbs up. No words, just a giggle.</p>
+  <p>—as you spring from the heater onto the bed, into your rush-ready robe, then right out the door <button onclick="playSFX('exit')" style="background:none;border:1px solid rgba(100,80,60,0.3);border-radius:2px;cursor:pointer;font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--ink-faint);font-size:0.78em;padding:1px 7px;vertical-align:middle;" title="🔊">▶ exit</button> with a thumbs up. No words, just a giggle.</p>
   <p><strong>And I'm naked and alone.</strong></p>
   <p>I sit by the window for a wee while longer, this morning. Watching the last lingering dust motes catch the warming light and I'm thinking.</p>
   <p>Thinking about that time in Central Park with only forty-nine minutes to go; about how we're all walking around with a future of apocalypse dust on our skin and calling it just another Tuesday.</p>
@@ -1491,8 +1518,7 @@ const PAGES = [
         <p>"Are you almost done peeing?"</p>
         <p>"Yeah."</p>
         <p>"I'm lighting it. First toke, my turn today, Love."</p>
-        <p>…<em>click</em>…</p>
-        <p>…<em>fssschhh.</em></p>
+        <p><button onclick="playSFX('lighter')" style="background:none;border:none;cursor:pointer;font-family:'Crimson Text',serif;font-style:italic;color:var(--ink-faint);font-size:inherit;padding:0;display:inline;text-decoration:underline;text-underline-offset:2px;" title="🔊 play sound">…<em>click</em>… …<em>fssschhh.</em>…</button></p>
         <p>…"Good morning! Good morning!" It's the Beatles, they're making their noise as that chillin' cannabis flower smoke drifts softly into the air. I hand off the spliff as you leap from the bathroom to grab it with grace, while I urgently take my place on the potty with pleasure to release with pleasure the stored liquid of a night full of dreaming.</p>
         <p><em><strong>Yeah.</strong> You know how that goes….</em></p>
       </div>
@@ -1541,7 +1567,7 @@ const PAGES = [
       <div class="running-head">A Rapture in Three Acts</div>
       <div class="story-text">
         <p class="no-indent">—and the morning light catches your skin in a way that makes my chest do something complicated. You smile excitedly while you hand me the dust and I hand back the doobie.</p>
-        <p>I open the door to the third-floor balcony and this sunny Saturday summer morning pouring in. The air smells like ripe possibility. Like the city breathing in its weekend sigh. Like it had no idea what was about to happen…</p>
+        <p>I open the door to the third-floor balcony <button onclick="playSFX('door')" style="background:none;border:1px solid rgba(100,80,60,0.3);border-radius:2px;cursor:pointer;font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--ink-faint);font-size:0.78em;padding:1px 7px;vertical-align:middle;" title="🔊">▶ door</button> and this sunny Saturday summer morning pouring in. The air smells like ripe possibility. Like the city breathing in its weekend sigh. Like it had no idea what was about to happen…</p>
       </div>
       <span class="pg-num recto" style="right:36px;">10</span>
   `},
@@ -1561,7 +1587,7 @@ const PAGES = [
       <div class="running-head">We're Naked!</div>
       <div class="story-text">
         <p class="no-indent">"It's certainly not the weather of my dream," I say, looking out at the crisp blue sky. "Shit. Where's the fan?"</p>
-        <p>The fan's in the closet. I run quickly to get it, then stop where you're standing—to kiss-kiss you, a kiss-kissy-kiss. You kiss-kissy-kiss me right back, put the joint in my mouth, and start the fan up on</p>
+        <p>The fan's in the closet. I run quickly to get it, then stop where you're standing—to kiss-kiss you, a kiss-kissy-kiss. You kiss-kissy-kiss me right back, put the joint in my mouth, and start the fan up on <button onclick="playSFX('fan')" style="background:none;border:1px solid rgba(100,80,60,0.3);border-radius:2px;cursor:pointer;font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--ink-faint);font-size:0.78em;padding:1px 7px;vertical-align:middle;" title="🔊">▶ fan</button></p>
         <span class="high">……………High……………</span>
         <p>The blades start to spin and so I begin:</p>
         <p>"Before anything else, there was this: we were at a huge party being thrown in Central Park in New York City. The entire park, you understand? Packed with people! This wasn't a normal party—it was a celebration. A celebration of the day of the apocalypse."</p>
@@ -1706,7 +1732,7 @@ const PAGES = [
       <div class="running-head">We're Naked!</div>
       <div class="story-text">
         <p class="no-indent">Dripping with an irony that still stings enough to this day so as to populate such a dream as this...</p>
-        <p>—as you spring from the heater onto the bed, into your rush-ready robe, then right out the door with a thumbs up. No words, just a giggle.</p>
+        <p>—as you spring from the heater onto the bed, into your rush-ready robe, then right out the door <button onclick="playSFX('exit')" style="background:none;border:1px solid rgba(100,80,60,0.3);border-radius:2px;cursor:pointer;font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--ink-faint);font-size:0.78em;padding:1px 7px;vertical-align:middle;" title="🔊">▶ exit</button> with a thumbs up. No words, just a giggle.</p>
         <p><strong>And I'm naked and alone.</strong></p>
         <p>I sit by the window for a wee while longer, this morning. Watching the last lingering dust motes catch the warming light and I'm thinking.</p>
         <p>Thinking about that time in Central Park with only forty-nine minutes to go; about how we're all walking around with a future of apocalypse dust on our skin and calling it just another Tuesday.</p>
@@ -2774,6 +2800,7 @@ function curlNoise(x, y) {
   }
 
   function startDust() {
+    if (window.onDustStart) window.onDustStart();
     if (dustStarted && dustMode === 'normal') return;
     if (dustStarted) stopDust(); // fade any other mode, restart as normal
     coverClipRect = null;
@@ -2824,6 +2851,7 @@ function curlNoise(x, y) {
   }
 
   function stopDust() {
+    if (window.onDustSettle) window.onDustSettle();
     dustPhase = 'falling';
   }
 
@@ -2842,6 +2870,7 @@ function curlNoise(x, y) {
   }
 
   function fireBurst(x, y, count, color) {
+    if (window.playSFX) window.playSFX('fireworks');
     for (let i = 0; i < count; i++) burstParticles.push(new BurstParticle(x, y, color));
     if (!animId) {
       canvas.style.transition = 'none';
@@ -2937,6 +2966,23 @@ function curlNoise(x, y) {
   navN.addEventListener('click', goNext);
   navP.addEventListener('click', goPrev);
 
+  // ── AUDIO PAGE HOOKS ───────────────────────────
+  let _firstTurnFired = false;
+  function _notifyPage() {
+    const p = PAGES[currentPage];
+    if (p && window.onAudioPageChange) window.onAudioPageChange(p.id);
+    if (!_firstTurnFired) {
+      _firstTurnFired = true;
+      if (window.onFirstPageTurn) window.onFirstPageTurn();
+    }
+  }
+  navN.addEventListener('click', _notifyPage);
+  navP.addEventListener('click', _notifyPage);
+  document.addEventListener('keydown', e => {
+    if (e.key==='ArrowRight'||e.key==='ArrowDown'||e.key===' ') _notifyPage();
+    if (e.key==='ArrowLeft'||e.key==='ArrowUp') _notifyPage();
+  });
+
   // ── WINDOW RESIZE ──────────────────────────────────
   window.addEventListener('resize', () => {
     computeSize();
@@ -2947,6 +2993,98 @@ function curlNoise(x, y) {
   computeSize();
   render();
 
+})();
+</script>
+
+<!-- MIX PANEL -->
+<div id="mix-panel">
+  <div class="mix-head">mix</div>
+  <div class="mix-row"><div class="mix-dot on" id="md-music"></div><div class="mix-lbl">music</div><input class="mix-slider" type="range" min="0" max="100" value="35" step="1" id="ms-music"><div class="mix-val" id="mv-music">35</div></div>
+  <div class="mix-row"><div class="mix-dot" id="md-atmos"></div><div class="mix-lbl">atmosphere</div><input class="mix-slider" type="range" min="0" max="100" value="55" step="1" id="ms-atmos"><div class="mix-val" id="mv-atmos">55</div></div>
+  <div class="mix-row"><div class="mix-dot on" id="md-voice"></div><div class="mix-lbl">voice</div><input class="mix-slider" type="range" min="0" max="100" value="90" step="1" id="ms-voice"><div class="mix-val" id="mv-voice">90</div></div>
+  <div class="mix-row"><div class="mix-dot" id="md-sfx"></div><div class="mix-lbl">sounds</div><input class="mix-slider" type="range" min="0" max="100" value="85" step="1" id="ms-sfx"><div class="mix-val" id="mv-sfx">85</div></div>
+</div>
+<button id="mix-btn">≡ mix</button>
+<div id="aud-nar-ind"></div>
+<button id="aud-toggle" class="off">♪ sound</button>
+
+<!-- AUDIO ELEMENTS — update src paths when files are ready -->
+<div id="audio-engine" style="display:none;">
+  <audio id="a-ambient"  src="audio/ambient_loop.mp3"   loop preload="none"></audio>
+  <audio id="a-dust"     src="audio/dust_loop.mp3"      loop preload="none"></audio>
+  <audio id="a-n01" src="audio/narration_n01.mp3" preload="none"></audio>
+  <audio id="a-n02" src="audio/narration_n02.mp3" preload="none"></audio>
+  <audio id="a-n03" src="audio/narration_n03.mp3" preload="none"></audio>
+  <audio id="a-n04" src="audio/narration_n04.mp3" preload="none"></audio>
+  <audio id="a-n05" src="audio/narration_n05.mp3" preload="none"></audio>
+  <audio id="a-n06" src="audio/narration_n06.mp3" preload="none"></audio>
+  <audio id="a-n07" src="audio/narration_n07.mp3" preload="none"></audio>
+  <audio id="a-n08" src="audio/narration_n08.mp3" preload="none"></audio>
+  <audio id="a-n09" src="audio/narration_n09.mp3" preload="none"></audio>
+  <audio id="a-n10" src="audio/narration_n10.mp3" preload="none"></audio>
+  <audio id="a-n11" src="audio/narration_n11.mp3" preload="none"></audio>
+  <audio id="a-n12" src="audio/narration_n12.mp3" preload="none"></audio>
+  <audio id="a-n13" src="audio/narration_n13.mp3" preload="none"></audio>
+  <audio id="a-sfx-lighter"   src="audio/sfx_lighter.mp3"   preload="none"></audio>
+  <audio id="a-sfx-fan"       src="audio/sfx_fan.mp3"       preload="none"></audio>
+  <audio id="a-sfx-door"      src="audio/sfx_door.mp3"      preload="none"></audio>
+  <audio id="a-sfx-toilet"    src="audio/sfx_toilet.mp3"    preload="none"></audio>
+  <audio id="a-sfx-exit"      src="audio/sfx_exit.mp3"      preload="none"></audio>
+  <audio id="a-sfx-fireworks" src="audio/sfx_fireworks.mp3" preload="none"></audio>
+</div>
+
+<script>
+(function(){
+  const ambient=document.getElementById('a-ambient'),dustLp=document.getElementById('a-dust');
+  const audTgl=document.getElementById('aud-toggle'),mixBtn=document.getElementById('mix-btn');
+  const mixPanel=document.getElementById('mix-panel'),narInd=document.getElementById('aud-nar-ind');
+  let audOn=false,mixOpen=false,curNar=null;
+  const VOL={music:0.35,atmos:0.55,voice:0.90,sfx:0.85};
+
+  const PAGE_NAR={
+    'title':     'a-n01',
+    'epigraph':  'a-n01',
+    's1-left':   'a-n02',
+    's1-right':  'a-n03',
+    's2':        'a-n04',
+    's2b-left':  'a-n05',
+    's2b-right': 'a-n05',
+    's3':        'a-n06',
+    's4':        'a-n07',
+    's5':        'a-n09',
+    's6':        'a-n10',
+    's7':        'a-n11',
+    's8':        'a-n12',
+    'the-end':   'a-n13',
+  };
+
+  const DS_START=new Set(['s4','s5','s6','part3-title','s7']);
+  const DS_STOP=new Set(['the-end','about','back-cover']);
+
+  function fIn(el,v,ms){if(!el)return;el.volume=0;if(el.paused)el.play().catch(()=>{});const s=40,d=ms/s;let i=0;const iv=setInterval(()=>{el.volume=Math.min(v,el.volume+v/s);if(++i>=s)clearInterval(iv);},d);}
+  function fOut(el,ms,cb){if(!el||el.paused){cb&&cb();return;}const sv=el.volume,s=30,d=ms/s;let i=0;const iv=setInterval(()=>{el.volume=Math.max(0,el.volume-sv/s);if(++i>=s){clearInterval(iv);el.pause();el.volume=sv;cb&&cb();}},d);}
+
+  function stopNar(){if(curNar){curNar.pause();curNar.currentTime=0;curNar=null;}narInd.textContent='';narInd.classList.remove('on');}
+  function playNar(pid){stopNar();const id=PAGE_NAR[pid];if(!id||!audOn)return;const el=document.getElementById(id);if(!el)return;el.currentTime=0;el.volume=VOL.voice;el.play().catch(()=>{});curNar=el;narInd.textContent='▶ narration';narInd.classList.add('on');el.onended=()=>{narInd.textContent='';narInd.classList.remove('on');};}
+
+  window.onAudioPageChange=function(pid){if(!audOn)return;if(pid==='title'&&ambient.paused)fIn(ambient,VOL.music,3000);if(pid==='back-cover')fOut(ambient,4000);if(DS_START.has(pid)&&dustLp.paused)fIn(dustLp,VOL.atmos,2000);if(DS_STOP.has(pid)&&!dustLp.paused)fOut(dustLp,3000);playNar(pid);};
+  window.playSFX=function(id){if(!audOn)return;const el=document.getElementById('a-sfx-'+id);if(!el)return;el.currentTime=0;el.volume=VOL.sfx;el.play().catch(()=>{});};
+  window.onDustStart=()=>{if(audOn&&dustLp.paused)fIn(dustLp,VOL.atmos,1500);};
+  window.onDustSettle=()=>{if(audOn)fOut(dustLp,5000);};
+  window.onFirstPageTurn=()=>{mixBtn.classList.add('visible');audTgl.classList.add('visible');};
+
+  audTgl.addEventListener('click',()=>{audOn=!audOn;audTgl.classList.toggle('off',!audOn);audTgl.textContent=audOn?'♪ on':'♪ sound';if(!audOn){stopNar();fOut(ambient,1000);fOut(dustLp,1000);}});
+  mixBtn.addEventListener('click',()=>{mixOpen=!mixOpen;mixPanel.classList.toggle('open',mixOpen);mixBtn.classList.toggle('open',mixOpen);});
+  document.addEventListener('click',e=>{if(mixOpen&&!mixPanel.contains(e.target)&&e.target!==mixBtn){mixOpen=false;mixPanel.classList.remove('open');mixBtn.classList.remove('open');}});
+
+  [['ms-music','mv-music','md-music','music',[ambient]],
+   ['ms-atmos','mv-atmos','md-atmos','atmos',[dustLp]],
+   ['ms-voice','mv-voice','md-voice','voice',[]],
+   ['ms-sfx',  'mv-sfx',  'md-sfx',  'sfx',  []]
+  ].forEach(([sl,vl,dl,key,els])=>{
+    const s=document.getElementById(sl),v=document.getElementById(vl),d=document.getElementById(dl);
+    s.addEventListener('input',()=>{const n=parseInt(s.value);v.textContent=n;VOL[key]=n/100;d.classList.toggle('on',n>0);els.forEach(el=>{if(el&&!el.paused)el.volume=VOL[key];});if(key==='voice'&&curNar)curNar.volume=VOL[key];});
+  });
 })();
 </script>
 </body>
