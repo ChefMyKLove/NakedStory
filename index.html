@@ -816,7 +816,7 @@ body::before {
 #replay-fireworks {
   position: fixed;
   bottom: 70px;
-  right: 28px;
+  left: 28px;
   z-index: 400;
   background: rgba(200,169,106,0.12);
   border: 1px solid rgba(200,169,106,0.35);
@@ -1199,10 +1199,10 @@ body::before {
 #mix-btn{position:fixed;bottom:112px;right:28px;z-index:400;background:rgba(200,169,106,0.12);border:1px solid rgba(200,169,106,0.35);color:rgba(200,169,106,0.8);padding:10px 22px;font-family:'Cormorant Garamond',serif;font-size:0.82em;letter-spacing:1.5px;cursor:pointer;border-radius:2px;transition:background 0.3s,border-color 0.3s;backdrop-filter:blur(4px);}
 #mix-btn:hover,#mix-btn.open{background:rgba(200,169,106,0.22);border-color:rgba(200,169,106,0.65);color:rgba(200,169,106,1);}
 
-/* ── SOUND TOGGLE ─── visible immediately ───────── */
-#aud-toggle{position:fixed;bottom:28px;left:28px;z-index:400;background:rgba(200,169,106,0.12);border:1px solid rgba(200,169,106,0.35);color:rgba(200,169,106,0.8);padding:10px 22px;font-family:'Cormorant Garamond',serif;font-size:0.82em;letter-spacing:1.5px;cursor:pointer;border-radius:2px;transition:background 0.3s,border-color 0.3s;backdrop-filter:blur(4px);}
-#aud-toggle:hover{background:rgba(200,169,106,0.25);border-color:rgba(200,169,106,0.7);}
-#aud-toggle.off{color:rgba(200,169,106,0.35);border-color:rgba(200,169,106,0.15);background:transparent;}
+/* ── SOUND TOGGLE ─── right column, below mix ── */
+#aud-toggle{position:fixed;bottom:68px;right:28px;z-index:400;background:rgba(200,169,106,0.12);border:1px solid rgba(200,169,106,0.35);color:rgba(200,169,106,0.85);padding:12px 26px;font-family:'Cormorant Garamond',serif;font-size:0.90em;letter-spacing:1.2px;cursor:pointer;border-radius:2px;transition:background 0.3s,border-color 0.3s,color 0.3s;backdrop-filter:blur(4px);}
+#aud-toggle:hover{background:rgba(200,169,106,0.25);border-color:rgba(200,169,106,0.8);color:rgba(200,169,106,1);}
+#aud-toggle.off{color:rgba(200,169,106,0.80);border-color:rgba(200,169,106,0.50);background:rgba(0,0,0,0.22);}
 
 /* ── MIX PAUSE/PLAY BUTTONS ─────────────────────── */
 .mix-pp{width:22px;height:22px;background:none;border:1px solid rgba(200,169,106,0.35);color:rgba(200,169,106,0.75);border-radius:2px;font-size:0.72em;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;padding:0;transition:all 0.2s;line-height:1;}
@@ -1214,8 +1214,32 @@ body::before {
 .epi-btn{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:0.8em;letter-spacing:1px;color:rgba(60,40,20,0.45);background:none;border:1px solid rgba(60,40,20,0.2);border-radius:2px;padding:5px 14px;cursor:pointer;text-decoration:none;transition:color 0.25s,border-color 0.25s;}
 .epi-btn:hover{color:rgba(60,40,20,0.75);border-color:rgba(60,40,20,0.45);}
 
+/* ── EPIGRAPH YOUTUBE PLAYER ────────────────────── */
+.epi-yt-wrap {
+  margin-top: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.epi-yt-label {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 0.72em;
+  letter-spacing: 1.5px;
+  color: rgba(60,40,20,0.38);
+}
+.epi-yt-wrap iframe {
+  width: 280px;
+  height: 158px;
+  border: 1px solid rgba(100,80,60,0.22);
+  border-radius: 2px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+  display: block;
+}
+
 /* ── NARRATION INDICATOR ────────────────────────── */
-#aud-nar-ind{position:fixed;bottom:70px;left:28px;z-index:400;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:0.75em;color:rgba(200,169,106,0.5);letter-spacing:1px;opacity:0;transition:opacity 0.4s ease;pointer-events:none;}
+#aud-nar-ind{position:fixed;bottom:112px;left:28px;z-index:400;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:0.75em;color:rgba(200,169,106,0.5);letter-spacing:1px;opacity:0;transition:opacity 0.4s ease;pointer-events:none;}
 #aud-nar-ind.on{opacity:1;}
 </style>
 </head>
@@ -1302,10 +1326,10 @@ body::before {
   <p>I place the blanket on the heater by the door, turn around and—</p>
   <span class="ms">YOU'RE NAKED! I'M NAKED! WE'RE NAKED!</span>
   <p>—and the morning light catches your skin in a way that makes my chest do something complicated. You smile excitedly while you hand me the dust and I hand back the doobie.</p>
-  <p>I open the door to the third-floor balcony <button onclick="playSFX('door')" style="background:none;border:1px solid rgba(100,80,60,0.3);border-radius:2px;cursor:pointer;font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--ink-faint);font-size:0.78em;padding:1px 7px;vertical-align:middle;" title="🔊">▶ door</button> and this sunny Saturday summer morning pouring in. The air smells like ripe possibility. Like the city breathing in its weekend sigh. Like it had no idea what was about to happen…</p>
+  <p>I open the door to the third-floor balcony <button onclick="window.playDoor&&playDoor()" style="background:none;border:1px solid rgba(100,80,60,0.3);border-radius:2px;cursor:pointer;font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--ink-faint);font-size:0.78em;padding:1px 7px;vertical-align:middle;" title="🔊">▶ door</button> and this sunny Saturday summer morning pouring in. The air smells like ripe possibility. Like the city breathing in its weekend sigh. Like it had no idea what was about to happen…</p>
   <h2>Part Two: The Dreaming</h2>
   <p>"It's certainly not the weather of my dream," I say, looking out at the crisp blue sky. "Shit. Where's the fan?"</p>
-  <p>The fan's in the closet. I run quickly to get it, then stop where you're standing—to kiss-kiss you, a kiss-kissy-kiss. You kiss-kissy-kiss me right back, put the joint in my mouth, and start the fan up on <button onclick="playSFX('fan')" style="background:none;border:1px solid rgba(100,80,60,0.3);border-radius:2px;cursor:pointer;font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--ink-faint);font-size:0.78em;padding:1px 7px;vertical-align:middle;" title="🔊">▶ fan</button></p>
+  <p>The fan's in the closet. I run quickly to get it, then stop where you're standing—to kiss-kiss you, a kiss-kissy-kiss. You kiss-kissy-kiss me right back, put the joint in my mouth, and start the <button onclick="window.playFan&&playFan()" style="background:none;border:1px solid rgba(100,80,60,0.3);border-radius:2px;cursor:pointer;font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--ink-faint);font-size:0.78em;padding:1px 7px;vertical-align:middle;" title="🔊">▶ fan</button> up on</p>
   <span class="mh">……………High……………</span>
   <p>The blades start to spin and so I begin:</p>
   <p>"Before anything else, there was this: we were at a huge party being thrown in Central Park in New York City. The entire park, you understand? Packed with people! This wasn't a normal party—it was a celebration. A celebration of the day of the apocalypse."</p>
@@ -1408,19 +1432,30 @@ const PAGES = [
 
   // ── EPIGRAPH ───────────────────────────────────────
   { type: 'single', id: 'epigraph', html: `
-    <div class="epigraph-page">
-      <div class="epigraph-text">
-        On the morning of the day of the Apocalypse,<br>
-        Willy woke up<br>
-        and made himself bacon and eggs and rye toast…
-      </div>
-      <div class="epigraph-attr">— John S. Hall <br> From "The Story of Willy," by King Missile</div>
-      <div class="epigraph-actions">
-        <button onclick="window.replayNarration&&window.replayNarration('epigraph')" class="epi-btn">↻ replay reading</button>
-        <a href="https://www.youtube.com/results?search_query=king+missile+the+story+of+willy" target="_blank" rel="noopener" class="epi-btn">▶ full song</a>
-      </div>
+  <div class="epigraph-page">
+    <div class="epigraph-text">
+      On the morning of the day of the Apocalypse,<br>
+      Willy woke up<br>
+      and made himself bacon and eggs and rye toast…
     </div>
-  `},
+    <div class="epigraph-attr">— John S. Hall <br> From "The Story of Willy," by King Missile</div>
+    <div class="epigraph-actions">
+      <button onclick="window.replayNarration&&window.replayNarration('epigraph')" class="epi-btn">↻ replay reading</button>
+    </div>
+    <div class="epi-yt-wrap">
+      <div class="epi-yt-label">The Story of Willy — King Missile</div>
+      <iframe
+        id="epi-yt"
+        src="https://www.youtube.com/embed/EmIRvXPzh58?si=2pasmjlfJe9mv-km&autoplay=1&mute=1&enablejsapi=1"
+        title="The Story of Willy — King Missile"
+        frameborder="0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        referrerpolicy="strict-origin-when-cross-origin"
+        allowfullscreen
+      ></iframe>
+    </div>
+  </div>
+`},
 
   // ── CONTENTS ───────────────────────────────────────
   { type: 'single', id: 'contents', html: `
@@ -1581,7 +1616,7 @@ const PAGES = [
       <div class="running-head">A Rapture in Three Acts</div>
       <div class="story-text">
         <p class="no-indent">—and the morning light catches your skin in a way that makes my chest do something complicated. You smile excitedly while you hand me the dust and I hand back the doobie.</p>
-        <p>I open the door to the third-floor balcony <button onclick="playSFX('door')" style="background:none;border:1px solid rgba(100,80,60,0.3);border-radius:2px;cursor:pointer;font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--ink-faint);font-size:0.78em;padding:1px 7px;vertical-align:middle;" title="🔊">▶ door</button> and this sunny Saturday summer morning pouring in. The air smells like ripe possibility. Like the city breathing in its weekend sigh. Like it had no idea what was about to happen…</p>
+        <p>I open the door to the third-floor balcony <button onclick="window.playDoor&&playDoor()" style="background:none;border:1px solid rgba(100,80,60,0.3);border-radius:2px;cursor:pointer;font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--ink-faint);font-size:0.78em;padding:1px 7px;vertical-align:middle;" title="🔊">▶ door</button> and this sunny Saturday summer morning pouring in. The air smells like ripe possibility. Like the city breathing in its weekend sigh. Like it had no idea what was about to happen…</p>
       </div>
       <span class="pg-num recto" style="right:36px;">10</span>
   `},
@@ -1601,7 +1636,7 @@ const PAGES = [
       <div class="running-head">We're Naked!</div>
       <div class="story-text">
         <p class="no-indent">"It's certainly not the weather of my dream," I say, looking out at the crisp blue sky. "Shit. Where's the fan?"</p>
-        <p>The fan's in the closet. I run quickly to get it, then stop where you're standing—to kiss-kiss you, a kiss-kissy-kiss. You kiss-kissy-kiss me right back, put the joint in my mouth, and start the fan up on <button onclick="playSFX('fan')" style="background:none;border:1px solid rgba(100,80,60,0.3);border-radius:2px;cursor:pointer;font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--ink-faint);font-size:0.78em;padding:1px 7px;vertical-align:middle;" title="🔊">▶ fan</button></p>
+        <p>The fan's in the closet. I run quickly to get it, then stop where you're standing—to kiss-kiss you, a kiss-kissy-kiss. You kiss-kissy-kiss me right back, put the joint in my mouth, and start the <button onclick="window.playFan&&playFan()" style="background:none;border:1px solid rgba(100,80,60,0.3);border-radius:2px;cursor:pointer;font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--ink-faint);font-size:0.78em;padding:1px 7px;vertical-align:middle;" title="🔊">▶ fan</button> up on</p>
         <span class="high">……………High……………</span>
         <p>The blades start to spin and so I begin:</p>
         <p>"Before anything else, there was this: we were at a huge party being thrown in Central Park in New York City. The entire park, you understand? Packed with people! This wasn't a normal party—it was a celebration. A celebration of the day of the apocalypse."</p>
@@ -2017,6 +2052,8 @@ function curlNoise(x, y) {
         );
       }, delay);
     }
+    function sfx(delay, type, vol) { setTimeout(() => { if(window.playFW) window.playFW(type, vol||1); }, Math.max(0, delay)); }
+
     // First wave — bursts fan out as the WE'RE NAKED! text pops in
     shell( 180, 0.50, 0.33, 110, 'gold');
     shell( 340, 0.26, 0.24,  85, 'silver');
@@ -2034,6 +2071,21 @@ function curlNoise(x, y) {
     shell(4800, 0.50, 0.22,  90, 'champagne');
     shell(5500, 0.42, 0.40,  80, 'lime');
     shell(6200, 0.60, 0.30,  85, 'rose');
+
+    // ── AUDIO CRESCENDO ──────────────────────────────
+    // Single opening whistle — no repeat, no double-hit
+    sfx(   0, 'whistle', 0.65);   // one launch, clean opener
+    sfx( 180, 'single');           // shell 1
+    sfx( 340, 'single', 0.85);    // shell 2
+    sfx( 510, 'single', 0.90);    // shell 3
+    sfx( 900, 'single', 0.85);    // shell 5 — pop, not cluster
+    sfx(1550, 'finale');           // grand central — full dragon studio
+    sfx(2400, 'single', 0.80);    // wave 2 opener
+    sfx(2900, 'finale', 0.78);    // second dragon studio hit
+    sfx(3500, 'single', 0.75);    // pop
+    sfx(4100, 'cluster', 0.70);   // one cluster for mid-wave texture
+    sfx(4800, 'single', 0.70);    // pop
+    sfx(6200, 'finale', 0.60);    // dragon studio curtain call
   }
 
   function startShout4Bursts() {
@@ -2042,6 +2094,8 @@ function curlNoise(x, y) {
     const gap = Math.min(canvas.height * 0.09, 68);
     const top = cy - gap;
     const spread = Math.min(canvas.width * 0.22, 160);
+    function sfx(delay, type, vol) { setTimeout(() => { if(window.playFW) window.playFW(type, vol||1); }, Math.max(0, delay)); }
+
     // Entry sparks — timed to fade-in peak (10% into 0.7s = ~70ms after each delay)
     [
       { delay: 90,  y: top },
@@ -2064,6 +2118,28 @@ function curlNoise(x, y) {
         splashLine('shout4', cx, cy, spread * 1.0);
       }, delay);
     });
+    // Trailing sparks — small quiet bursts drifting down for ~2s after the last bounce
+    setTimeout(() => {
+      if (PAGES[currentPage].id !== 'shout4') return;
+      fireBurst(cx + (Math.random()-0.5)*spread*0.8, cy + (Math.random()-0.5)*40, 22);
+      fireBurst(cx + (Math.random()-0.5)*spread*0.6, cy + (Math.random()-0.5)*30, 16);
+    }, 4550);
+    setTimeout(() => {
+      if (PAGES[currentPage].id !== 'shout4') return;
+      fireBurst(cx + (Math.random()-0.5)*spread*0.5, cy + (Math.random()-0.5)*35, 14);
+    }, 5400);
+
+    // ── AUDIO CRESCENDO ──────────────────────────────
+    sfx(   0, 'whistle', 0.65);   // single opening whistle
+    sfx(  90, 'single');           // line 1
+    sfx( 540, 'single', 0.85);    // line 2
+    sfx( 990, 'cluster', 0.90);   // line 3 — cluster bridges to finale
+    sfx(2000, 'finale');           // grand finale
+    sfx(2345, 'finale', 0.85);    // bounce 1 — dragon studio second hit
+    sfx(3045, 'single',  0.70);   // bounce 2 — pop for contrast
+    sfx(3745, 'finale', 0.60);    // bounce 3 — dragon studio fade
+    sfx(4550, 'single',  0.42);   // trailing spark 1
+    sfx(5400, 'single',  0.25);   // trailing spark 2 — whisper out
   }
 
   function startShout2Bursts() {
@@ -2072,6 +2148,8 @@ function curlNoise(x, y) {
     const gap = Math.min(canvas.height * 0.07, 52);
     const top = cy - gap * 2.5;
     const spread = Math.min(canvas.width * 0.18, 130);
+    function sfx(delay, type, vol) { setTimeout(() => { if(window.playFW) window.playFW(type, vol||1); }, Math.max(0, delay)); }
+
     // Entry sparks — timed to fade-in peak (10% into 0.7s = ~70ms after each delay)
     [
       { delay: 90,   y: top },
@@ -2097,6 +2175,27 @@ function curlNoise(x, y) {
         splashLine('shout2', cx, cy, spread * 1.2);
       }, delay);
     });
+    // Trailing sparks — small quiet bursts drifting down for ~2s after the last bounce
+    setTimeout(() => {
+      if (PAGES[currentPage].id !== 'shout2') return;
+      fireBurst(cx + (Math.random()-0.5)*spread*0.7, cy + (Math.random()-0.5)*38, 20);
+      fireBurst(cx + (Math.random()-0.5)*spread*0.5, cy + (Math.random()-0.5)*28, 14);
+    }, 4800);
+    setTimeout(() => {
+      if (PAGES[currentPage].id !== 'shout2') return;
+      fireBurst(cx + (Math.random()-0.5)*spread*0.4, cy + (Math.random()-0.5)*32, 12);
+    }, 5750);
+
+    // ── AUDIO CRESCENDO ──────────────────────────────
+    // Sparse — let the word-lines do the work visually
+    sfx(   0, 'whistle', 0.60);   // opening whistle
+    sfx(  90, 'single',  0.80);   // first line appears
+    sfx(1440, 'finale',  0.75);   // mid-sequence dragon studio
+    sfx(1890, 'cluster', 0.78);   // line 5 — cluster between the two finales
+    sfx(3000, 'finale');           // grand finale
+    sfx(3975, 'single',  0.50);   // soft exit pop
+    sfx(4800, 'single',  0.40);   // trailing spark 1
+    sfx(5750, 'single',  0.22);   // trailing spark 2 — whisper out
   }
 
   // ── DIAGONAL CORNER-DRAG PAGE CURL ────────────────────
@@ -2379,7 +2478,7 @@ function curlNoise(x, y) {
   let dustPhase = 'hidden', globalOpacity = 0, dustClock = 0;
   let masses = [], animId = null, dustStarted = false;
   let settleVelocityScale = 1;
-  let particles = [], burstParticles = [], dustMode = 'normal';
+  let particles = [], burstParticles = [], flashRings = [], dustMode = 'normal';
   let coverClipRect = null;
 
   // ── FINE DUST PARTICLE ──────────────────────────────
@@ -2465,75 +2564,93 @@ function curlNoise(x, y) {
     }
   }
 
-  // ── BURST PARTICLE (fireworks celebration — real shell physics) ─────────────
+  // ── BURST PARTICLE — Symphony of Fire edition ───────────────────────────────
   class BurstParticle {
-    constructor(x, y, burstColor) {
+    constructor(x, y, burstHue) {
       this.x = x; this.y = y;
       const ang = Math.random() * Math.PI * 2;
-      this.warm = Math.random();
+      // Full-spectrum HSL hue — rainbow-shifting as particle ages
+      this.hue = (typeof burstHue === 'number' ? burstHue : Math.random()*360) + (Math.random()-0.5)*25;
+      this.sat = 92 + Math.random()*8;
+      this.lit = 88 + Math.random()*12;
       const r = Math.random();
-      if (r < 0.10) {
-        // chrysanthemum: slow-decaying long-trail arcs — the "willow" effect
-        this.type = 'chrysanthemum';
-        const spd = 8 + Math.random() * 9;
-        this.vx = Math.cos(ang) * spd; this.vy = Math.sin(ang) * spd;
-        this.size = 2.5 + Math.random() * 3.0;
-        this.decay = 0.005 + Math.random() * 0.006; this.gravity = 0.08; this.trailK = 5.0;
-      } else if (r < 0.30) {
-        // star: classic firework arm — bright, trailing, arcs under gravity
-        this.type = 'star';
-        const spd = 6 + Math.random() * 9;
-        this.vx = Math.cos(ang) * spd; this.vy = Math.sin(ang) * spd;
-        this.size = 2.0 + Math.random() * 2.5;
-        this.decay = 0.008 + Math.random() * 0.010; this.gravity = 0.11; this.trailK = 3.2;
+      if (r < 0.08) {
+        this.type = 'chrysanthemum'; // slow willow arcs
+        const spd = 8 + Math.random()*9;
+        this.vx = Math.cos(ang)*spd; this.vy = Math.sin(ang)*spd;
+        this.size = 2.5 + Math.random()*3.0;
+        this.decay = 0.004 + Math.random()*0.005; this.gravity = 0.08; this.trailK = 5.0;
+        this.hueShift = 0.7 + Math.random()*0.7;
+      } else if (r < 0.22) {
+        this.type = 'star'; // classic trailing arm
+        const spd = 6 + Math.random()*9;
+        this.vx = Math.cos(ang)*spd; this.vy = Math.sin(ang)*spd;
+        this.size = 2.0 + Math.random()*2.5;
+        this.decay = 0.007 + Math.random()*0.009; this.gravity = 0.11; this.trailK = 3.2;
+        this.hueShift = 1.0 + Math.random()*1.2;
+      } else if (r < 0.36) {
+        this.type = 'glitter'; // rotating cross sparkle
+        const spd = 1.0 + Math.random()*4.0;
+        this.vx = Math.cos(ang)*spd; this.vy = Math.sin(ang)*spd;
+        this.size = 1.0 + Math.random()*1.6;
+        this.decay = 0.013 + Math.random()*0.017; this.gravity = 0.03; this.trailK = 0.8;
+        this.hueShift = 2.2 + Math.random()*2.8;
       } else if (r < 0.50) {
-        // glitter: rotating cross sparkle — tiny, fast-flashing, drifting
-        this.type = 'glitter';
-        const spd = 1.0 + Math.random() * 4.0;
-        this.vx = Math.cos(ang) * spd; this.vy = Math.sin(ang) * spd;
-        this.size = 1.0 + Math.random() * 1.6;
-        this.decay = 0.016 + Math.random() * 0.022; this.gravity = 0.03; this.trailK = 0.8;
-      } else if (r < 0.66) {
-        // comet: fastest, longest trails, real firework-rocket look
-        this.type = 'comet';
-        const spd = 11 + Math.random() * 11;
-        this.vx = Math.cos(ang) * spd; this.vy = Math.sin(ang) * spd - 1.8;
-        this.size = 3.0 + Math.random() * 3.5;
-        this.decay = 0.006 + Math.random() * 0.007; this.gravity = 0.15; this.trailK = 6.0;
+        this.type = 'comet'; // fastest, longest trails
+        const spd = 11 + Math.random()*11;
+        this.vx = Math.cos(ang)*spd; this.vy = Math.sin(ang)*spd - 1.8;
+        this.size = 3.0 + Math.random()*3.5;
+        this.decay = 0.005 + Math.random()*0.006; this.gravity = 0.15; this.trailK = 6.0;
+        this.hueShift = 1.4 + Math.random()*1.1;
+      } else if (r < 0.67) {
+        this.type = 'scintilla'; // rapid rainbow diamond sparkles
+        const spd = 3.0 + Math.random()*7.5;
+        this.vx = Math.cos(ang)*spd; this.vy = Math.sin(ang)*spd;
+        this.size = 0.7 + Math.random()*1.5;
+        this.decay = 0.009 + Math.random()*0.015; this.gravity = 0.04; this.trailK = 0.5;
+        this.hueShift = 4.0 + Math.random()*5.0;
+        this.sparkSpeed = 0.55 + Math.random()*0.70;
+      } else if (r < 0.82) {
+        this.type = 'palm'; // fans out like a palm frond
+        const spd = 5 + Math.random()*8;
+        this.vx = Math.cos(ang)*spd; this.vy = Math.sin(ang)*spd - 2.2;
+        this.size = 1.8 + Math.random()*2.2;
+        this.decay = 0.006 + Math.random()*0.008; this.gravity = 0.13; this.trailK = 4.2;
+        this.hueShift = 0.9 + Math.random()*1.4;
       } else {
-        // ember: fine lingering haze that fills the space after the burst
-        this.type = 'ember';
-        const spd = 0.5 + Math.random() * 2.5;
-        this.vx = Math.cos(ang) * spd; this.vy = Math.sin(ang) * spd;
-        this.size = 0.5 + Math.random() * 1.2;
-        this.decay = 0.020 + Math.random() * 0.025; this.gravity = 0.02; this.trailK = 0.8;
+        this.type = 'ember'; // fine lingering haze
+        const spd = 0.5 + Math.random()*2.5;
+        this.vx = Math.cos(ang)*spd; this.vy = Math.sin(ang)*spd;
+        this.size = 0.5 + Math.random()*1.2;
+        this.decay = 0.018 + Math.random()*0.022; this.gravity = 0.02; this.trailK = 0.8;
+        this.hueShift = 0.4 + Math.random()*0.9;
       }
       this.life = 1.0;
-      this.sparkle = this.type !== 'ember' && Math.random() < 0.82;
+      this.sparkle = this.type !== 'ember' && Math.random() < 0.88;
       this.sparkPhase = Math.random() * Math.PI * 2;
-      this.sparkSpeed = 0.28 + Math.random() * 0.48;
-      // Per-shell color — or pull from full palette when unspecified
-      const palette = ['gold','gold','gold','silver','silver','amber','crimson','rose','champagne','champagne','aqua','lime'];
-      this.colorType = burstColor || palette[Math.floor(Math.random() * palette.length)];
+      if (!this.sparkSpeed) this.sparkSpeed = 0.28 + Math.random()*0.52;
     }
     _rgb() {
-      const w = this.warm;
-      switch(this.colorType) {
-        case 'gold':      return [242, Math.round(190+w*18), Math.round(58+w*28)];
-        case 'silver':    return [228, 234, 242];
-        case 'amber':     return [255, Math.round(142+w*40), Math.round(16+w*22)];
-        case 'crimson':   return [255, Math.round(38+w*28), Math.round(26+w*16)];
-        case 'rose':      return [255, Math.round(92+w*68), Math.round(152+w*38)];
-        case 'aqua':      return [Math.round(68+w*42), Math.round(218+w*22), 248];
-        case 'champagne': return [248, Math.round(226+w*14), Math.round(170+w*22)];
-        case 'lime':      return [Math.round(132+w*44), 255, Math.round(76+w*40)];
-        default:          return [238, 188, 68];
-      }
+      // HSL → RGB, hue cycles through the rainbow as particle ages
+      const h = ((this.hue % 360) + 360) % 360;
+      const s = this.sat/100, l = this.lit/100;
+      const c = (1 - Math.abs(2*l - 1)) * s;
+      const x = c * (1 - Math.abs((h/60) % 2 - 1));
+      const m = l - c/2;
+      let r=0, g=0, b=0;
+      if      (h < 60)  { r=c; g=x; b=0; }
+      else if (h < 120) { r=x; g=c; b=0; }
+      else if (h < 180) { r=0; g=c; b=x; }
+      else if (h < 240) { r=0; g=x; b=c; }
+      else if (h < 300) { r=x; g=0; b=c; }
+      else              { r=c; g=0; b=x; }
+      return [Math.round((r+m)*255), Math.round((g+m)*255), Math.round((b+m)*255)];
     }
     update() {
       this.vx *= 0.935; this.vy = this.vy * 0.935 + this.gravity;
       this.x += this.vx; this.y += this.vy;
       this.life -= this.decay;
+      this.hue += this.hueShift; // drift through the rainbow
       if (this.sparkle) this.sparkPhase += this.sparkSpeed;
       return this.life > 0;
     }
@@ -2548,65 +2665,77 @@ function curlNoise(x, y) {
       ctx.translate(this.x, this.y);
       ctx.rotate(ang);
       if (this.type === 'glitter') {
-        // Rotating cross: white outer arms + colored inner
-        const s = this.size * (0.75 + 0.55 * sparkFactor);
+        const s = this.size * (0.75 + 0.55*sparkFactor);
         ctx.rotate(this.sparkPhase * 0.42);
+        // chromatic glow halo
+        ctx.globalAlpha = alpha * 0.22 * sparkFactor;
+        ctx.fillStyle = `hsl(${this.hue},100%,80%)`;
+        ctx.beginPath(); ctx.arc(0,0,s*3.5,0,Math.PI*2); ctx.fill();
         ctx.globalAlpha = alpha;
         ctx.strokeStyle = 'rgb(255,255,255)';
-        ctx.lineWidth = s * 0.55; ctx.lineCap = 'round';
+        ctx.lineWidth = s*0.55; ctx.lineCap = 'round';
         ctx.beginPath();
         ctx.moveTo(-s*1.15,0); ctx.lineTo(s*1.15,0);
         ctx.moveTo(0,-s*1.15); ctx.lineTo(0,s*1.15);
         ctx.stroke();
         ctx.strokeStyle = `rgb(${r},${g},${b})`;
-        ctx.lineWidth = s * 0.3;
+        ctx.lineWidth = s*0.3;
         ctx.beginPath();
         ctx.moveTo(-s,0); ctx.lineTo(s,0);
         ctx.moveTo(0,-s); ctx.lineTo(0,s);
         ctx.stroke();
+      } else if (this.type === 'scintilla') {
+        // 4-point diamond star — rapid rainbow cycling
+        const s = this.size * (1.0 + 1.4*sparkFactor);
+        ctx.rotate(this.sparkPhase * 0.75);
+        ctx.globalAlpha = alpha * 0.20 * sparkFactor;
+        ctx.fillStyle = `hsl(${this.hue},100%,75%)`;
+        ctx.beginPath(); ctx.arc(0,0,s*5.5,0,Math.PI*2); ctx.fill();
+        ctx.globalAlpha = alpha * 0.10 * sparkFactor;
+        ctx.fillStyle = `hsl(${(this.hue+120)%360},100%,80%)`;
+        ctx.beginPath(); ctx.arc(0,0,s*3.5,0,Math.PI*2); ctx.fill();
+        ctx.globalAlpha = alpha * sparkFactor;
+        ctx.strokeStyle = `rgb(${r},${g},${b})`;
+        ctx.lineWidth = s*0.45; ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.moveTo(-s*2.4,0); ctx.lineTo(s*2.4,0);
+        ctx.moveTo(0,-s*2.4); ctx.lineTo(0,s*2.4);
+        ctx.stroke();
+        ctx.globalAlpha = alpha * 0.65 * sparkFactor;
+        ctx.lineWidth = s*0.28;
+        ctx.beginPath();
+        ctx.moveTo(-s*1.4,-s*1.4); ctx.lineTo(s*1.4,s*1.4);
+        ctx.moveTo(s*1.4,-s*1.4); ctx.lineTo(-s*1.4,s*1.4);
+        ctx.stroke();
+        ctx.globalAlpha = alpha;
+        ctx.fillStyle = 'rgb(255,255,255)';
+        ctx.beginPath(); ctx.arc(0,0,s*0.65,0,Math.PI*2); ctx.fill();
       } else {
         const len = this.size + spd * this.trailK;
-        const wid = this.size * 0.46;
-        // Velocity streak — elongated teardrop trailing behind
+        const wid = this.size * (this.type === 'palm' ? 0.38 : 0.46);
         if (spd > 0.9 && this.trailK > 1.2) {
           ctx.globalAlpha = alpha * 0.50;
           ctx.fillStyle = `rgb(${r},${g},${b})`;
-          ctx.beginPath();
-          ctx.ellipse(0, 0, len, wid, 0, 0, Math.PI * 2);
-          ctx.fill();
-          // inner bright streak core
+          ctx.beginPath(); ctx.ellipse(0,0,len,wid,0,0,Math.PI*2); ctx.fill();
           ctx.globalAlpha = alpha * 0.28;
           ctx.fillStyle = 'rgb(255,255,255)';
-          ctx.beginPath();
-          ctx.ellipse(0, 0, len * 0.6, wid * 0.45, 0, 0, Math.PI * 2);
-          ctx.fill();
+          ctx.beginPath(); ctx.ellipse(0,0,len*0.6,wid*0.45,0,0,Math.PI*2); ctx.fill();
         }
-        // Colored body
-        ctx.globalAlpha = alpha * 0.90;
+        ctx.globalAlpha = alpha * 0.92;
         ctx.fillStyle = `rgb(${r},${g},${b})`;
-        ctx.beginPath();
-        ctx.arc(0, 0, this.size, 0, Math.PI * 2);
-        ctx.fill();
-        // Brilliant white core — the "hot" center of the firework star
+        ctx.beginPath(); ctx.arc(0,0,this.size,0,Math.PI*2); ctx.fill();
         ctx.globalAlpha = alpha;
         ctx.fillStyle = 'rgb(255,255,255)';
-        ctx.beginPath();
-        ctx.arc(0, 0, this.size * 0.40, 0, Math.PI * 2);
-        ctx.fill();
-        // Colored glow halo — atmosphere around each star
-        if (this.type !== 'ember' && sparkFactor > 0.30) {
-          ctx.globalAlpha = alpha * 0.13 * sparkFactor;
+        ctx.beginPath(); ctx.arc(0,0,this.size*0.40,0,Math.PI*2); ctx.fill();
+        if (this.type !== 'ember' && sparkFactor > 0.28) {
+          const haloR = this.type === 'palm' ? 6.0 : (this.type === 'chrysanthemum' || this.type === 'comet' ? 5.5 : 4.5);
+          ctx.globalAlpha = alpha * 0.16 * sparkFactor;
           ctx.fillStyle = `rgb(${r},${g},${b})`;
-          ctx.beginPath();
-          ctx.arc(0, 0, this.size * 4.5, 0, Math.PI * 2);
-          ctx.fill();
-          // secondary white halo for extra brightness
-          if (this.type === 'chrysanthemum' || this.type === 'comet') {
-            ctx.globalAlpha = alpha * 0.07 * sparkFactor;
+          ctx.beginPath(); ctx.arc(0,0,this.size*haloR,0,Math.PI*2); ctx.fill();
+          if (this.type === 'chrysanthemum' || this.type === 'comet' || this.type === 'palm') {
+            ctx.globalAlpha = alpha * 0.08 * sparkFactor;
             ctx.fillStyle = 'rgb(255,255,255)';
-            ctx.beginPath();
-            ctx.arc(0, 0, this.size * 7, 0, Math.PI * 2);
-            ctx.fill();
+            ctx.beginPath(); ctx.arc(0,0,this.size*8.5,0,Math.PI*2); ctx.fill();
           }
         }
       }
@@ -2614,9 +2743,50 @@ function curlNoise(x, y) {
     }
   }
 
+  // ── FLASH RING — expanding chromatic bloom at burst origin ───────────────────
+  class FlashRing {
+    constructor(x, y, hue) {
+      this.x = x; this.y = y;
+      this.hue = hue;
+      this.radius = 0;
+      this.life = 1.0;
+      this.maxR = 50 + Math.random()*70;
+      this.decay = 0.055 + Math.random()*0.030;
+      this.width = 4 + Math.random()*7;
+    }
+    update() {
+      this.life -= this.decay;
+      this.radius = this.maxR * (1 - this.life * this.life);
+      this.hue += 3.5;
+      return this.life > 0;
+    }
+    draw() {
+      const alpha = this.life * this.life * 0.58;
+      if (alpha < 0.01) return;
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      ctx.strokeStyle = `hsl(${this.hue % 360},100%,84%)`;
+      ctx.lineWidth = this.width * this.life;
+      ctx.beginPath(); ctx.arc(this.x, this.y, Math.max(1,this.radius), 0, Math.PI*2); ctx.stroke();
+      ctx.globalAlpha = alpha * 0.42;
+      ctx.strokeStyle = `hsl(${(this.hue+140) % 360},100%,90%)`;
+      ctx.lineWidth = (this.width * this.life) * 0.5;
+      ctx.beginPath(); ctx.arc(this.x, this.y, Math.max(1,this.radius*0.52), 0, Math.PI*2); ctx.stroke();
+      ctx.restore();
+    }
+  }
+
   function checkDust() {
     if (!dustEnabled) return;
     const page = PAGES[currentPage];
+
+    // User explicitly forced dust on — run it regardless of page type
+    if (dustForced) {
+      if (page && page.coverDust) { startCoverDust(); replayBtn.classList.remove('visible'); }
+      else if (page && page.backCoverDust) { startBackCoverDust(); replayBtn.classList.remove('visible'); }
+      else { if (!dustStarted || dustMode === 'cover' || dustMode === 'back-cover') startDust(); replayBtn.classList.add('visible'); }
+      return;
+    }
 
     // Front cover: fine motes clipped to image
     if (page && page.coverDust) {
@@ -2780,7 +2950,7 @@ function curlNoise(x, y) {
       if (globalOpacity <= 0) {
         dustPhase = 'hidden'; dustStarted = false; dustMode = 'normal'; coverClipRect = null;
         particles = [];
-        if (burstParticles.length === 0) {
+        if (burstParticles.length === 0 && flashRings.length === 0) {
           canvas.classList.remove('active');
           animId = null; return;
         }
@@ -2797,11 +2967,16 @@ function curlNoise(x, y) {
     particles = particles.filter(p => { const alive = p.update(); if (alive) p.draw(); return alive; });
     if (doClip) ctx.restore();
 
-    // Burst particles (word pops)
+    // Flash rings (initial burst bloom)
+    if (flashRings.length > 0) {
+      flashRings = flashRings.filter(r => { const alive = r.update(); if (alive) r.draw(); return alive; });
+      ctx.globalAlpha = 1;
+    }
+    // Burst particles (fireworks)
     if (burstParticles.length > 0) {
       burstParticles = burstParticles.filter(p => { const alive = p.update(); if (alive) p.draw(); return alive; });
       ctx.globalAlpha = 1;
-      if (burstParticles.length === 0 && dustPhase === 'hidden') {
+      if (burstParticles.length === 0 && flashRings.length === 0 && dustPhase === 'hidden') {
         canvas.style.transition = '';
         canvas.style.opacity = '';
         canvas.classList.remove('active');
@@ -2884,8 +3059,17 @@ function curlNoise(x, y) {
   }
 
   function fireBurst(x, y, count, color) {
-    if (window.playSFX) window.playSFX('fireworks');
-    for (let i = 0; i < count; i++) burstParticles.push(new BurstParticle(x, y, color));
+    // audio is handled by each sequence at intentional moments — not per-burst
+    // Expanding rainbow flash rings — the kapow bloom
+    const ringHue = Math.random() * 360;
+    for (let f = 0; f < 4; f++) {
+      flashRings.push(new FlashRing(x + (Math.random()-0.5)*14, y + (Math.random()-0.5)*14, ringHue + f*72));
+    }
+    // Every burst gets full ROYGBIV — hues distributed across 360°
+    for (let i = 0; i < count; i++) {
+      const spreadHue = (i / count) * 360 + (Math.random()-0.5) * 30;
+      burstParticles.push(new BurstParticle(x, y, spreadHue));
+    }
     if (!animId) {
       canvas.style.transition = 'none';
       canvas.style.opacity = '1';
@@ -2908,6 +3092,8 @@ function curlNoise(x, y) {
         );
       }, delay);
     }
+    function sfx(delay, type, vol) { setTimeout(() => { if(window.playFW) window.playFW(type, vol||1); }, Math.max(0, delay)); }
+
     shell(   0, 0.50, 0.33, 110, 'gold');
     shell( 160, 0.26, 0.24,  85, 'silver');
     shell( 330, 0.74, 0.28,  85, 'crimson');
@@ -2918,6 +3104,15 @@ function curlNoise(x, y) {
     shell(1350, 0.50, 0.46, 115, null);
     shell(2000, 0.32, 0.28,  80, 'aqua');
     shell(2500, 0.68, 0.32,  80, 'gold');
+
+    // ── AUDIO CRESCENDO ──────────────────────────────
+    sfx(   0, 'whistle', 0.65);   // single opening whistle
+    sfx(   0, 'single',  0.90);   // shell 1 pops
+    sfx( 330, 'single',  0.85);   // shell 3
+    sfx( 700, 'single',  0.80);   // shell 5
+    sfx(1350, 'finale');           // grand central
+    sfx(2000, 'single',  0.75);   // second wave
+    sfx(2500, 'finale',  0.70);   // dragon studio curtain call
   }
   document.getElementById('replay-fireworks').addEventListener('click', replayFireworks);
 
@@ -2957,16 +3152,23 @@ function curlNoise(x, y) {
 
   // ── DUST TOGGLE ────────────────────────────────────
   let dustEnabled = true;
+  let dustForced = false; // user explicitly toggled dust on via the button
   const dustToggleBtn = document.getElementById('dust-toggle');
   dustToggleBtn.addEventListener('click', () => {
     dustEnabled = !dustEnabled;
     if (dustEnabled) {
       dustToggleBtn.textContent = '✦ dust';
       dustToggleBtn.classList.remove('dust-off');
-      checkDust();
+      dustForced = true;
+      // Force-start dust appropriate for the current page
+      const page = PAGES[currentPage];
+      if (page && page.coverDust) startCoverDust();
+      else if (page && page.backCoverDust) startBackCoverDust();
+      else { if (!dustStarted || dustMode === 'cover' || dustMode === 'back-cover') startDust(); }
     } else {
       dustToggleBtn.textContent = '✧ dust off';
       dustToggleBtn.classList.add('dust-off');
+      dustForced = false;
       if (dustPhase === 'alive' || dustPhase === 'rising') stopDust();
     }
   });
@@ -3020,7 +3222,7 @@ function curlNoise(x, y) {
 </div>
 <button id="mix-btn">≡ mix</button>
 <div id="aud-nar-ind"></div>
-<button id="aud-toggle" class="off">♪ sound</button>
+<button id="aud-toggle" class="off">♪ click for sound</button>
 
 <!-- AUDIO ELEMENTS — update src paths when files are ready -->
 <div id="audio-engine" style="display:none;">
@@ -3042,9 +3244,14 @@ function curlNoise(x, y) {
   <audio id="a-sfx-lighter"   src="audio/sfx_lighter.mp3"   preload="none"></audio>
   <audio id="a-sfx-fan"       src="audio/sfx_fan.mp3"       preload="none"></audio>
   <audio id="a-sfx-door"      src="audio/sfx_door.mp3"      preload="none"></audio>
+  <audio id="a-sfx-outdoor"  src="audio/sfx_outdoor.mp3"   loop preload="none"></audio>
   <audio id="a-sfx-toilet"    src="audio/sfx_toilet.mp3"    preload="none"></audio>
   <audio id="a-sfx-exit"      src="audio/sfx_exit.mp3"      preload="none"></audio>
-  <audio id="a-sfx-fireworks" src="audio/sfx_fireworks.mp3" preload="none"></audio>
+  <audio id="a-sfx-fireworks" src="dragon-studio-fireworks-02-419019.mp3" preload="none"></audio>
+  <audio id="a-fw-single"    src="freesound_community-single-firework-79814.mp3"   preload="none"></audio>
+  <audio id="a-fw-cluster"   src="freesound_community-firework-cluster-90480.mp3"  preload="none"></audio>
+  <audio id="a-fw-whistle"   src="freesound_community-whistlingrocket_3-90478.mp3" preload="none"></audio>
+  <audio id="a-fw-finale"    src="dragon-studio-fireworks-02-419019.mp3"           preload="none"></audio>
 </div>
 
 <script>
@@ -3119,8 +3326,8 @@ function curlNoise(x, y) {
     CH_PAUSED[key]=!CH_PAUSED[key];
     const paused=CH_PAUSED[key];
     if(key==='music'){
-      if(paused)fOut(ambient,600);
-      else if(audOn&&ambient.paused)fIn(ambient,VOL.music,1500);
+      if(paused){fOut(ambient,600);ytCmd('mute');}
+      else if(audOn){if(ambient.paused)fIn(ambient,VOL.music,1500);ytCmd('unMute');}
       _btnState('music',!paused);
     }else if(key==='atmos'){
       if(paused)fOut(dustLp,600);
@@ -3130,6 +3337,7 @@ function curlNoise(x, y) {
       if(paused)stopNar();
       _btnState('voice',!paused);
     }else if(key==='sfx'){
+      if(paused)document.querySelectorAll('[id^="a-sfx-"],.fw-clone').forEach(el=>{if(!el.paused){el.pause();el.currentTime=0;}});
       _btnState('sfx',!paused);
     }
   };
@@ -3143,15 +3351,24 @@ function curlNoise(x, y) {
     playNar(pid);
   };
   window.playSFX=function(id){if(!audOn||CH_PAUSED.sfx)return;const el=document.getElementById('a-sfx-'+id);if(!el)return;el.currentTime=0;el.volume=VOL.sfx;el.play().catch(()=>{});};
+  const outdoorAmb=document.getElementById('a-sfx-outdoor');
+  // Door: plays slide sound, then fades in outdoor ambient (birds/breeze/city) when it ends
+  window.playDoor=function(){if(!audOn||CH_PAUSED.sfx)return;const d=document.getElementById('a-sfx-door');if(!d)return;d.currentTime=0;d.volume=VOL.sfx;d.play().catch(()=>{});d.onended=()=>{fIn(outdoorAmb,VOL.sfx*0.72,2000);};};
+  // Fan: fades out outdoor ambient, then plays fan sound
+  window.playFan=function(){fOut(outdoorAmb,1200);if(!audOn||CH_PAUSED.sfx)return;const f=document.getElementById('a-sfx-fan');if(!f)return;f.currentTime=0;f.volume=VOL.sfx;f.play().catch(()=>{});};
+  // playFW: clone-based fireworks audio — allows natural overlap without restart-cutting
+  window.playFW=function(type,vol){if(!audOn||CH_PAUSED.sfx)return;const src=document.getElementById('a-fw-'+type);if(!src)return;const c=src.cloneNode(true);c.removeAttribute('id');c.classList.add('fw-clone');c.volume=VOL.sfx*(vol||1);c.play().catch(()=>{});c.onended=()=>{if(c.parentNode)c.parentNode.removeChild(c);};document.getElementById('audio-engine').appendChild(c);};
   window.onDustStart=()=>{if(audOn&&!CH_PAUSED.atmos&&dustLp.paused)fIn(dustLp,VOL.atmos,1500);};
   window.onDustSettle=()=>{if(audOn&&!CH_PAUSED.atmos)fOut(dustLp,5000);};
   window.onFirstPageTurn=()=>{};
 
+  function ytCmd(cmd,args){const f=document.getElementById('epi-yt');if(f&&f.contentWindow)f.contentWindow.postMessage(JSON.stringify({event:'command',func:cmd,args:args!==undefined?args:''}), '*');}
   audTgl.addEventListener('click',()=>{
     audOn=!audOn;
     audTgl.classList.toggle('off',!audOn);
-    audTgl.textContent=audOn?'♪ on':'♪ sound';
-    if(!audOn){stopNar();fOut(ambient,1000);fOut(dustLp,1000);}
+    audTgl.textContent=audOn?'♪ click to mute':'♪ click for sound';
+    if(!audOn){stopNar();fOut(ambient,1000);fOut(dustLp,1000);ytCmd('mute');}
+    else{if(!CH_PAUSED.music)ytCmd('unMute');}
   });
   mixBtn.addEventListener('click',()=>{mixOpen=!mixOpen;mixPanel.classList.toggle('open',mixOpen);mixBtn.classList.toggle('open',mixOpen);});
   document.addEventListener('click',e=>{if(mixOpen&&!mixPanel.contains(e.target)&&e.target!==mixBtn){mixOpen=false;mixPanel.classList.remove('open');mixBtn.classList.remove('open');}});
@@ -3171,6 +3388,8 @@ function curlNoise(x, y) {
       v.textContent=n;
       VOL[key]=n/100;
       els.forEach(el=>{if(el&&!el.paused)el.volume=VOL[key];});
+      if(key==='music')ytCmd('setVolume',[n]);
+      if(key==='sfx')document.querySelectorAll('[id^="a-sfx-"],.fw-clone').forEach(el=>{if(!el.paused)el.volume=VOL.sfx;});
       if(key==='voice'&&curNar)curNar.volume=VOL[key];
     });
   });
