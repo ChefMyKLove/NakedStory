@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -1182,7 +1182,7 @@ body::before {
 }
 
 /* ── MIX PANEL ──────────────────────────────────── */
-#mix-panel{position:fixed;bottom:154px;right:28px;z-index:401;width:274px;background:rgba(10,7,4,0.94);border:1px solid rgba(200,169,106,0.28);border-radius:3px;padding:19px 22px 15px;backdrop-filter:blur(10px);overflow:hidden;opacity:0;pointer-events:none;transform:translateY(6px);transition:opacity 0.2s ease,transform 0.2s ease;}
+#mix-panel{position:fixed;bottom:154px;right:28px;z-index:403;width:274px;background:rgba(6,3,1,1);border:1px solid rgba(200,169,106,0.28);border-radius:3px;padding:19px 22px 15px;backdrop-filter:blur(10px);overflow:hidden;opacity:0;pointer-events:none;transform:translateY(6px);transition:opacity 0.2s ease,transform 0.2s ease;}
 #mix-panel.open{opacity:1;pointer-events:all;transform:translateY(0);}
 .mix-head{font-family:'Cormorant Garamond',serif;font-size:0.72em;letter-spacing:3px;color:rgba(200,169,106,0.38);text-transform:uppercase;text-align:center;margin-bottom:16px;padding-bottom:10px;border-bottom:0.5px solid rgba(200,169,106,0.16);}
 .mix-row{display:flex;align-items:center;gap:9px;margin-bottom:13px;}
@@ -1382,7 +1382,7 @@ body::before {
     That I can see myself from here…
   </div>
   <p>Dripping with an irony that still stings enough to this day so as to populate such a dream as this...</p>
-  <p>—as you spring from the heater onto the bed, into your rush-ready robe, then right out the door with a thumbs up. No words, just a <button onclick="playSFX('exit')" style="background:none;border:1px solid rgba(100,80,60,0.3);border-radius:2px;cursor:pointer;font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--ink-faint);font-size:0.78em;padding:1px 7px;vertical-align:middle;" title="🔊">▶ giggle</button>.</p>
+  <p>—as you spring from the heater onto the bed, into your rush-ready robe, then right out the door with a thumbs up. No words, just a <button onclick="window.playGiggle&&window.playGiggle()" style="background:none;border:1px solid rgba(100,80,60,0.3);border-radius:2px;cursor:pointer;font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--ink-faint);font-size:0.78em;padding:1px 7px;vertical-align:middle;" title="🔊">▶ giggle</button>.</p>
   <p><strong>And I'm naked and alone.</strong></p>
   <p>I sit by the window for a wee while longer, this morning. Watching the last lingering dust motes catch the warming light and I'm thinking.</p>
   <p>Thinking about that time in Central Park with only forty-nine minutes to go; about how we're all walking around with a future of apocalypse dust on our skin and calling it just another Tuesday.</p>
@@ -1781,21 +1781,26 @@ const PAGES = [
       <div class="running-head">We're Naked!</div>
       <div class="story-text">
         <p class="no-indent">Dripping with an irony that still stings enough to this day so as to populate such a dream as this...</p>
-        <p>—as you spring from the heater onto the bed, into your rush-ready robe, then right out the door with a thumbs up. No words, just a <button onclick="playSFX('exit')" style="background:none;border:1px solid rgba(100,80,60,0.3);border-radius:2px;cursor:pointer;font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--ink-faint);font-size:0.78em;padding:1px 7px;vertical-align:middle;" title="🔊">▶ giggle</button>.</p>
+        <p>—as you spring from the heater onto the bed, into your rush-ready robe, then right out the door with a thumbs up. No words, just a <button onclick="window.playGiggle&&window.playGiggle()" style="background:none;border:1px solid rgba(100,80,60,0.3);border-radius:2px;cursor:pointer;font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--ink-faint);font-size:0.78em;padding:1px 7px;vertical-align:middle;" title="🔊">▶ giggle</button>.</p>
         <p><strong>And I'm naked and alone.</strong></p>
         <p>I sit by the window for a wee while longer, this morning. Watching the last lingering dust motes catch the warming light and I'm thinking.</p>
-        <p>Thinking about that time in Central Park with only forty-nine minutes to go; about how we're all walking around with a future of apocalypse dust on our skin and calling it just another Tuesday.</p>
-        <p>Because it's been forever since that dream and you're the only one I ever wanted to share it with. I ache at how it breaks something in me that I never did, every single time I think of you...</p>
-        <p>...And that all I can do is dream, that we're naked and that I've got this mess in the pad and a coffee and a full day with you on the way.</p>
+        <div style="display:flex;gap:10px;margin-top:1.8em;justify-content:center;flex-wrap:nowrap;">
+          <button id="gext-1" onclick="window.toggleGiggleExt&&window.toggleGiggleExt(1)" style="background:rgba(18,10,4,0.82);border:2px solid rgba(200,169,106,0.90);color:rgba(220,188,128,1);padding:9px 16px;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:0.88em;letter-spacing:1.5px;cursor:pointer;border-radius:3px;white-space:nowrap;transition:background 0.25s,border-color 0.25s,color 0.25s;">↻ dreamy</button>
+          <button id="gext-2" onclick="window.toggleGiggleExt&&window.toggleGiggleExt(2)" style="background:rgba(18,10,4,0.82);border:2px solid rgba(200,169,106,0.90);color:rgba(220,188,128,1);padding:9px 16px;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:0.88em;letter-spacing:1.5px;cursor:pointer;border-radius:3px;white-space:nowrap;transition:background 0.25s,border-color 0.25s,color 0.25s;">✦ chaos</button>
+          <button id="gext-3" onclick="window.toggleGiggleExt&&window.toggleGiggleExt(3)" style="background:rgba(18,10,4,0.82);border:2px solid rgba(200,169,106,0.90);color:rgba(220,188,128,1);padding:9px 16px;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:0.88em;letter-spacing:1.5px;cursor:pointer;border-radius:3px;white-space:nowrap;transition:background 0.25s,border-color 0.25s,color 0.25s;">✶ rapture</button>
+        </div>
       </div>
       <span class="pg-num verso">21</span>
     `,
     right: `
-      <div style="flex:1;display:flex;align-items:center;justify-content:center;">
-        <div style="font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--ink-faint);font-size:0.72em;letter-spacing:2px;text-align:center;">
-          ∞
-        </div>
+      <div class="running-head">A Rapture in Three Acts</div>
+      <div class="story-text">
+        <p class="no-indent">Thinking about that time in Central Park with only forty-nine minutes to go; about how we're all walking around with a future of apocalypse dust on our skin and calling it just another Tuesday.</p>
+        <p>Because it's been forever since that dream and you're the only one I ever wanted to share it with. I ache at how it breaks something in me that I never did, every single time I think of you...</p>
+        <p>...And that all I can do is dream, that we're naked and that I've got this mess in the pad and a coffee and a full day with you on the way.</p>
+        <div style="text-align:center;padding-top:1.4em;font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--ink-faint);font-size:1.3em;letter-spacing:3px;">∞</div>
       </div>
+      <span class="pg-num recto">22</span>
     `
   },
 
@@ -2027,6 +2032,10 @@ function curlNoise(x, y) {
     // Cover cloud: run JS-driven turbulence only on the cover page
     if (PAGES[currentPage].id === 'cover') startCoverCloudAnim();
     else stopCoverCloudAnim();
+
+    if (PAGES[currentPage].id === 's8') {
+      setTimeout(() => { window.updateExtBtns && window.updateExtBtns(); }, 0);
+    }
   }
 
   function splashLine(pageId, cx, y, spread) {
@@ -3508,6 +3517,8 @@ function curlNoise(x, y) {
     if(audOn&&!CH_PAUSED.atmos)fOut(dustLp,5000);
   };
   window.onFirstPageTurn=()=>{};
+  window._giggleCheck = () => audOn && !CH_PAUSED.sfx;
+  window._giggleVol   = () => VOL.sfx;
 
   function ytCmd(cmd,args){const f=document.getElementById('epi-yt');if(f&&f.contentWindow)f.contentWindow.postMessage(JSON.stringify({event:'command',func:cmd,args:args!==undefined?args:''}), '*');}
   function ytActivate(){ytCmd('unMute');}
@@ -3553,6 +3564,416 @@ function curlNoise(x, y) {
       if(key==='voice'&&curNar)curNar.volume=VOL[key];
     });
   });
+})();
+</script>
+
+<!-- ── SOUNDTRACK BUTTON ─────────────────────────────────── -->
+<style>
+#snd-open-btn {
+  position: fixed;
+  bottom: 365px;
+  right: 28px;
+  z-index: 401;
+  background: rgba(200,169,106,0.16);
+  border: 1px solid rgba(200,169,106,0.60);
+  color: rgba(230,198,138,1.0);
+  padding: 10px 22px;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.82em;
+  letter-spacing: 1.5px;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: background 0.3s, border-color 0.3s;
+  backdrop-filter: blur(4px);
+}
+#snd-open-btn:hover {
+  background: rgba(200,169,106,0.24);
+  border-color: rgba(200,169,106,0.80);
+}
+</style>
+
+<button id="snd-open-btn" onclick="window.open('https://naked.chefmyklove.com/soundtrack','_blank','noopener,noreferrer')">&#9834; soundtrack</button>
+
+<script>
+/* ══════════════════════════════════════════════════════
+   GIGGLE SYSTEM — Web Audio API
+   10 short variants (~2s): 3 male, 3 female, 2 duo, 2 creative
+   3 extended ~30s psychedelic modes with mute toggle
+══════════════════════════════════════════════════════ */
+(function() {
+  if (!window.AudioContext && !window.webkitAudioContext) return;
+
+  const SRC = {
+    m1:  'universfield-male-laugh-242216.mp3',
+    m2:  'universfield-male-laugh-242216 (1).mp3',
+    f1:  'freesound_community-woman_laughs-37559.mp3',
+    f2:  'freesound_community-cutie-laugh-83616.mp3',
+    f3:  'freesound_community-giggle-85924.mp3',
+    g3:  'freesound_community-giggle3-86363.mp3',
+    g4:  'freesound_community-giggle4wav-14666.mp3',
+    g9:  'freesound_community-giggle9-103108.mp3',
+    g10: 'freesound_community-giggle10-82651.mp3',
+    sg:  'freesound_community-small-giggle-104591.mp3',
+    d1:  'dragon-studio-close-door-382723.mp3',
+    d2:  'dragon-studio-open-and-close-door-405453.mp3',
+    d3:  'dragon-studio-open-and-closed-door-405452.mp3',
+    w1:  'chrysalyn-fast-cinematic-whoosh-modern-action-transition-529467.mp3',
+    w2:  'studiokolomna-fast-whoosh-118248.mp3',
+  };
+
+  let AC = null, bufs = {}, loadProm = null;
+
+  function ac() {
+    if (!AC) AC = new (window.AudioContext || window.webkitAudioContext)();
+    if (AC.state === 'suspended') AC.resume();
+    return AC;
+  }
+
+  function ensureLoaded() {
+    if (loadProm) return loadProm;
+    const c = ac();
+    loadProm = Promise.allSettled(
+      Object.entries(SRC).map(async ([k, path]) => {
+        try {
+          const r = await fetch(path);
+          bufs[k] = await c.decodeAudioData(await r.arrayBuffer());
+        } catch(e) { console.warn('[Giggle] skip', k); }
+      })
+    );
+    return loadProm;
+  }
+
+  const sfxV  = () => window._giggleVol   ? window._giggleVol()   : 0.75;
+  const sfxOk = () => !window._giggleCheck || window._giggleCheck();
+
+  // pb(key, when, opt, dest) — plays buffer with optional echo/pan/rate.
+  // Routes to dest AudioNode (defaults to c.destination).
+  function pb(key, when, opt = {}, dest) {
+    const buf = bufs[key];
+    if (!buf) return;
+    const c = ac();
+    const src = c.createBufferSource();
+    src.buffer = buf;
+    src.playbackRate.value = opt.rate || 1;
+
+    const sg = c.createGain();
+    sg.gain.value = opt.vol !== undefined ? opt.vol : sfxV();
+
+    if (opt.delay > 0) {
+      const del = c.createDelay(3.0);
+      const fbg = c.createGain();
+      del.delayTime.value = opt.delay;
+      fbg.gain.value = Math.min(opt.fb || 0.45, 0.87);
+      const dg = c.createGain(); dg.gain.value = 0.65;
+      const wg = c.createGain(); wg.gain.value = 0.55;
+      src.connect(dg); src.connect(del);
+      del.connect(fbg); fbg.connect(del); del.connect(wg);
+      dg.connect(sg); wg.connect(sg);
+    } else {
+      src.connect(sg);
+    }
+
+    let tail = sg;
+    if (opt.pan) {
+      const pan = c.createStereoPanner();
+      pan.pan.value = opt.pan;
+      sg.connect(pan); tail = pan;
+    }
+    tail.connect(dest || c.destination);
+
+    opt.dur ? src.start(when, opt.off || 0, opt.dur) : src.start(when, opt.off || 0);
+    src.stop(when + (opt.dur || buf.duration) + (opt.delay || 0) * 8 + 0.4);
+  }
+
+  function at(t, k, dt, o) { pb(k, t + dt, o); }
+
+  // ── SHUFFLE-DECK — exhausts all 10 before repeating ──────
+  const NVARS = 10;
+  let deck = [];
+
+  function nextVar() {
+    if (deck.length === 0) {
+      deck = Array.from({ length: NVARS }, (_, i) => i);
+      for (let i = deck.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [deck[i], deck[j]] = [deck[j], deck[i]];
+      }
+    }
+    return deck.pop();
+  }
+
+  function runVar(n) {
+    const c = ac();
+    const t = c.currentTime + 0.05;
+    const V = sfxV();
+    switch (n) {
+      case 0: // male 1 straight + close door
+        at(t, 'm1', 0,    { vol: V, dur: 1.6 });
+        at(t, 'd1', 1.3,  { vol: V * 0.90 });
+        break;
+      case 1: // male 2 slower + open-close door
+        at(t, 'm2', 0,    { vol: V, rate: 0.88, dur: 1.55 });
+        at(t, 'd2', 1.4,  { vol: V * 0.85 });
+        break;
+      case 2: // male echo chamber + close door
+        at(t, 'm1', 0,    { vol: V, delay: 0.19, fb: 0.44, dur: 1.4 });
+        at(t, 'd1', 1.3,  { vol: V * 0.90 });
+        break;
+      case 3: // female laughs + close door
+        at(t, 'f1', 0,    { vol: V, dur: 1.5 });
+        at(t, 'd1', 1.25, { vol: V * 0.85 });
+        break;
+      case 4: // cutie laugh pitched up + close door
+        at(t, 'f2', 0,    { vol: V, rate: 1.12, dur: 1.4 });
+        at(t, 'd1', 1.2,  { vol: V * 0.90 });
+        break;
+      case 5: // giggle with echo + open-close door
+        at(t, 'f3', 0,    { vol: V, delay: 0.21, fb: 0.40, dur: 1.4 });
+        at(t, 'd3', 1.3,  { vol: V * 0.85 });
+        break;
+      case 6: // duo stereo pair L/R + door
+        at(t, 'm1', 0,    { vol: V * 0.82, pan: -0.45, dur: 1.6 });
+        at(t, 'f1', 0.10, { vol: V * 0.80, pan:  0.45, dur: 1.5 });
+        at(t, 'd2', 1.4,  { vol: V * 0.90 });
+        break;
+      case 7: // duo offset pair + whoosh exit
+        at(t, 'm2', 0,    { vol: V * 0.80, pan:  0.35, rate: 0.93, dur: 1.5 });
+        at(t, 'f2', 0.18, { vol: V * 0.82, pan: -0.35, rate: 1.08, dur: 1.4 });
+        at(t, 'w1', 1.3,  { vol: V * 0.55, rate: 0.82 });
+        break;
+      case 8: // pitch-climb slow→fast + door
+        at(t, 'f2', 0,    { vol: V * 0.90, rate: 0.78, dur: 0.9 });
+        at(t, 'f2', 0.70, { vol: V * 0.70, rate: 1.28, dur: 0.75 });
+        at(t, 'd1', 1.45, { vol: V });
+        break;
+      case 9: // small giggle + whoosh sweep + door
+        at(t, 'sg', 0,    { vol: V, dur: 1.0 });
+        at(t, 'w2', 0.85, { vol: V * 0.55, rate: 1.15 });
+        at(t, 'd3', 1.5,  { vol: V * 0.85 });
+        break;
+    }
+  }
+
+  // ── EXTENDED MODE STATE ───────────────────────────────────
+  const extState = [false, false, false];
+  const extMG    = [null,  null,  null];
+  const extTimer = [null,  null,  null];
+  const EXT_LABELS = ['↻ dreamy', '✦ chaos', '✶ rapture'];
+  const EXT_DUR    = [31500, 31500, 32000];
+
+  function updateExtBtn(mode) {
+    const i = mode - 1;
+    const btn = document.getElementById('gext-' + mode);
+    if (!btn) return;
+    if (extState[i]) {
+      btn.textContent = '■ mute';
+      btn.style.borderColor = 'rgba(220,185,110,1)';
+      btn.style.color = 'rgba(255,230,160,1)';
+      btn.style.background = 'rgba(120,80,20,0.88)';
+    } else {
+      btn.textContent = EXT_LABELS[i];
+      btn.style.borderColor = 'rgba(200,169,106,0.90)';
+      btn.style.color = 'rgba(220,188,128,1)';
+      btn.style.background = 'rgba(18,10,4,0.82)';
+    }
+  }
+
+  window.updateExtBtns = function() {
+    updateExtBtn(1); updateExtBtn(2); updateExtBtn(3);
+  };
+
+  // ── EXTENDED 1: DREAMY ECHO SPIRAL — ~30s ────────────────
+  // Laughs bloom across the stereo field with long echo tails.
+  // Four door closes woven in: t≈10 dry, t≈15 echoed, t≈21 dry, t≈29 soft echo.
+  function runExt1(mg) {
+    const c = ac(), t = c.currentTime + 0.1, V = sfxV() * 0.80;
+    // [key, dt, pan, rate, delay, fb, dur]
+    [
+      ['f3',  0.0,  -0.70, 0.82, 0.30, 0.62, 1.4],
+      ['m1',  2.5,   0.65, 0.90, 0.22, 0.56, 1.5],
+      ['sg',  5.0,  -0.30, 1.12, 0.18, 0.48, 1.0],
+      ['f2',  7.5,   0.55, 0.75, 0.32, 0.64, 1.4],
+      ['d1', 10.0,   0.00, 1.00, 0,    0,    undefined],
+      ['g3', 11.5,  -0.65, 0.95, 0.25, 0.52, 1.3],
+      ['m2', 14.0,   0.70, 0.85, 0.21, 0.57, 1.5],
+      ['d2', 15.2,  -0.20, 0.88, 0.20, 0.55, undefined],
+      ['f1', 17.5,   0.00, 1.05, 0.26, 0.48, 1.4],
+      ['g9', 20.0,  -0.55, 0.80, 0.34, 0.66, 1.3],
+      ['d1', 21.5,   0.15, 1.00, 0,    0,    undefined],
+      ['m1', 23.0,   0.45, 0.92, 0.20, 0.54, 1.5],
+      ['g10',25.5,  -0.35, 0.88, 0.23, 0.46, 1.3],
+      ['f3', 27.5,   0.65, 0.78, 0.31, 0.60, 1.4],
+      ['d3', 29.5,   0.00, 1.00, 0.12, 0.38, undefined],
+    ].forEach(([k, dt, pan, rate, delay, fb, dur]) => {
+      pb(k, t + dt, { vol: V, pan, rate, delay: delay || 0, fb, dur }, mg);
+    });
+  }
+
+  // ── EXTENDED 2: CARNIVAL CHAOS — ~30s ────────────────────
+  // Dense overlapping laughs building to climax. 4 whooshes + 5 door closes
+  // (mix of dry and echoed), cascading into the final beat.
+  function runExt2(mg) {
+    const c = ac(), t = c.currentTime + 0.1, V = sfxV() * 0.72;
+    [
+      ['f1',  0.0,   0.00, 0.95, 0.14, 0.40, 1.4],
+      ['m1',  0.5,   0.60, 0.88, 0.12, 0.36, 1.5],
+      ['f3',  1.0,  -0.65, 1.05, 0.16, 0.44, 1.3],
+      ['sg',  1.8,   0.30, 1.15, 0,    0,    1.0],
+      ['m2',  2.4,  -0.50, 0.82, 0.20, 0.48, 1.5],
+      ['f2',  3.0,   0.70, 1.10, 0,    0,    1.4],
+      ['g4',  3.8,  -0.35, 0.78, 0.22, 0.52, 1.2],
+      ['w1',  4.5,  -0.90, 0.72, 0,    0,    undefined],
+      ['f1',  5.0,   0.45, 1.20, 0.13, 0.38, 1.4],
+      ['m1',  5.6,  -0.70, 0.95, 0,    0,    1.5],
+      ['g3',  6.2,   0.60, 0.85, 0.18, 0.46, 1.3],
+      ['f3',  7.0,  -0.30, 1.05, 0.15, 0.42, 1.3],
+      ['w2',  7.5,   0.90, 1.30, 0,    0,    undefined],
+      ['m2',  8.2,   0.00, 0.90, 0.25, 0.55, 1.5],
+      ['sg',  9.0,  -0.50, 1.20, 0,    0,    1.0],
+      ['d1', 10.0,   0.00, 1.00, 0,    0,    undefined],
+      ['g9', 10.5,   0.55, 0.88, 0.20, 0.50, 1.3],
+      ['f1', 11.0,  -0.65, 0.96, 0.16, 0.44, 1.4],
+      ['m1', 11.8,   0.70, 0.85, 0,    0,    1.5],
+      ['g10',12.5,  -0.40, 1.02, 0.22, 0.52, 1.3],
+      ['f2', 13.2,   0.50, 1.12, 0,    0,    1.4],
+      ['d2', 14.2,  -0.15, 0.88, 0.19, 0.53, undefined],
+      ['f3', 14.8,   0.65, 0.78, 0.28, 0.58, 1.3],
+      ['w1', 15.5,   0.00, 0.65, 0,    0,    undefined],
+      ['m2', 16.0,  -0.75, 0.88, 0.20, 0.48, 1.5],
+      ['sg', 16.8,   0.40, 1.18, 0,    0,    1.0],
+      ['f1', 17.5,  -0.55, 0.95, 0.15, 0.44, 1.4],
+      ['g3', 18.2,   0.65, 1.08, 0,    0,    1.3],
+      ['m1', 19.0,  -0.30, 0.82, 0.22, 0.52, 1.5],
+      ['f2', 19.8,   0.50, 1.15, 0,    0,    1.4],
+      ['g4', 20.5,  -0.65, 0.88, 0.18, 0.48, 1.2],
+      ['w2', 21.0,   0.90, 1.25, 0,    0,    undefined],
+      ['d1', 22.0,   0.00, 1.00, 0,    0,    undefined],
+      ['f3', 22.5,   0.55, 1.02, 0.25, 0.55, 1.3],
+      ['m2', 23.2,  -0.70, 0.85, 0,    0,    1.5],
+      ['sg', 24.0,   0.35, 1.22, 0,    0,    1.0],
+      ['f1', 24.8,  -0.50, 0.98, 0.16, 0.44, 1.4],
+      ['g9', 25.5,   0.65, 0.82, 0,    0,    1.3],
+      ['d3', 26.2,   0.00, 1.00, 0,    0,    undefined],
+      ['w1', 26.8,  -0.90, 0.68, 0,    0,    undefined],
+      ['m1', 27.5,   0.75, 0.90, 0.20, 0.50, 1.5],
+      ['g10',28.0,  -0.40, 1.05, 0,    0,    1.3],
+      ['f2', 28.8,   0.60, 1.18, 0,    0,    1.4],
+      ['d2', 29.8,   0.00, 1.00, 0.14, 0.42, undefined],
+    ].forEach(([k, dt, pan, rate, delay, fb, dur]) => {
+      pb(k, t + dt, { vol: V, pan, rate, delay: delay || 0, fb, dur }, mg);
+    });
+  }
+
+  // ── EXTENDED 3: RAPTURE — ~30s ───────────────────────────
+  // Narrative arc: sparse whispers → building overlaps → peak chaos → lonely coda.
+  // Act I (0–9s): single voices, deep echo, volume 0.35→0.56.
+  // Act II (9–17s): layering begins, door enters echoed, vol 0.62→0.88.
+  // Act III (17–28s): everything at once, 4 doors + 3 whooshes, vol 0.85→1.00.
+  // Coda (28–31s): last soft laugh, one lonely door close.
+  function runExt3(mg) {
+    const c = ac(), t = c.currentTime + 0.1, base = sfxV();
+    // [key, dt, pan, rate, delay, fb, dur, vMul]
+    [
+      ['sg',  0.0,   0.00, 0.72, 0.38, 0.72, 1.0,  0.35],
+      ['f3',  1.8,  -0.60, 0.78, 0.32, 0.67, 1.4,  0.40],
+      ['g4',  3.5,   0.50, 0.85, 0.28, 0.63, 1.2,  0.43],
+      ['sg',  5.0,  -0.30, 0.90, 0.25, 0.58, 1.0,  0.47],
+      ['m1',  6.5,   0.00, 0.82, 0.22, 0.55, 1.5,  0.52],
+      ['f2',  8.0,   0.42, 0.88, 0.20, 0.52, 1.4,  0.57],
+      ['f1',  9.0,  -0.65, 0.95, 0.17, 0.48, 1.4,  0.63],
+      ['m2',  9.5,   0.70, 0.88, 0.18, 0.50, 1.5,  0.65],
+      ['w2', 10.0,  -0.85, 1.20, 0,    0,    undefined, 0.43],
+      ['g3', 10.5,   0.00, 1.02, 0.20, 0.52, 1.3,  0.67],
+      ['sg', 11.2,  -0.55, 1.15, 0,    0,    1.0,  0.63],
+      ['f3', 11.8,   0.65, 0.78, 0.25, 0.58, 1.3,  0.71],
+      ['d3', 12.5,   0.00, 1.00, 0.16, 0.44, undefined, 0.73],
+      ['m1', 13.0,  -0.70, 0.92, 0.18, 0.48, 1.5,  0.73],
+      ['f2', 13.6,   0.60, 1.10, 0,    0,    1.4,  0.75],
+      ['g9', 14.2,  -0.40, 0.85, 0.22, 0.52, 1.3,  0.77],
+      ['w1', 14.8,  -0.90, 0.75, 0,    0,    undefined, 0.53],
+      ['m2', 15.4,   0.75, 0.88, 0.20, 0.50, 1.5,  0.81],
+      ['f1', 16.0,  -0.55, 0.98, 0.16, 0.44, 1.4,  0.83],
+      ['d1', 16.6,   0.20, 1.00, 0,    0,    undefined, 0.88],
+      ['g10',17.2,  -0.65, 1.05, 0.18, 0.46, 1.3,  0.85],
+      ['f3', 17.5,  -0.55, 0.82, 0.28, 0.62, 1.3,  0.90],
+      ['m1', 17.5,   0.65, 0.95, 0.22, 0.56, 1.5,  0.90],
+      ['f1', 18.0,  -0.30, 1.05, 0.15, 0.44, 1.4,  0.92],
+      ['g3', 18.0,   0.60, 0.88, 0.20, 0.50, 1.3,  0.88],
+      ['m2', 18.5,  -0.70, 0.82, 0.25, 0.58, 1.5,  0.90],
+      ['f2', 18.5,   0.70, 1.12, 0,    0,    1.4,  0.88],
+      ['w2', 19.0,  -0.90, 0.68, 0,    0,    undefined, 0.66],
+      ['sg', 19.0,   0.35, 1.25, 0,    0,    1.0,  0.85],
+      ['g4', 19.5,  -0.40, 0.92, 0.22, 0.52, 1.2,  0.92],
+      ['d2', 19.5,   0.00, 1.00, 0.18, 0.52, undefined, 0.92],
+      ['f3', 20.0,   0.60, 0.78, 0.30, 0.63, 1.3,  0.92],
+      ['m1', 20.5,  -0.65, 0.85, 0.20, 0.55, 1.5,  0.95],
+      ['w1', 21.0,   0.85, 0.72, 0,    0,    undefined, 0.70],
+      ['g9', 21.5,  -0.50, 0.90, 0.25, 0.58, 1.3,  0.95],
+      ['f1', 22.0,   0.55, 1.02, 0.16, 0.44, 1.4,  0.95],
+      ['m2', 22.5,  -0.70, 0.88, 0.22, 0.52, 1.5,  0.95],
+      ['sg', 23.0,   0.00, 1.28, 0,    0,    1.0,  0.90],
+      ['f2', 23.0,   0.65, 1.15, 0,    0,    1.4,  0.92],
+      ['g10',23.5,  -0.45, 0.95, 0.20, 0.48, 1.3,  0.95],
+      ['d1', 23.5,   0.30, 1.00, 0,    0,    undefined, 1.00],
+      ['f3', 24.0,  -0.60, 0.82, 0.28, 0.60, 1.3,  0.92],
+      ['m1', 24.0,   0.70, 0.92, 0.22, 0.55, 1.5,  0.92],
+      ['w2', 24.5,   0.90, 1.20, 0,    0,    undefined, 0.68],
+      ['g3', 25.0,  -0.55, 0.88, 0.20, 0.50, 1.3,  0.90],
+      ['f1', 25.0,   0.60, 0.98, 0.16, 0.44, 1.4,  0.90],
+      ['m2', 25.5,  -0.65, 0.85, 0.25, 0.58, 1.5,  0.90],
+      ['sg', 26.0,   0.40, 1.20, 0,    0,    1.0,  0.88],
+      ['d3', 26.5,   0.00, 1.00, 0.22, 0.55, undefined, 0.92],
+      ['w1', 27.0,  -0.90, 0.65, 0,    0,    undefined, 0.72],
+      ['f2', 27.5,   0.65, 1.08, 0,    0,    1.4,  0.82],
+      ['g4', 28.0,  -0.40, 0.92, 0.20, 0.48, 1.2,  0.78],
+      ['m1', 28.8,   0.00, 0.88, 0.18, 0.50, 1.5,  0.38],
+      ['d2', 30.2,   0.00, 1.00, 0,    0,    undefined, 0.60],
+    ].forEach(([k, dt, pan, rate, delay, fb, dur, vMul]) => {
+      pb(k, t + dt, { vol: base * vMul, pan, rate, delay: delay || 0, fb, dur }, mg);
+    });
+  }
+
+  const extRunners = [runExt1, runExt2, runExt3];
+
+  // ── PUBLIC API ────────────────────────────────────────────
+  async function ensure() { ac(); await ensureLoaded(); }
+
+  window.playGiggle = async function() {
+    if (!sfxOk()) return;
+    await ensure();
+    runVar(nextVar());
+  };
+
+  window.toggleGiggleExt = async function(mode) {
+    if (!sfxOk()) return;
+    await ensure();
+    const i = mode - 1;
+
+    if (extState[i]) {
+      extState[i] = false;
+      if (extTimer[i]) { clearTimeout(extTimer[i]); extTimer[i] = null; }
+      if (extMG[i]) {
+        const mg = extMG[i]; extMG[i] = null;
+        mg.gain.linearRampToValueAtTime(0, AC.currentTime + 0.7);
+        setTimeout(() => { try { mg.disconnect(); } catch(e) {} }, 1400);
+      }
+      updateExtBtn(mode);
+      return;
+    }
+
+    extState[i] = true;
+    updateExtBtn(mode);
+    const c = ac();
+    const mg = c.createGain(); mg.gain.value = sfxV(); mg.connect(c.destination);
+    extMG[i] = mg;
+
+    function loop() {
+      if (!extState[i]) return;
+      extRunners[i](extMG[i]);
+      extTimer[i] = setTimeout(loop, EXT_DUR[i]);
+    }
+    loop();
+  };
 })();
 </script>
 </body>

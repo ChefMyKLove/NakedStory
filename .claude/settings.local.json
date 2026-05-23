@@ -10,7 +10,21 @@
       "Bash(Select-Object -First 80)",
       "Bash(powershell *)",
       "Bash(not exist *)",
-      "Bash(mkdir -p \"/c/Users/micha/Desktop/wereNaked_story/docs\")"
+      "Bash(mkdir -p \"/c/Users/micha/Desktop/wereNaked_story/docs\")",
+      "Bash(Get-Content \"C:\\\\Users\\\\micha\\\\Desktop\\\\wereNaked_story\\\\index.html\")",
+      "Bash(Measure-Object -Line)",
+      "PowerShell(\\(Get-Content \"C:\\\\Users\\\\micha\\\\Desktop\\\\wereNaked_story\\\\index.html\" | Measure-Object -Line\\).Lines)",
+      "PowerShell($lines = Get-Content \"C:\\\\Users\\\\micha\\\\Desktop\\\\wereNaked_story\\\\index.html\"; $lines.Count; \\($lines | Select-String \"SOUNDTRACK PLAYER\"\\).LineNumber; \\($lines | Select-String \"END SOUNDTRACK PLAYER\"\\).LineNumber; \\($lines[-3..-1] -join \"`n\"\\))",
+      "PowerShell($lines = Get-Content \"C:\\\\Users\\\\micha\\\\Desktop\\\\wereNaked_story\\\\index.html\"; \\($lines | Select-String \"#mix-panel|#mix-btn|#aud-toggle|\\\\.mix-\" | Select-Object -First 30\\).foreach\\({ \"$\\($_.LineNumber\\): $\\($_.Line\\)\" }\\))",
+      "PowerShell($lines = Get-Content \"C:\\\\Users\\\\micha\\\\Desktop\\\\wereNaked_story\\\\index.html\"; \\($lines | Select-String \"max-height\" | Where-Object { $_.LineNumber -gt 3500 }\\).foreach\\({ \"$\\($_.LineNumber\\): $\\($_.Line\\)\" }\\))",
+      "PowerShell($lines = Get-Content \"C:\\\\Users\\\\micha\\\\Desktop\\\\wereNaked_story\\\\index.html\"; \\($lines | Select-String \"ytCmd|ytActivate|youtube|YouTube\" | Select-Object -First 20\\).foreach\\({ \"$\\($_.LineNumber\\): $\\($_.Line.Substring\\(0, [Math]::Min\\(120, $_.Line.Length\\)\\)\\)\" }\\))",
+      "WebSearch",
+      "PowerShell($lines = Get-Content \"C:\\\\Users\\\\micha\\\\Desktop\\\\wereNaked_story\\\\index.html\"; $lines.Count; \\($lines | Select-String \"iframe_api|onYouTubeIframeAPIReady|snd-yt-player|loadVideoById|music.youtube\"\\).foreach\\({ \"$\\($_.LineNumber\\): $\\($_.Line.Substring\\(0,[Math]::Min\\(100,$_.Line.Length\\)\\)\\)\" }\\))",
+      "PowerShell($lines = Get-Content \"C:\\\\Users\\\\micha\\\\Desktop\\\\wereNaked_story\\\\index.html\"; $line = $lines[4067]; [System.Text.Encoding]::UTF8.GetBytes\\($line\\) | ForEach-Object { $_.ToString\\(\"X2\"\\) } | Select-Object -First 60)",
+      "PowerShell($content = [System.IO.File]::ReadAllText\\(\"C:\\\\Users\\\\micha\\\\Desktop\\\\wereNaked_story\\\\index.html\", [System.Text.Encoding]::UTF8\\); $before = \\($content.ToCharArray\\(\\) | Where-Object { $_ -eq [char]0x2018 -or $_ -eq [char]0x2019 }\\).Count; $content = $content.Replace\\([char]0x2018, [char]0x0027\\).Replace\\([char]0x2019, [char]0x0027\\); [System.IO.File]::WriteAllText\\(\"C:\\\\Users\\\\micha\\\\Desktop\\\\wereNaked_story\\\\index.html\", $content, [System.Text.Encoding]::UTF8\\); \"Replaced $before curly quotes with straight quotes\")",
+      "PowerShell($lines = Get-Content \"C:\\\\Users\\\\micha\\\\Desktop\\\\wereNaked_story\\\\index.html\"; \\($lines | Select-String \"snd-yt-wrap|snd-yt-cover|snd-yt-noplay|snd-yt-player|YOUTUBE VIDEO\" | Select-Object -First 15\\).foreach\\({ \"$\\($_.LineNumber\\): $\\($_.Line.Substring\\(0,[Math]::Min\\(90,$_.Line.Length\\)\\)\\)\" }\\))",
+      "PowerShell($lines = Get-Content \"C:\\\\Users\\\\micha\\\\Desktop\\\\wereNaked_story\\\\index.html\"; \\($lines | Select-String \"END SOUNDTRACK PLAYER\"\\).foreach\\({ \"$\\($_.LineNumber\\): $\\($_.Line\\)\" }\\))",
+      "PowerShell(Get-ChildItem \"c:\\\\Users\\\\micha\\\\Desktop\\\\wereNaked_story\" | ForEach-Object { $_.Name })"
     ],
     "additionalDirectories": [
       "C:\\Users\\micha\\Desktop\\wereNaked_story\\docs"
