@@ -1274,11 +1274,13 @@ body::before {
   #dust-toggle      { display: none !important; }
   /* Mix panel repositioned above tray handle */
   #mix-panel { z-index: 635 !important; bottom: 70px !important; right: 10px !important; width: calc(100vw - 56px) !important; }
-  /* Scrollable page surface so no text is clipped */
+  /* Tighter frame padding — recover ~12px vertical */
+  .page-frame { padding: 8px; }
+  /* Scrollable page surface so no text is clipped; reduced top/side padding to recover ~16px more */
   .page-frame > .page-surface {
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
-    padding-bottom: 64px;
+    padding: 20px 22px 64px;
   }
   .page-frame > .page-surface .story-text {
     justify-content: flex-start;
@@ -1286,6 +1288,13 @@ body::before {
   }
   .page-frame > .page-surface::-webkit-scrollbar { width: 3px; }
   .page-frame > .page-surface::-webkit-scrollbar-thumb { background: rgba(100,80,60,0.25); border-radius: 2px; }
+  /* Tighter running head — recover ~20px more */
+  .page-frame > .page-surface .running-head {
+    margin-bottom: 12px;
+    padding-bottom: 6px;
+  }
+  /* Page number shifted to match reduced bottom padding */
+  .page-frame > .page-surface .pg-num { bottom: 18px; }
 }
 
 /* ── MIX PANEL ──────────────────────────────────── */
@@ -1982,6 +1991,9 @@ const PAGES = [
       <div class="bc-meta">
         ISBN 978-1-0673516-2-5<br>
         chefmyklove.com
+      </div>
+      <div style="margin-top:28px;">
+        <button onclick="if(window.goToPage)window.goToPage(0);" style="background:none;border:1px solid rgba(100,80,60,0.35);border-radius:2px;cursor:pointer;font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--ink-faint);font-size:0.82em;padding:5px 18px;letter-spacing:0.04em;transition:border-color 0.2s,color 0.2s;" onmouseover="this.style.borderColor='rgba(100,80,60,0.7)';this.style.color='var(--ink-mid)'" onmouseout="this.style.borderColor='rgba(100,80,60,0.35)';this.style.color='var(--ink-faint)'">↺ read again</button>
       </div>
     </div>
   `},
@@ -3364,6 +3376,7 @@ function curlNoise(x, y) {
   navN.addEventListener('click', goNext);
   navP.addEventListener('click', goPrev);
 
+  window.goToPage=function(idx){if(isAnimating)return;currentPage=Math.max(0,Math.min(idx,AP().length-1));isAnimating=false;render();_notifyPage();};
   // ── AUDIO PAGE HOOKS ───────────────────────────
   window._getAudioPageId=()=>{const p=AP()[currentPage];return p?p.id:null;};
   let _firstTurnFired = false;
