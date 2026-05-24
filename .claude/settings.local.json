@@ -24,7 +24,8 @@
       "PowerShell($content = [System.IO.File]::ReadAllText\\(\"C:\\\\Users\\\\micha\\\\Desktop\\\\wereNaked_story\\\\index.html\", [System.Text.Encoding]::UTF8\\); $before = \\($content.ToCharArray\\(\\) | Where-Object { $_ -eq [char]0x2018 -or $_ -eq [char]0x2019 }\\).Count; $content = $content.Replace\\([char]0x2018, [char]0x0027\\).Replace\\([char]0x2019, [char]0x0027\\); [System.IO.File]::WriteAllText\\(\"C:\\\\Users\\\\micha\\\\Desktop\\\\wereNaked_story\\\\index.html\", $content, [System.Text.Encoding]::UTF8\\); \"Replaced $before curly quotes with straight quotes\")",
       "PowerShell($lines = Get-Content \"C:\\\\Users\\\\micha\\\\Desktop\\\\wereNaked_story\\\\index.html\"; \\($lines | Select-String \"snd-yt-wrap|snd-yt-cover|snd-yt-noplay|snd-yt-player|YOUTUBE VIDEO\" | Select-Object -First 15\\).foreach\\({ \"$\\($_.LineNumber\\): $\\($_.Line.Substring\\(0,[Math]::Min\\(90,$_.Line.Length\\)\\)\\)\" }\\))",
       "PowerShell($lines = Get-Content \"C:\\\\Users\\\\micha\\\\Desktop\\\\wereNaked_story\\\\index.html\"; \\($lines | Select-String \"END SOUNDTRACK PLAYER\"\\).foreach\\({ \"$\\($_.LineNumber\\): $\\($_.Line\\)\" }\\))",
-      "PowerShell(Get-ChildItem \"c:\\\\Users\\\\micha\\\\Desktop\\\\wereNaked_story\" | ForEach-Object { $_.Name })"
+      "PowerShell(Get-ChildItem \"c:\\\\Users\\\\micha\\\\Desktop\\\\wereNaked_story\" | ForEach-Object { $_.Name })",
+      "Bash(dir *)"
     ],
     "additionalDirectories": [
       "C:\\Users\\micha\\Desktop\\wereNaked_story\\docs"

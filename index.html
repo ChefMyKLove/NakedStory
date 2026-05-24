@@ -1938,6 +1938,7 @@ const PAGES = [
           <button id="gext-1" onclick="window.toggleGiggleExt&&window.toggleGiggleExt(1)" style="background:rgba(18,10,4,0.82);border:2px solid rgba(200,169,106,0.90);color:rgba(220,188,128,1);padding:9px 16px;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:0.88em;letter-spacing:1.5px;cursor:pointer;border-radius:3px;white-space:nowrap;transition:background 0.25s,border-color 0.25s,color 0.25s;">↻ dreamy</button>
           <button id="gext-2" onclick="window.toggleGiggleExt&&window.toggleGiggleExt(2)" style="background:rgba(18,10,4,0.82);border:2px solid rgba(200,169,106,0.90);color:rgba(220,188,128,1);padding:9px 16px;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:0.88em;letter-spacing:1.5px;cursor:pointer;border-radius:3px;white-space:nowrap;transition:background 0.25s,border-color 0.25s,color 0.25s;">✦ chaos</button>
           <button id="gext-3" onclick="window.toggleGiggleExt&&window.toggleGiggleExt(3)" style="background:rgba(18,10,4,0.82);border:2px solid rgba(200,169,106,0.90);color:rgba(220,188,128,1);padding:9px 16px;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:0.88em;letter-spacing:1.5px;cursor:pointer;border-radius:3px;white-space:nowrap;transition:background 0.25s,border-color 0.25s,color 0.25s;">✶ rapture</button>
+          <button id="gext-4" onclick="window.toggleGiggleExt&&window.toggleGiggleExt(4)" style="background:rgba(18,10,4,0.82);border:2px solid rgba(200,169,106,0.90);color:rgba(220,188,128,1);padding:9px 16px;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:0.88em;letter-spacing:1.5px;cursor:pointer;border-radius:3px;white-space:nowrap;transition:background 0.25s,border-color 0.25s,color 0.25s;">⁕ rando</button>
         </div>
       </div>
       <span class="pg-num verso">21</span>
@@ -3958,11 +3959,17 @@ function curlNoise(x, y) {
     g9:  'freesound_community-giggle9-103108.mp3',
     g10: 'freesound_community-giggle10-82651.mp3',
     sg:  'freesound_community-small-giggle-104591.mp3',
+    lf:  'freesound_community-laugh-105488.mp3',
+    cl:  'koiroylers-cheerful-laugh-356423.mp3',
+    sl:  'oceaneyes91-silly-laugh-man-242763.mp3',
+    sw:  'u_i2qs5hn9ii-sweet-young-woman-laugh-507760.mp3',
     d1:  'dragon-studio-close-door-382723.mp3',
     d2:  'dragon-studio-open-and-close-door-405453.mp3',
     d3:  'dragon-studio-open-and-closed-door-405452.mp3',
     w1:  'chrysalyn-fast-cinematic-whoosh-modern-action-transition-529467.mp3',
     w2:  'studiokolomna-fast-whoosh-118248.mp3',
+    qw:  'dragon-studio-quick-whoosh-405448.mp3',
+    qs:  'freesound_community-quick-swhooshing-noise-80898.mp3',
   };
 
   let AC = null, bufs = {}, loadProm = null;
@@ -3973,15 +3980,26 @@ function curlNoise(x, y) {
     return AC;
   }
 
+  function fetchAB(path) {
+    return new Promise(function(res, rej) {
+      var x = new XMLHttpRequest();
+      x.open('GET', path, true);
+      x.responseType = 'arraybuffer';
+      x.onload = function() { (x.status === 0 || x.status === 200) ? res(x.response) : rej(x.status); };
+      x.onerror = rej;
+      x.send();
+    });
+  }
+
   function ensureLoaded() {
     if (loadProm) return loadProm;
     const c = ac();
     loadProm = Promise.allSettled(
       Object.entries(SRC).map(async ([k, path]) => {
         try {
-          const r = await fetch(path);
-          bufs[k] = await c.decodeAudioData(await r.arrayBuffer());
-        } catch(e) { console.warn('[Giggle] skip', k); }
+          const ab = await fetchAB(path);
+          bufs[k] = await c.decodeAudioData(ab);
+        } catch(e) { console.warn('[Giggle] skip', k, e); }
       })
     );
     return loadProm;
@@ -4125,11 +4143,11 @@ function curlNoise(x, y) {
   }
 
   // ── EXTENDED MODE STATE ───────────────────────────────────
-  const extState = [false, false, false];
-  const extMG    = [null,  null,  null];
-  const extTimer = [null,  null,  null];
-  const EXT_LABELS = ['↻ dreamy', '✦ chaos', '✶ rapture'];
-  const EXT_DUR    = [31500, 31500, 32000];
+  const extState = [false, false, false, false];
+  const extMG    = [null,  null,  null,  null];
+  const extTimer = [null,  null,  null,  null];
+  const EXT_LABELS = ['↻ dreamy', '✦ chaos', '✶ rapture', '⁕ rando'];
+  const EXT_DUR    = [31500, 31500, 32000, 31000];
 
   function updateExtBtn(mode) {
     const i = mode - 1;
@@ -4149,7 +4167,7 @@ function curlNoise(x, y) {
   }
 
   window.updateExtBtns = function() {
-    updateExtBtn(1); updateExtBtn(2); updateExtBtn(3);
+    updateExtBtn(1); updateExtBtn(2); updateExtBtn(3); updateExtBtn(4);
   };
 
   // ── EXTENDED 1: DREAMY ECHO SPIRAL — ~30s ────────────────
@@ -4303,7 +4321,59 @@ function curlNoise(x, y) {
     });
   }
 
-  const extRunners = [runExt1, runExt2, runExt3];
+  // ── EXTENDED 4: RANDO — ~30s ─────────────────────────────
+  // Fully procedural — new random arrangement every loop.
+  // Density, timing, pan, pitch, effect mode, and voice all re-rolled each cycle.
+  // Effect modes: reverb wash (tiny delay + high fb), normal echo, long trailing echo, dry.
+  function runExt4(mg) {
+    const c = ac(), t = c.currentTime + 0.1, base = sfxV() * 0.76;
+    const laughKeys  = ['m1','m2','f1','f2','f3','g3','g4','g9','g10','sg','lf','cl','sl','sw'];
+    const doorKeys   = ['d1','d2','d3'];
+    const whooshKeys = ['w1','w2','qw','qs'];
+    const r    = Math.random.bind(Math);
+    const rng  = (lo, hi) => lo + r() * (hi - lo);
+    const pick = arr => arr[Math.floor(r() * arr.length)];
+
+    const count = 16 + Math.floor(r() * 13); // 16–28 events
+    const events = [];
+
+    for (let i = 0; i < count; i++) {
+      const roll = r();
+      let key, isLaugh;
+      if (roll < 0.60)      { key = pick(laughKeys);  isLaugh = true;  }
+      else if (roll < 0.80) { key = pick(doorKeys);   isLaugh = false; }
+      else                   { key = pick(whooshKeys); isLaugh = false; }
+
+      const dt  = rng(0.0, 29.5);
+      const pan = rng(-0.95, 0.95);
+
+      // Pitch: mostly natural, occasionally extreme or deep
+      const pr = r();
+      const rate = pr < 0.10 ? rng(0.38, 0.58)   // deep / slow
+                 : pr < 0.18 ? rng(1.55, 2.20)   // chipmunk / fast
+                 : isLaugh   ? rng(0.68, 1.40)
+                 :              rng(0.72, 1.32);
+
+      // Effect mode: reverb wash | normal echo | long trailing echo | dry
+      let delay = 0, fb = 0;
+      const fx = r();
+      if      (fx < 0.28) { delay = rng(0.015, 0.065); fb = rng(0.72, 0.87); } // reverb wash
+      else if (fx < 0.66) { delay = rng(0.12, 0.38);   fb = rng(0.34, 0.70); } // echo
+      else if (fx < 0.82) { delay = rng(0.40, 0.78);   fb = rng(0.42, 0.62); } // long tail
+      // else: dry
+
+      const dur  = isLaugh ? rng(0.85, 1.65) : undefined;
+      const vMul = rng(0.42, 1.00);
+      events.push([key, dt, pan, rate, delay, fb, dur, vMul]);
+    }
+
+    events.sort((a, b) => a[1] - b[1]);
+    events.forEach(([k, dt, pan, rate, delay, fb, dur, vMul]) => {
+      pb(k, t + dt, { vol: base * vMul, pan, rate, delay, fb, dur }, mg);
+    });
+  }
+
+  const extRunners = [runExt1, runExt2, runExt3, runExt4];
 
   // ── PUBLIC API ────────────────────────────────────────────
   async function ensure() { ac(); await ensureLoaded(); }
@@ -4463,7 +4533,7 @@ function curlNoise(x, y) {
   <div class="im-section">
     <div class="im-head">The Giggle</div>
     <p>Near the end of Act One, you'll find a <em>▶ giggle</em> button woven into the text. Tap it to hear the moment. The door and outside world will go quiet as it plays.</p>
-    <p>Three extended modes — <em>Dreamy, Chaos, Rapture</em> — appear below the giggle on that page. Each transforms the soundscape for about thirty seconds.</p>
+    <p>Four extended modes — <em>Dreamy, Chaos, Rapture,</em> and <em>Rando</em> — appear below the giggle on that page. Each transforms the soundscape for about thirty seconds. Rando generates a completely new arrangement every loop — no two cycles are the same.</p>
   </div>
 
   <div class="im-section">
@@ -4637,7 +4707,7 @@ function curlNoise(x, y) {
     if (p && r) p.addEventListener('click', function() { r.click(); closeTray(); });
   }
   wire('mct-sound',    'aud-toggle');
-  document.getElementById('mct-mix').addEventListener('click', function(){ if(window.toggleMixPanel) window.toggleMixPanel(); closeTray(); });
+  document.getElementById('mct-mix').addEventListener('click', function(e){ e.stopPropagation(); if(window.toggleMixPanel) window.toggleMixPanel(); closeTray(); });
   wire('mct-fw',       'replay-fireworks');
   wire('mct-dust-tgl', 'dust-toggle');
   wire('mct-dust-rep', 'replay-dust');
