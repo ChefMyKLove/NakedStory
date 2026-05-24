@@ -1234,8 +1234,9 @@ body::before {
   /* Re-enable effects on mobile at z-index above the fallback (600) */
   #dust-canvas      { display: block !important; z-index: 610; }
   #replay-fireworks { display: block !important; z-index: 615; bottom: 72px; left: 28px; right: auto; }
-  #aud-toggle       { z-index: 620; }
-  #mix-btn, #mix-panel, #snd-open-btn { display: none !important; }
+  #aud-toggle       { z-index: 620; opacity: 1 !important; pointer-events: auto !important; }
+  #snd-open-btn { display: none !important; }
+  #mix-panel { width: calc(100vw - 56px); }
   #mob-splash { display: flex; }
 
   /* ── Mobile cover section ── */
@@ -3792,7 +3793,7 @@ function curlNoise(x, y) {
       if (fwFired) return;
       var rect  = fwEl.getBoundingClientRect();
       var rootH = scrollRoot.getBoundingClientRect().height;
-      if (rect.top < rootH * 0.72) {
+      if (rect.top < rootH) {
         fwFired = true;
         window.replayFireworks();
         scrollRoot.removeEventListener('scroll', checkFw);
