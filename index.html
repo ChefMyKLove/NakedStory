@@ -1264,8 +1264,8 @@ body::before {
   #mob-splash      { display: flex; }
   #page-indicator  { display: none !important; }
   #snd-open-btn    { display: none !important; }
-  /* Nav arrows above vignette + dust canvas */
-  #nav-prev, #nav-next { z-index: 620; }
+  /* Nav arrows: narrower on mobile so they don't eat into text */
+  #nav-prev, #nav-next { z-index: 620; width: 26px; height: 56px; font-size: 1.0em; }
   /* Individual controls hidden — tray proxies handle them */
   #aud-toggle       { display: none !important; }
   #mix-btn          { display: none !important; }
@@ -1276,15 +1276,17 @@ body::before {
   #mix-panel { z-index: 635 !important; bottom: 70px !important; right: 10px !important; width: calc(100vw - 56px) !important; }
   /* Tighter frame padding — recover ~12px vertical */
   .page-frame { padding: 8px; }
-  /* Scrollable page surface so no text is clipped; reduced top/side padding to recover ~16px more */
+  /* Scrollable page surface; side padding clears the 30px nav arrow footprint */
   .page-frame > .page-surface {
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
-    padding: 20px 22px 64px;
+    padding: 20px 34px 80px;
   }
   .page-frame > .page-surface .story-text {
     justify-content: flex-start;
     overflow: visible;
+    font-size: 0.87em;
+    line-height: 1.76;
   }
   .page-frame > .page-surface::-webkit-scrollbar { width: 3px; }
   .page-frame > .page-surface::-webkit-scrollbar-thumb { background: rgba(100,80,60,0.25); border-radius: 2px; }
@@ -1294,7 +1296,7 @@ body::before {
     padding-bottom: 6px;
   }
   /* Page number shifted to match reduced bottom padding */
-  .page-frame > .page-surface .pg-num { bottom: 18px; }
+  .page-frame > .page-surface .pg-num { bottom: 20px; }
 }
 
 /* ── MIX PANEL ──────────────────────────────────── */
