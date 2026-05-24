@@ -181,7 +181,7 @@ body::before {
 .page-surface {
   width: 100%; height: 100%;
   background: var(--paper);
-  padding: 36px 36px 32px;
+  padding: 36px 36px 58px;
   overflow: hidden;
   position: relative;
   display: flex;
@@ -3431,8 +3431,8 @@ function curlNoise(x, y) {
   <audio id="a-sfx-fan-b"    src="freesound_community-fan-94808.mp3"            loop preload="none"></audio>
   <audio id="a-sfx-fan-c"    src="freesound_community-fan-73532.mp3"            loop preload="none"></audio>
   <audio id="a-sfx-door"    src="freesound_community-open-sliding-door-105746.mp3"                                        preload="none"></audio>
-  <audio id="a-sfx-city"   src="patolenin-sounds-of-cars-and-people-moving-around-in-the-urban-area-of-the-city-439094.mp3" loop preload="none"></audio>
-  <audio id="a-sfx-birds"  src="freesound_community-birds-chirping-98527.mp3"                                               loop preload="none"></audio>
+  <audio id="a-sfx-city"   src="patolenin-sounds-of-cars-and-people-moving-around-in-the-urban-area-of-the-city-439094.mp3" preload="none"></audio>
+  <audio id="a-sfx-birds"  src="freesound_community-birds-chirping-98527.mp3"                                               preload="none"></audio>
   <audio id="a-sfx-carpass" src="tanweraman-car-pass-by-337871.mp3"                                                         preload="none"></audio>
   <audio id="a-sfx-chirp"  src="freesound_community-bird-chirps-short-96913.mp3"                                            preload="none"></audio>
   <audio id="a-sfx-toilet"    src="audio/sfx_toilet.mp3"    preload="none"></audio>
@@ -3527,7 +3527,7 @@ function curlNoise(x, y) {
       if(paused)stopNar();
       _btnState('voice',!paused);
     }else if(key==='sfx'){
-      if(paused){document.querySelectorAll('[id^="a-sfx-"],.fw-clone').forEach(el=>{if(!el.paused){el.pause();el.currentTime=0;}});if(typeof stopOutdoorAmbient==='function')stopOutdoorAmbient();}
+      if(paused){document.querySelectorAll('[id^="a-sfx-"],.fw-clone,.outdoor-loop-clone').forEach(el=>{if(!el.paused){el.pause();el.currentTime=0;}});if(typeof stopOutdoorAmbient==='function')stopOutdoorAmbient();}
       _btnState('sfx',!paused);
     }
   };
@@ -3558,40 +3558,120 @@ function curlNoise(x, y) {
   let outdoorActive = false;
   const outdoorTimers = [];
 
+  // Start a crossfade-looping ambient layer (no HTML loop attr — we own the loop).
+  // Each iteration fades into a fresh clone before the current one ends,
+  // so the boundary is inaudible.
+  function startAmbientLayer(layerKey, srcId, baseVol, xFadeMs, delayMs) {
+    function playInstance(vol) {
+      if (!outdoorActive) return;
+      const src = document.getElementById(srcId);
+      if (!src) return;
+      const el = src.cloneNode(false);
+      el.removeAttribute('loop');
+      el.volume = 0;
+      el.dataset.ambientLayer = layerKey;
+      el.classList.add('outdoor-loop-clone');
+      document.getElementById('audio-engine').appendChild(el);
+      el.play().catch(() => {});
+      fIn(el, vol, Math.min(xFadeMs, 2800));
+
+      // Wait for duration, then schedule the crossfade
+      function scheduleXfade() {
+        if (!outdoorActive) return;
+        const dur = el.duration;
+        if (!dur || isNaN(dur) || dur <= 0) {
+          const t = setTimeout(scheduleXfade, 300);
+          outdoorTimers.push(t);
+          return;
+        }
+        // Cross-fade starts a bit before the end; ±400ms jitter so two layers
+        // never loop at the exact same moment
+        const jitter = (Math.random() - 0.5) * 800;
+        const msLeft = Math.max(0, (dur - el.currentTime) * 1000);
+        const delay  = Math.max(100, msLeft - xFadeMs + jitter);
+        const t = setTimeout(() => {
+          if (!outdoorActive) return;
+          // Slight per-iteration volume variation (±6%) for organic feel
+          const nextVol = baseVol * (0.94 + Math.random() * 0.12);
+          playInstance(nextVol);
+          fOut(el, xFadeMs, () => { if (el.parentNode) el.parentNode.removeChild(el); });
+        }, delay);
+        outdoorTimers.push(t);
+      }
+      scheduleXfade();
+    }
+
+    if (delayMs) {
+      const t = setTimeout(() => playInstance(baseVol), delayMs);
+      outdoorTimers.push(t);
+    } else {
+      playInstance(baseVol);
+    }
+  }
+
+  // Play a one-shot event with a short fade-in and a fade-out tail so it
+  // never cuts off abruptly.
+  function playOneShotFaded(srcEl, vol, fadeInMs, fadeOutMs) {
+    const el = srcEl.cloneNode(true);
+    el.classList.add('fw-clone');
+    el.volume = 0;
+    document.getElementById('audio-engine').appendChild(el);
+    el.play().catch(() => {});
+    fIn(el, vol, fadeInMs);
+
+    function scheduleFadeOut() {
+      if (!el.duration || isNaN(el.duration)) {
+        el.addEventListener('loadedmetadata', scheduleFadeOut, { once: true });
+        el.onended = () => { if (el.parentNode) el.parentNode.removeChild(el); };
+        return;
+      }
+      const msLeft = Math.max(0, (el.duration - el.currentTime) * 1000);
+      const delay  = Math.max(0, msLeft - fadeOutMs - 80);
+      const t = setTimeout(() => {
+        fOut(el, fadeOutMs, () => { if (el.parentNode) el.parentNode.removeChild(el); });
+      }, delay);
+      outdoorTimers.push(t);
+    }
+    scheduleFadeOut();
+  }
+
   function startOutdoorAmbient() {
     if (outdoorActive) return;
     outdoorActive = true;
-    const city  = document.getElementById('a-sfx-city');
-    const birds = document.getElementById('a-sfx-birds');
-    // Base layers: city hum + bird ambience, staggered fade-in
-    fIn(city,  VOL.sfx * 0.60, 2500);
-    setTimeout(() => { if (outdoorActive) fIn(birds, VOL.sfx * 0.50, 3000); }, 1200);
 
-    // Occasional car pass-by — random interval 12–26s
+    // City hum — crossfade-loops immediately
+    startAmbientLayer('city',  'a-sfx-city',  VOL.sfx * 0.60, 4000, 0);
+    // Birds — stagger start 1.2–2s so the two layers never loop in sync
+    startAmbientLayer('birds', 'a-sfx-birds', VOL.sfx * 0.48, 4000,
+      1200 + Math.random() * 800);
+
+    // Occasional car pass: 22–55s interval, faded tail
     function scheduleCarPass() {
       if (!outdoorActive) return;
       const t = setTimeout(() => {
         if (!outdoorActive) return;
         const src = document.getElementById('a-sfx-carpass');
-        if (src) { const c = src.cloneNode(true); c.classList.add('fw-clone'); c.volume = VOL.sfx * (0.45 + Math.random() * 0.30); c.play().catch(()=>{}); c.onended = () => { if(c.parentNode) c.parentNode.removeChild(c); }; document.getElementById('audio-engine').appendChild(c); }
+        if (src) playOneShotFaded(src, VOL.sfx * (0.38 + Math.random() * 0.34), 350, 1400);
         scheduleCarPass();
-      }, 12000 + Math.random() * 14000);
+      }, 22000 + Math.random() * 33000);
       outdoorTimers.push(t);
     }
-    // Occasional short bird chirp — random interval 8–20s
+    // Occasional bird chirp: 12–40s interval, faded tail
     function scheduleBirdChirp() {
       if (!outdoorActive) return;
       const t = setTimeout(() => {
         if (!outdoorActive) return;
         const src = document.getElementById('a-sfx-chirp');
-        if (src) { const c = src.cloneNode(true); c.classList.add('fw-clone'); c.volume = VOL.sfx * (0.35 + Math.random() * 0.40); c.play().catch(()=>{}); c.onended = () => { if(c.parentNode) c.parentNode.removeChild(c); }; document.getElementById('audio-engine').appendChild(c); }
+        if (src) playOneShotFaded(src, VOL.sfx * (0.28 + Math.random() * 0.46), 180, 900);
         scheduleBirdChirp();
-      }, 8000 + Math.random() * 12000);
+      }, 12000 + Math.random() * 28000);
       outdoorTimers.push(t);
     }
-    // First car pass at 6–14s, first chirp at 3–8s
-    setTimeout(scheduleCarPass, 6000 + Math.random() * 8000);
-    setTimeout(scheduleBirdChirp, 3000 + Math.random() * 5000);
+
+    // Staggered first events so they don't all fire at once
+    const tc = setTimeout(scheduleCarPass,   9000 + Math.random() * 11000);
+    const tb = setTimeout(scheduleBirdChirp, 3000 + Math.random() * 8000);
+    outdoorTimers.push(tc, tb);
   }
 
   function stopOutdoorAmbient(fadeMs) {
@@ -3599,8 +3679,13 @@ function curlNoise(x, y) {
     outdoorTimers.forEach(t => clearTimeout(t));
     outdoorTimers.length = 0;
     const ms = fadeMs || 1400;
+    // Fade out base elements (won't be playing, but safe no-op via fOut guard)
     fOut(document.getElementById('a-sfx-city'),  ms);
     fOut(document.getElementById('a-sfx-birds'), ms);
+    // Fade out all active crossfade-loop clones
+    document.querySelectorAll('.outdoor-loop-clone').forEach(el => {
+      fOut(el, ms, () => { if (el.parentNode) el.parentNode.removeChild(el); });
+    });
   }
 
   // Door: slide sound → then outdoor ambient fades in when it ends
@@ -3673,18 +3758,19 @@ function curlNoise(x, y) {
 
   // Fan button: duck outdoor ambient → start fan
   function duckOutdoorAmbient() {
-    const city  = document.getElementById('a-sfx-city');
-    const birds = document.getElementById('a-sfx-birds');
     const target = VOL.sfx * 0.18;
-    if (city  && !city.paused)  fIn(city,  target, 3000);
-    if (birds && !birds.paused) fIn(birds, target, 3000);
+    document.querySelectorAll('.outdoor-loop-clone').forEach(el => {
+      if (!el.paused) fIn(el, target, 3000);
+    });
   }
   function unduckOutdoorAmbient() {
     if (!outdoorActive) return;
-    const city  = document.getElementById('a-sfx-city');
-    const birds = document.getElementById('a-sfx-birds');
-    if (city  && !city.paused)  fIn(city,  VOL.sfx * 0.36, 4000);
-    if (birds && !birds.paused) fIn(birds, VOL.sfx * 0.30, 4000);
+    document.querySelectorAll('.outdoor-loop-clone[data-ambient-layer="city"]').forEach(el => {
+      if (!el.paused) fIn(el, VOL.sfx * 0.36, 4000);
+    });
+    document.querySelectorAll('.outdoor-loop-clone[data-ambient-layer="birds"]').forEach(el => {
+      if (!el.paused) fIn(el, VOL.sfx * 0.28, 4000);
+    });
   }
   window.playFan = function() {
     duckOutdoorAmbient();
@@ -3727,6 +3813,7 @@ function curlNoise(x, y) {
     }
   });
   mixBtn.addEventListener('click',()=>{mixOpen=!mixOpen;mixPanel.classList.toggle('open',mixOpen);mixBtn.classList.toggle('open',mixOpen);});
+  window.toggleMixPanel=function(){mixOpen=!mixOpen;mixPanel.classList.toggle('open',mixOpen);mixBtn.classList.toggle('open',mixOpen);};
   document.addEventListener('click',e=>{if(mixOpen&&!mixPanel.contains(e.target)&&e.target!==mixBtn){mixOpen=false;mixPanel.classList.remove('open');mixBtn.classList.remove('open');}});
 
   ['music','atmos','voice','sfx'].forEach(key=>{
@@ -4194,10 +4281,23 @@ function curlNoise(x, y) {
 
   window.playGiggle = async function() {
     if (!sfxOk()) return;
-    if (typeof stopOutdoorAmbient === 'function') stopOutdoorAmbient(150);
-    // Truncate any HTML door audio still playing from playDoor()
+    // Hard-stop all outdoor sounds instantly on first giggle tap
+    if (typeof stopOutdoorAmbient === 'function') {
+      // Stop loop clones immediately (no fade)
+      document.querySelectorAll('.outdoor-loop-clone').forEach(el => {
+        el.pause(); el.volume = 0;
+        if (el.parentNode) el.parentNode.removeChild(el);
+      });
+      stopOutdoorAmbient(0);
+    }
+    // Hard-stop the door audio element
     const doorEl = document.getElementById('a-sfx-door');
     if (doorEl && !doorEl.paused) { doorEl.pause(); doorEl.currentTime = 0; }
+    // Hard-stop city/birds base elements just in case
+    ['a-sfx-city','a-sfx-birds'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el && !el.paused) { el.pause(); el.currentTime = 0; }
+    });
     await ensure();
     runVar(nextVar());
   };
@@ -4345,7 +4445,7 @@ function curlNoise(x, y) {
     if (p && r) p.addEventListener('click', function() { r.click(); closeTray(); });
   }
   wire('mct-sound',    'aud-toggle');
-  wire('mct-mix',      'mix-btn');
+  document.getElementById('mct-mix').addEventListener('click', function(){ if(window.toggleMixPanel) window.toggleMixPanel(); closeTray(); });
   wire('mct-fw',       'replay-fireworks');
   wire('mct-dust-tgl', 'dust-toggle');
   wire('mct-dust-rep', 'replay-dust');
