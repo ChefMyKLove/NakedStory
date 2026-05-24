@@ -1260,18 +1260,32 @@ body::before {
 @keyframes mob-cover-pulse { 0%, 100% { opacity: 0.30; } 50% { opacity: 0.90; } }
 
 @media (max-width: 800px) {
-  /* Show splash, hide scroll fallback — book is the mobile experience */
-  #mob-splash    { display: flex; }
-  #page-indicator { display: none !important; }
-  #snd-open-btn  { display: none !important; }
-  /* Raise controls above vignette (z-550) and dust canvas (z-500) */
+  /* Show splash; book engine is the mobile experience */
+  #mob-splash      { display: flex; }
+  #page-indicator  { display: none !important; }
+  #snd-open-btn    { display: none !important; }
+  /* Nav arrows above vignette + dust canvas */
   #nav-prev, #nav-next { z-index: 620; }
-  #aud-toggle      { z-index: 620; }
-  #mix-btn         { z-index: 625; }
-  #mix-panel       { z-index: 626; width: calc(100vw - 56px); }
-  #replay-fireworks { z-index: 620; }
-  #replay-dust     { z-index: 620; }
-  #dust-toggle     { z-index: 620; }
+  /* Individual controls hidden — tray proxies handle them */
+  #aud-toggle       { display: none !important; }
+  #mix-btn          { display: none !important; }
+  #replay-fireworks { display: none !important; }
+  #replay-dust      { display: none !important; }
+  #dust-toggle      { display: none !important; }
+  /* Mix panel repositioned above tray handle */
+  #mix-panel { z-index: 635 !important; bottom: 70px !important; right: 10px !important; width: calc(100vw - 56px) !important; }
+  /* Scrollable page surface so no text is clipped */
+  .page-frame > .page-surface {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 64px;
+  }
+  .page-frame > .page-surface .story-text {
+    justify-content: flex-start;
+    overflow: visible;
+  }
+  .page-frame > .page-surface::-webkit-scrollbar { width: 3px; }
+  .page-frame > .page-surface::-webkit-scrollbar-thumb { background: rgba(100,80,60,0.25); border-radius: 2px; }
 }
 
 /* ── MIX PANEL ──────────────────────────────────── */
@@ -4189,6 +4203,131 @@ function curlNoise(x, y) {
     }
     loop();
   };
+})();
+</script>
+
+<!-- ── MOBILE CONTROL TRAY ──────────────────────────── -->
+<style>
+#mob-ctrl-tray {
+  display: none;
+  position: fixed;
+  bottom: 18px;
+  right: 12px;
+  z-index: 630;
+  flex-direction: column-reverse;
+  align-items: flex-end;
+  gap: 8px;
+}
+@media (max-width: 800px) { #mob-ctrl-tray { display: flex; } }
+#mob-ctrl-handle {
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  background: rgba(14,9,4,0.82);
+  border: 1px solid rgba(200,169,106,0.40);
+  color: rgba(200,169,106,0.80);
+  font-size: 1.0em;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.2s, border-color 0.2s;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+#mob-ctrl-handle.open { background: rgba(14,9,4,0.94); border-color: rgba(200,169,106,0.62); }
+#mob-ctrl-drawer {
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: flex-end;
+  gap: 8px;
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: max-height 0.28s ease, opacity 0.22s ease;
+  pointer-events: none;
+}
+#mob-ctrl-drawer.open { max-height: 300px; opacity: 1; pointer-events: all; }
+.mct-btn {
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  background: rgba(14,9,4,0.82);
+  border: 1px solid rgba(200,169,106,0.34);
+  color: rgba(200,169,106,0.80);
+  font-size: 1.0em;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.2s, border-color 0.2s;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+.mct-btn.mct-hidden { display: none !important; }
+.mct-btn.off { color: rgba(200,169,106,0.28); border-color: rgba(200,169,106,0.16); }
+</style>
+<div id="mob-ctrl-tray">
+  <button id="mob-ctrl-handle" aria-label="Controls">⋮</button>
+  <div id="mob-ctrl-drawer">
+    <button id="mct-sound"    class="mct-btn" aria-label="Toggle sound">♪</button>
+    <button id="mct-mix"      class="mct-btn" aria-label="Mix panel">≡</button>
+    <button id="mct-fw"       class="mct-btn mct-hidden" aria-label="Fireworks">✦</button>
+    <button id="mct-dust-tgl" class="mct-btn" aria-label="Dust">◎</button>
+    <button id="mct-dust-rep" class="mct-btn mct-hidden" aria-label="Replay dust">↻</button>
+  </div>
+</div>
+<script>
+(function() {
+  if (window.innerWidth > 800) return;
+  var tray   = document.getElementById('mob-ctrl-tray');
+  var handle = document.getElementById('mob-ctrl-handle');
+  var drawer = document.getElementById('mob-ctrl-drawer');
+  if (!tray || !handle || !drawer) return;
+
+  var autoTimer = null;
+  function openTray() {
+    drawer.classList.add('open'); handle.classList.add('open');
+    clearTimeout(autoTimer);
+    autoTimer = setTimeout(closeTray, 4500);
+  }
+  function closeTray() {
+    drawer.classList.remove('open'); handle.classList.remove('open');
+    clearTimeout(autoTimer);
+  }
+  handle.addEventListener('click', function(e) {
+    e.stopPropagation();
+    drawer.classList.contains('open') ? closeTray() : openTray();
+  });
+  document.addEventListener('click', function(e) {
+    if (!tray.contains(e.target)) closeTray();
+  });
+
+  function wire(proxyId, realId) {
+    var p = document.getElementById(proxyId);
+    var r = document.getElementById(realId);
+    if (p && r) p.addEventListener('click', function() { r.click(); closeTray(); });
+  }
+  wire('mct-sound',    'aud-toggle');
+  wire('mct-mix',      'mix-btn');
+  wire('mct-fw',       'replay-fireworks');
+  wire('mct-dust-tgl', 'dust-toggle');
+  wire('mct-dust-rep', 'replay-dust');
+
+  /* Show fireworks + dust-replay proxies only when their real buttons are .visible */
+  function syncVisible(realId, proxyId) {
+    var r = document.getElementById(realId);
+    var p = document.getElementById(proxyId);
+    if (!r || !p) return;
+    new MutationObserver(function() {
+      p.classList.toggle('mct-hidden', !r.classList.contains('visible'));
+    }).observe(r, { attributes: true, attributeFilter: ['class'] });
+  }
+  syncVisible('replay-fireworks', 'mct-fw');
+  syncVisible('replay-dust',      'mct-dust-rep');
+
+  /* Dim sound proxy when audio is muted */
+  var audTgl  = document.getElementById('aud-toggle');
+  var mctSnd  = document.getElementById('mct-sound');
+  if (audTgl && mctSnd) {
+    new MutationObserver(function() {
+      mctSnd.classList.toggle('off', audTgl.classList.contains('off'));
+    }).observe(audTgl, { attributes: true, attributeFilter: ['class'] });
+  }
 })();
 </script>
 </body>
