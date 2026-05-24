@@ -1283,6 +1283,8 @@ body::before {
     padding: 20px 34px 80px;
   }
   .page-frame > .page-surface .story-text {
+    flex: none;
+    height: auto;
     justify-content: flex-start;
     overflow: visible;
     font-size: 0.87em;
@@ -3653,14 +3655,15 @@ function curlNoise(x, y) {
   function startOutdoorAmbient() {
     if (outdoorActive) return;
     outdoorActive = true;
-
-    // City hum — crossfade-loops immediately
-    startAmbientLayer('city',  'a-sfx-city',  VOL.sfx * 0.60, 4000, 0);
-    // Birds — stagger start 1.2–2s so the two layers never loop in sync
-    startAmbientLayer('birds', 'a-sfx-birds', VOL.sfx * 0.48, 4000,
-      1200 + Math.random() * 800);
-
-    // Occasional car pass: 22–55s interval, faded tail
+    const city  = document.getElementById('a-sfx-city');
+    const birds = document.getElementById('a-sfx-birds');
+    // Use native loop — reliable on all browsers including mobile
+    if (city)  { city.loop  = true; city.currentTime  = 0; fIn(city,  VOL.sfx * 0.60, 2800); }
+    if (birds) {
+      birds.loop = true; birds.currentTime = 0;
+      const tb0 = setTimeout(() => { if (outdoorActive) fIn(birds, VOL.sfx * 0.48, 2800); }, 1200 + Math.random() * 800);
+      outdoorTimers.push(tb0);
+    }
     function scheduleCarPass() {
       if (!outdoorActive) return;
       const t = setTimeout(() => {
@@ -3671,7 +3674,6 @@ function curlNoise(x, y) {
       }, 22000 + Math.random() * 33000);
       outdoorTimers.push(t);
     }
-    // Occasional bird chirp: 12–40s interval, faded tail
     function scheduleBirdChirp() {
       if (!outdoorActive) return;
       const t = setTimeout(() => {
@@ -3682,8 +3684,6 @@ function curlNoise(x, y) {
       }, 12000 + Math.random() * 28000);
       outdoorTimers.push(t);
     }
-
-    // Staggered first events so they don't all fire at once
     const tc = setTimeout(scheduleCarPass,   9000 + Math.random() * 11000);
     const tb = setTimeout(scheduleBirdChirp, 3000 + Math.random() * 8000);
     outdoorTimers.push(tc, tb);
@@ -3694,12 +3694,17 @@ function curlNoise(x, y) {
     outdoorTimers.forEach(t => clearTimeout(t));
     outdoorTimers.length = 0;
     const ms = typeof fadeMs === 'number' ? fadeMs : 1400;
-    // Fade out base elements (won't be playing, but safe no-op via fOut guard)
-    fOut(document.getElementById('a-sfx-city'),  ms);
-    fOut(document.getElementById('a-sfx-birds'), ms);
-    // Fade out all active crossfade-loop clones
+    const city  = document.getElementById('a-sfx-city');
+    const birds = document.getElementById('a-sfx-birds');
+    [city, birds].forEach(el => {
+      if (!el) return;
+      el.loop = false;
+      if (ms === 0) { el.pause(); el.currentTime = 0; el.volume = 0; }
+      else fOut(el, ms);
+    });
     document.querySelectorAll('.outdoor-loop-clone').forEach(el => {
-      fOut(el, ms, () => { if (el.parentNode) el.parentNode.removeChild(el); });
+      if (ms === 0) { el.pause(); el.volume = 0; if (el.parentNode) el.parentNode.removeChild(el); }
+      else fOut(el, ms, () => { if (el.parentNode) el.parentNode.removeChild(el); });
     });
   }
 
@@ -3783,13 +3788,17 @@ function curlNoise(x, y) {
   }
   // Fan button: duck outdoor ambient → start fan
   function duckOutdoorAmbient() {
-    const target = VOL.sfx * 0.18;
-    document.querySelectorAll('.outdoor-loop-clone').forEach(el => { fadeVol(el, target, 2500); });
+    const city  = document.getElementById('a-sfx-city');
+    const birds = document.getElementById('a-sfx-birds');
+    if (city  && !city.paused)  fadeVol(city,  VOL.sfx * 0.18, 2500);
+    if (birds && !birds.paused) fadeVol(birds, VOL.sfx * 0.18, 2500);
   }
   function unduckOutdoorAmbient() {
     if (!outdoorActive) return;
-    document.querySelectorAll('.outdoor-loop-clone[data-ambient-layer="city"]').forEach(el => { fadeVol(el, VOL.sfx * 0.36, 4000); });
-    document.querySelectorAll('.outdoor-loop-clone[data-ambient-layer="birds"]').forEach(el => { fadeVol(el, VOL.sfx * 0.28, 4000); });
+    const city  = document.getElementById('a-sfx-city');
+    const birds = document.getElementById('a-sfx-birds');
+    if (city  && !city.paused)  fadeVol(city,  VOL.sfx * 0.60, 4000);
+    if (birds && !birds.paused) fadeVol(birds, VOL.sfx * 0.48, 4000);
   }
   window.playFan = function() {
     duckOutdoorAmbient();
@@ -4428,8 +4437,174 @@ function curlNoise(x, y) {
     <button id="mct-fw"       class="mct-btn mct-hidden" aria-label="Replay fireworks" title="Replay fireworks">✦<span class="mct-lbl">sparks</span></button>
     <button id="mct-dust-tgl" class="mct-btn" aria-label="Toggle dust"   title="Dust on/off">◎<span class="mct-lbl">dust</span></button>
     <button id="mct-dust-rep" class="mct-btn mct-hidden" aria-label="Replay dust" title="Replay dust">↻<span class="mct-lbl">replay</span></button>
+    <button id="mct-info"     class="mct-btn" aria-label="Guide"         title="How to read">?<span class="mct-lbl">guide</span></button>
   </div>
 </div>
+
+<!-- ── TUTORIAL / INFO MODAL ───────────────���─────── -->
+<div id="info-modal" aria-modal="true" role="dialog" aria-label="Reading guide">
+<div id="info-modal-inner">
+  <button id="info-close" aria-label="Close guide">✕</button>
+  <div class="im-eyebrow">We're Naked!</div>
+  <h2 class="im-title">How to Read</h2>
+  <p class="im-note">This interactive book is best experienced on <strong>desktop</strong> — some visual effects and animations are scaled for larger screens. On mobile, pages are scrollable if the text runs long.</p>
+  <div class="im-rule"></div>
+
+  <div class="im-section">
+    <div class="im-head">Navigation</div>
+    <p>Tap or click the <strong>‹ ›</strong> arrows on either side of the page to turn. On desktop you can also use <strong>← →</strong> arrow keys.</p>
+  </div>
+
+  <div class="im-section">
+    <div class="im-head">Sound &amp; Music</div>
+    <p>The <strong>♪</strong> button toggles all audio on and off. Use <strong>≡ mixer</strong> to adjust individual volumes for music, atmosphere, voice narration, and sound effects separately.</p>
+  </div>
+
+  <div class="im-section">
+    <div class="im-head">The Giggle</div>
+    <p>Near the end of Act One, you'll find a <em>▶ giggle</em> button woven into the text. Tap it to hear the moment. The door and outside world will go quiet as it plays.</p>
+    <p>Three extended modes — <em>Dreamy, Chaos, Rapture</em> — appear below the giggle on that page. Each transforms the soundscape for about thirty seconds.</p>
+  </div>
+
+  <div class="im-section">
+    <div class="im-head">The Door &amp; Outside World</div>
+    <p>When you reach the sliding-door moment, a <em>door</em> button opens the outside: city hum, birds, the odd car passing. It plays until you tap the giggle.</p>
+  </div>
+
+  <div class="im-section">
+    <div class="im-head">The Fan</div>
+    <p>In Act Three the <em>fan</em> button turns on the room fan, gently lowering the outdoor sounds while it runs.</p>
+  </div>
+
+  <div class="im-section">
+    <div class="im-head">Dust &amp; Particles</div>
+    <p><strong>◎ dust</strong> toggles the floating dust particle effect. <strong>↻ replay</strong> restarts the animation from the beginning.</p>
+  </div>
+
+  <div class="im-section">
+    <div class="im-head">Fireworks</div>
+    <p><strong>✦ sparks</strong> replays the fireworks sequence. The button appears once you've reached that page.</p>
+  </div>
+
+  <div class="im-section">
+    <div class="im-head">Read Again</div>
+    <p>A <em>↺ read again</em> button on the back cover returns you to the beginning with all your sound and settings intact.</p>
+  </div>
+</div>
+</div>
+
+<style>
+#info-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 950;
+  background: rgba(5,2,1,0.96);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+#info-modal.open { display: block; }
+#info-modal-inner {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 52px 32px 90px;
+  font-family: 'Cormorant Garamond', serif;
+  color: rgba(232,218,196,0.86);
+  position: relative;
+}
+#info-close {
+  position: absolute;
+  top: 22px; right: 18px;
+  background: none;
+  border: 1px solid rgba(200,169,106,0.25);
+  border-radius: 2px;
+  color: rgba(200,169,106,0.55);
+  font-size: 1.0em;
+  cursor: pointer;
+  padding: 4px 10px;
+  font-family: inherit;
+  transition: border-color 0.2s, color 0.2s;
+}
+#info-close:hover { color: rgba(200,169,106,0.9); border-color: rgba(200,169,106,0.6); }
+.im-eyebrow {
+  font-size: 0.62em;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: rgba(200,169,106,0.45);
+  margin-bottom: 4px;
+}
+.im-title {
+  font-style: italic;
+  font-size: 1.7em;
+  font-weight: 400;
+  color: rgba(200,169,106,0.88);
+  margin: 0 0 10px;
+}
+.im-note {
+  font-size: 0.82em;
+  font-style: italic;
+  color: rgba(200,169,106,0.5);
+  margin-bottom: 0;
+  line-height: 1.7;
+}
+.im-rule {
+  height: 0.5px;
+  background: rgba(200,169,106,0.18);
+  margin: 22px 0;
+}
+.im-section { margin-bottom: 26px; }
+.im-head {
+  font-size: 0.68em;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: rgba(200,169,106,0.55);
+  margin-bottom: 7px;
+}
+#info-modal-inner p {
+  font-size: 0.88em;
+  line-height: 1.75;
+  color: rgba(232,218,196,0.78);
+  margin: 0 0 8px;
+}
+#info-modal-inner strong { color: rgba(232,218,196,0.94); font-weight: 600; }
+#info-modal-inner em { font-style: italic; }
+/* Desktop info button */
+#info-btn-desk {
+  position: fixed;
+  bottom: 28px;
+  left: 28px;
+  z-index: 400;
+  background: rgba(200,169,106,0.08);
+  border: 1px solid rgba(200,169,106,0.28);
+  color: rgba(200,169,106,0.6);
+  padding: 8px 16px;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.78em;
+  letter-spacing: 1.2px;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: all 0.25s;
+  backdrop-filter: blur(4px);
+}
+#info-btn-desk:hover { background: rgba(200,169,106,0.18); color: rgba(200,169,106,0.9); border-color: rgba(200,169,106,0.55); }
+@media (max-width: 800px) { #info-btn-desk { display: none; } }
+</style>
+
+<button id="info-btn-desk" onclick="document.getElementById('info-modal').classList.add('open')">? guide</button>
+
+<script>
+(function() {
+  var modal = document.getElementById('info-modal');
+  var closeBtn = document.getElementById('info-close');
+  var mctInfo  = document.getElementById('mct-info');
+  function openModal() { modal.classList.add('open'); }
+  function closeModal() { modal.classList.remove('open'); }
+  if (closeBtn) closeBtn.addEventListener('click', closeModal);
+  if (mctInfo)  mctInfo.addEventListener('click', function() { openModal(); });
+  modal.addEventListener('click', function(e) { if (e.target === modal) closeModal(); });
+  document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeModal(); });
+})();
+</script>
 <script>
 (function() {
   if (window.innerWidth > 800) return;
