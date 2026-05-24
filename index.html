@@ -1176,9 +1176,62 @@ body::before {
 #mobile-fallback .mp { margin:26px 0; padding:14px 22px; border-left:2px solid rgba(212,197,181,0.4); font-style:italic; color:#d4c5b5; line-height:2; }
 #mobile-fallback .me { text-align:center; color:#7a6f65; margin-top:60px; font-size:1em; letter-spacing:3px; }
 
+@keyframes mob-cover-pulse { 0%, 100% { opacity: 0.30; } 50% { opacity: 0.90; } }
+
 @media (max-width: 800px) {
   #mobile-fallback { display: block; }
-  .book-scene, #dust-canvas, #nav-prev, #nav-next, #page-indicator, #replay-dust, #dust-toggle, #replay-fireworks { display: none !important; }
+  .book-scene, #nav-prev, #nav-next, #page-indicator, #replay-dust, #dust-toggle { display: none !important; }
+  /* Re-enable effects on mobile at z-index above the fallback (600) */
+  #dust-canvas      { display: block !important; z-index: 610; }
+  #replay-fireworks { display: block !important; z-index: 615; bottom: 72px; left: 28px; right: auto; }
+  #aud-toggle       { z-index: 620; }
+  #mix-btn, #mix-panel, #snd-open-btn { display: none !important; }
+
+  /* ── Mobile cover section ── */
+  #mob-cover {
+    margin: -60px -28px 0;
+    height: 100vh;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 0 28px 52px;
+  }
+  #mob-cover .cover-img-live {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover; object-position: center top;
+    display: block;
+  }
+  .mob-cover-grad {
+    position: absolute; inset: 0;
+    background: linear-gradient(to bottom, rgba(13,8,4,0) 30%, rgba(13,8,4,0.95) 100%);
+    z-index: 3; pointer-events: none;
+  }
+  .mob-cover-title {
+    position: relative; z-index: 5;
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300; font-size: 2.6em; letter-spacing: 3px;
+    color: rgba(245,225,190,0.95); text-align: center;
+    margin-bottom: 6px;
+    text-shadow: 0 2px 24px rgba(0,0,0,0.7);
+  }
+  .mob-cover-sub {
+    position: relative; z-index: 5;
+    font-family: 'Cormorant Garamond', serif; font-style: italic;
+    font-size: 1.0em; color: rgba(200,175,130,0.72);
+    letter-spacing: 1.5px; text-align: center;
+    margin-bottom: 30px;
+  }
+  .mob-cover-hint {
+    position: relative; z-index: 5;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 0.60em; letter-spacing: 4px; text-transform: uppercase;
+    color: rgba(200,169,106,0.50);
+    animation: mob-cover-pulse 2.4s ease-in-out infinite;
+  }
 }
 
 /* ── MIX PANEL ──────────────────────────────────── */
@@ -1292,6 +1345,19 @@ body::before {
      MOBILE FALLBACK
 ════════════════════════════════════════════ -->
 <div id="mobile-fallback">
+
+  <!-- ── Mobile cover ── -->
+  <div id="mob-cover">
+    <img src="cover.jpg" class="cover-img-live" alt="">
+    <img src="img_0288.jpg" class="cover-cloud-layer" alt="">
+    <img src="img_0288.jpg" class="cover-cloud-layer-2" alt="">
+    <div class="cover-light-overlay"></div>
+    <div class="mob-cover-grad"></div>
+    <div class="mob-cover-title">We&rsquo;re Naked!</div>
+    <div class="mob-cover-sub">A Rapture in Three Acts</div>
+    <div class="mob-cover-hint">scroll to begin</div>
+  </div>
+
   <h1>We're Naked!</h1>
   <p class="m-sub">A Rapture in Three Acts</p>
   <div class="m-epi">
@@ -1342,8 +1408,8 @@ body::before {
   <p>"As we partied we shed all of the hangups until we were dancing 'naked' and together all as one. Everyone was. We all just… shed that society stuff… That pretense, that worry about what anyone thought…. Some even lost their clothes!!</p>
   <p>And the MC came on again—this was later, this was close—and told us 'Two minutes to go!' And we all quietly counted down together, watching the sky... and this is where it felt odd to me. We all noticed the smoke trails. Missiles. Over the city. Over the park, and we were all just… there. It didn't matter that they were coming or that they were coming right down upon us."</p>
   <p>Your hand finds my shoulder. I don't stop.</p>
-  <p>"But it wasn't scary in the way you'd think. There was no panic in the scene at all. We knew that this was exactly why we were all here. It was like… we'd already accepted it? Like we'd spent those last special minutes together coming to terms en masse with something we couldn't change, so when the actual moment arrived, we were ready. We were together. The countdown reached zero and then—"</p>
-  <p>I throw open the bag I am holding. You point the fan at me smiling and that dust starts-a-flying. All around, all around, outside and in, it covers the Lovers and the room that <strong>WE'RE NAKED!</strong> in.</p>
+  <p id="mob-fw-trigger">"But it wasn't scary in the way you'd think. There was no panic in the scene at all. We knew that this was exactly why we were all here. It was like… we'd already accepted it? Like we'd spent those last special minutes together coming to terms en masse with something we couldn't change, so when the actual moment arrived, we were ready. We were together. The countdown reached zero and then—"</p>
+  <p id="mob-dust-trigger">I throw open the bag I am holding. You point the fan at me smiling and that dust starts-a-flying. All around, all around, outside and in, it covers the Lovers and the room that <strong>WE'RE NAKED!</strong> in.</p>
   <p>The sunlight through the window catches it, and for a fraction of an instant it looks like we created something sacred and not just something I'd have to clean up later. Like we were having a little mini communion with the dreamscape aether.</p>
   <p>"Do you see the way it's swirling around?" I ask, and my voice sounds younger than I am. It sounds like the voice of the little kid that day in the park who was unsure of how to ask you if you wanted to play.</p>
   <p>"Yes," you say. You're watching the dust, but you're also watching me.</p>
@@ -3222,6 +3288,11 @@ function curlNoise(x, y) {
   computeSize();
   render();
 
+  window.startDust = startDust;
+  window.startCoverDust = startCoverDust;
+  window.replayFireworks = replayFireworks;
+  window.startCoverCloudAnim = startCoverCloudAnim;
+
 })();
 </script>
 
@@ -3501,9 +3572,23 @@ function curlNoise(x, y) {
     });
   }
 
-  // Fan button: stop outdoor ambient → start fan
+  // Fan button: duck outdoor ambient → start fan
+  function duckOutdoorAmbient() {
+    const city  = document.getElementById('a-sfx-city');
+    const birds = document.getElementById('a-sfx-birds');
+    const target = VOL.sfx * 0.18;
+    if (city  && !city.paused)  fIn(city,  target, 3000);
+    if (birds && !birds.paused) fIn(birds, target, 3000);
+  }
+  function unduckOutdoorAmbient() {
+    if (!outdoorActive) return;
+    const city  = document.getElementById('a-sfx-city');
+    const birds = document.getElementById('a-sfx-birds');
+    if (city  && !city.paused)  fIn(city,  VOL.sfx * 0.36, 4000);
+    if (birds && !birds.paused) fIn(birds, VOL.sfx * 0.30, 4000);
+  }
   window.playFan = function() {
-    stopOutdoorAmbient(4000);
+    duckOutdoorAmbient();
     startFanAmbient();
   };
   // playFW: clone-based fireworks audio — allows natural overlap without restart-cutting
@@ -3515,6 +3600,7 @@ function curlNoise(x, y) {
   window.onDustSettle=()=>{
     if(typeof stopFanAmbient==='function')stopFanAmbient();
     if(audOn&&!CH_PAUSED.atmos)fOut(dustLp,5000);
+    unduckOutdoorAmbient();
   };
   window.onFirstPageTurn=()=>{};
   window._giggleCheck = () => audOn && !CH_PAUSED.sfx;
@@ -3564,6 +3650,54 @@ function curlNoise(x, y) {
       if(key==='voice'&&curNar)curNar.volume=VOL[key];
     });
   });
+  window.revealAudTgl = revealAudTgl;
+})();
+</script>
+
+<script>
+/* ── MOBILE EFFECTS ─────────────────────────────────────────
+   Runs only on mobile (≤800px). Wires dust canvas, fireworks,
+   cover cloud animation, and audio toggle to the scroll story.
+──────────────────────────────────────────────────────────── */
+(function() {
+  if (window.innerWidth > 800) return;
+
+  // Show audio toggle above the fallback after a short delay
+  setTimeout(function() {
+    if (window.revealAudTgl) window.revealAudTgl();
+    else {
+      var t = document.getElementById('aud-toggle');
+      if (t) { t.style.opacity = '1'; t.style.pointerEvents = ''; }
+    }
+  }, 900);
+
+  // Start cover cloud animation (SVG turbulence nodes are always in DOM)
+  if (window.startCoverCloudAnim) window.startCoverCloudAnim();
+
+  // #mobile-fallback is a fixed-position scroll container — the IntersectionObserver
+  // root must be the container itself, not the viewport, or it never fires.
+  var scrollRoot = document.getElementById('mobile-fallback');
+
+  // Fire dust when the bag-throw paragraph enters the scroll container
+  var dustEl = document.getElementById('mob-dust-trigger');
+  if (dustEl && window.startDust && scrollRoot) {
+    new IntersectionObserver(function(entries, obs) {
+      if (entries[0].isIntersecting) { window.startDust(); obs.disconnect(); }
+    }, { root: scrollRoot, threshold: 0.4 }).observe(dustEl);
+  }
+
+  // Fire fireworks when the countdown paragraph enters the scroll container
+  var fwEl = document.getElementById('mob-fw-trigger');
+  if (fwEl && window.replayFireworks && scrollRoot) {
+    var fwFired = false;
+    new IntersectionObserver(function(entries, obs) {
+      if (entries[0].isIntersecting && !fwFired) {
+        fwFired = true;
+        window.replayFireworks();
+        obs.disconnect();
+      }
+    }, { root: scrollRoot, threshold: 0.3 }).observe(fwEl);
+  }
 })();
 </script>
 
@@ -3940,6 +4074,7 @@ function curlNoise(x, y) {
 
   window.playGiggle = async function() {
     if (!sfxOk()) return;
+    if (typeof stopOutdoorAmbient === 'function') stopOutdoorAmbient(150);
     await ensure();
     runVar(nextVar());
   };
