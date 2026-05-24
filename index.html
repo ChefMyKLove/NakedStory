@@ -1176,6 +1176,56 @@ body::before {
 #mobile-fallback .mp { margin:26px 0; padding:14px 22px; border-left:2px solid rgba(212,197,181,0.4); font-style:italic; color:#d4c5b5; line-height:2; }
 #mobile-fallback .me { text-align:center; color:#7a6f65; margin-top:60px; font-size:1em; letter-spacing:3px; }
 
+/* ── Mobile shout page sections ── */
+.mob-shout-page {
+  min-height: 88vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 40px 0;
+  margin: 40px -28px;
+}
+#mobile-fallback .mob-shout-page .ms {
+  font-size: 2.6rem;
+  letter-spacing: 1px;
+  line-height: 1.1;
+  margin: 10px 0;
+}
+
+/* ── Mobile splash overlay ── */
+@keyframes mob-splash-hint { 0%, 100% { opacity: 0.45; } 50% { opacity: 1.0; } }
+#mob-splash {
+  position: fixed; inset: 0; z-index: 700;
+  background: #0a0603;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 28px;
+  cursor: pointer;
+  transition: opacity 0.6s ease;
+}
+.mob-splash-ttl {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 300; font-size: 3.0em; letter-spacing: 3px;
+  color: rgba(245,225,190,0.95); margin-bottom: 6px;
+}
+.mob-splash-stl {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic; font-size: 0.95em;
+  color: rgba(200,175,130,0.60); letter-spacing: 1.5px;
+  margin-bottom: 80px;
+}
+.mob-splash-hint {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.62em; letter-spacing: 4px; text-transform: uppercase;
+  color: rgba(200,169,106,0.70);
+  animation: mob-splash-hint 2.2s ease-in-out infinite;
+}
+
 @keyframes mob-cover-pulse { 0%, 100% { opacity: 0.30; } 50% { opacity: 0.90; } }
 
 @media (max-width: 800px) {
@@ -1186,6 +1236,7 @@ body::before {
   #replay-fireworks { display: block !important; z-index: 615; bottom: 72px; left: 28px; right: auto; }
   #aud-toggle       { z-index: 620; }
   #mix-btn, #mix-panel, #snd-open-btn { display: none !important; }
+  #mob-splash { display: flex; }
 
   /* ── Mobile cover section ── */
   #mob-cover {
@@ -1368,9 +1419,11 @@ body::before {
   <p>…This morning,<br>you roll softly from your well-slumbered sleep-space, reach out with that searching, delicately busy hand, to touch me softly on the shoulder, then the face, just like I'd imagined it would happen…</p>
   <p>I'm certain that I smiled.</p>
   <p>I awaken happy and filled with the sound of your hearty giggles summoning your bliss… like you can't quite contain the joy of being alive right now in this room this morning, with me. Stirring, still smiling, I watch as the covers fly away and—</p>
-  <span class="ms">WE'RE NAKED!</span>
-  <span class="ms">SUCH morning! and a WHOLE day ahead.</span>
-  <span class="ms">WE'RE NAKED!</span>
+  <div class="mob-shout-page">
+    <span class="ms">WE'RE NAKED!</span>
+    <span class="ms">SUCH morning! and a WHOLE day ahead.</span>
+    <span class="ms">WE'RE NAKED!</span>
+  </div>
   <p>—I jump up quick to win the race to the toilet but you're faster. You've been awake longer, and I'm still dreaming, still moving through that otherworldly space, even as my feet find the floor and shuffle over to the table by the sink, where there's a joint already rolled, some water in a glass with that slice of sunlight searing through it: spreading its subtle spectral hues onto the old tapedeck.</p>
   <p>There's a lighter and a candle too: the whole ritual of our waking laid out like an altar for us… ready for me to curate the mood while waiting on you to finish up on the head: fumbling fingers find the well-worn play button and my anticipatory soul waits for the room to fill with the flurry of something old, something we both knew by heart before we'd ever even met…</p>
   <p>"Don't you DARE light that joint 'till I'm done peeing," you laugh from your throne…</p>
@@ -1390,7 +1443,9 @@ body::before {
   <p>"Do we have any really dusty powder?"</p>
   <p>You're quick, "There's the dust in the bag in the vacuum in the closet. I'll get it!" Barely missing a beat.</p>
   <p>I place the blanket on the heater by the door, turn around and—</p>
-  <span class="ms">YOU'RE NAKED! I'M NAKED! WE'RE NAKED!</span>
+  <div class="mob-shout-page">
+    <span class="ms">YOU'RE NAKED! I'M NAKED! WE'RE NAKED!</span>
+  </div>
   <p>—and the morning light catches your skin in a way that makes my chest do something complicated. You smile excitedly while you hand me the dust and I hand back the doobie.</p>
   <p>I open the <button onclick="window.playDoor&&playDoor()" style="background:none;border:1px solid rgba(100,80,60,0.3);border-radius:2px;cursor:pointer;font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--ink-faint);font-size:0.78em;padding:1px 7px;vertical-align:middle;" title="🔊">▶ door</button> to the third-floor balcony and this sunny Saturday summer morning pouring in. The air smells like ripe possibility. Like the city breathing in its weekend sigh. Like it had no idea what was about to happen…</p>
   <h2>Part Two: The Dreaming</h2>
@@ -1455,6 +1510,13 @@ body::before {
   <p>Because it's been forever since that dream and you're the only one I ever wanted to share it with. I ache at how it breaks something in me that I never did, every single time I think of you...</p>
   <p>...And that all I can do is dream, that we're naked and that I've got this mess in the pad and a coffee and a full day with you on the way.</p>
   <p class="me">∞</p>
+</div>
+
+<!-- ── MOBILE SPLASH OVERLAY ─────────────────────────────── -->
+<div id="mob-splash">
+  <div class="mob-splash-ttl">We&rsquo;re Naked!</div>
+  <div class="mob-splash-stl">A Rapture in Three Acts</div>
+  <div class="mob-splash-hint">tap to begin</div>
 </div>
 
 <script>
@@ -3656,47 +3718,88 @@ function curlNoise(x, y) {
 
 <script>
 /* ── MOBILE EFFECTS ─────────────────────────────────────────
-   Runs only on mobile (≤800px). Wires dust canvas, fireworks,
-   cover cloud animation, and audio toggle to the scroll story.
+   Runs only on mobile (≤800px). Handles: splash/audio unlock,
+   dust, fireworks (scroll-based for iOS reliability), cover anim.
 ──────────────────────────────────────────────────────────── */
 (function() {
   if (window.innerWidth > 800) return;
 
-  // Show audio toggle above the fallback after a short delay
-  setTimeout(function() {
-    if (window.revealAudTgl) window.revealAudTgl();
-    else {
-      var t = document.getElementById('aud-toggle');
-      if (t) { t.style.opacity = '1'; t.style.pointerEvents = ''; }
-    }
-  }, 900);
+  var fb      = document.getElementById('mobile-fallback');
+  var splash  = document.getElementById('mob-splash');
 
-  // Start cover cloud animation (SVG turbulence nodes are always in DOM)
+  // ── Splash: blocks scroll until first tap, unlocks audio ──
+  if (splash && fb) {
+    fb.style.overflow = 'hidden'; // lock scroll behind splash
+
+    function dismissSplash() {
+      splash.style.opacity = '0';
+      splash.style.pointerEvents = 'none';
+      fb.style.overflow = ''; // re-enable scroll
+
+      // Reveal the audio toggle (needs a user gesture to show)
+      if (window.revealAudTgl) window.revealAudTgl();
+      else {
+        var t = document.getElementById('aud-toggle');
+        if (t) { t.style.opacity = '1'; t.style.pointerEvents = ''; }
+      }
+
+      // Prime the Web Audio context in this gesture frame
+      try {
+        var AC = window.AudioContext || window.webkitAudioContext;
+        if (AC) { var ac = new AC(); ac.resume().then(function(){ ac.close(); }); }
+      } catch(e) {}
+
+      setTimeout(function() { splash.style.display = 'none'; }, 700);
+    }
+
+    splash.addEventListener('click',    dismissSplash, { once: true });
+    splash.addEventListener('touchend', function(e) {
+      e.preventDefault(); dismissSplash();
+    }, { once: true, passive: false });
+
+  } else {
+    // Splash not available — fall back to timed reveal
+    setTimeout(function() {
+      if (window.revealAudTgl) window.revealAudTgl();
+      else {
+        var t = document.getElementById('aud-toggle');
+        if (t) { t.style.opacity = '1'; t.style.pointerEvents = ''; }
+      }
+    }, 900);
+  }
+
+  // ── Cover cloud animation ────────────────────────────────
   if (window.startCoverCloudAnim) window.startCoverCloudAnim();
 
-  // #mobile-fallback is a fixed-position scroll container — the IntersectionObserver
-  // root must be the container itself, not the viewport, or it never fires.
   var scrollRoot = document.getElementById('mobile-fallback');
+  if (!scrollRoot) return;
 
-  // Fire dust when the bag-throw paragraph enters the scroll container
+  // ── Dust trigger (IntersectionObserver) ─────────────────
   var dustEl = document.getElementById('mob-dust-trigger');
-  if (dustEl && window.startDust && scrollRoot) {
+  if (dustEl && window.startDust) {
     new IntersectionObserver(function(entries, obs) {
       if (entries[0].isIntersecting) { window.startDust(); obs.disconnect(); }
     }, { root: scrollRoot, threshold: 0.4 }).observe(dustEl);
   }
 
-  // Fire fireworks when the countdown paragraph enters the scroll container
-  var fwEl = document.getElementById('mob-fw-trigger');
-  if (fwEl && window.replayFireworks && scrollRoot) {
-    var fwFired = false;
-    new IntersectionObserver(function(entries, obs) {
-      if (entries[0].isIntersecting && !fwFired) {
+  // ── Fireworks trigger (scroll event — reliable on iOS Safari) ──
+  // IntersectionObserver with a position:fixed root is unreliable on iOS.
+  var fwEl    = document.getElementById('mob-fw-trigger');
+  var fwFired = false;
+
+  if (fwEl && window.replayFireworks) {
+    function checkFw() {
+      if (fwFired) return;
+      var rect  = fwEl.getBoundingClientRect();
+      var rootH = scrollRoot.getBoundingClientRect().height;
+      if (rect.top < rootH * 0.72) {
         fwFired = true;
         window.replayFireworks();
-        obs.disconnect();
+        scrollRoot.removeEventListener('scroll', checkFw);
       }
-    }, { root: scrollRoot, threshold: 0.3 }).observe(fwEl);
+    }
+    scrollRoot.addEventListener('scroll', checkFw, { passive: true });
+    checkFw(); // in case page loaded scrolled down
   }
 })();
 </script>
