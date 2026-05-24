@@ -3678,7 +3678,7 @@ function curlNoise(x, y) {
     outdoorActive = false;
     outdoorTimers.forEach(t => clearTimeout(t));
     outdoorTimers.length = 0;
-    const ms = fadeMs || 1400;
+    const ms = typeof fadeMs === 'number' ? fadeMs : 1400;
     // Fade out base elements (won't be playing, but safe no-op via fOut guard)
     fOut(document.getElementById('a-sfx-city'),  ms);
     fOut(document.getElementById('a-sfx-birds'), ms);
@@ -3756,21 +3756,25 @@ function curlNoise(x, y) {
     });
   }
 
+  function fadeVol(el, target, ms) {
+    if (!el || el.paused) return;
+    const start = el.volume, steps = 30;
+    let i = 0;
+    const iv = setInterval(() => {
+      if (el.paused) { clearInterval(iv); return; }
+      el.volume = start + (target - start) * Math.min(1, ++i / steps);
+      if (i >= steps) clearInterval(iv);
+    }, ms / steps);
+  }
   // Fan button: duck outdoor ambient → start fan
   function duckOutdoorAmbient() {
     const target = VOL.sfx * 0.18;
-    document.querySelectorAll('.outdoor-loop-clone').forEach(el => {
-      if (!el.paused) fIn(el, target, 3000);
-    });
+    document.querySelectorAll('.outdoor-loop-clone').forEach(el => { fadeVol(el, target, 2500); });
   }
   function unduckOutdoorAmbient() {
     if (!outdoorActive) return;
-    document.querySelectorAll('.outdoor-loop-clone[data-ambient-layer="city"]').forEach(el => {
-      if (!el.paused) fIn(el, VOL.sfx * 0.36, 4000);
-    });
-    document.querySelectorAll('.outdoor-loop-clone[data-ambient-layer="birds"]').forEach(el => {
-      if (!el.paused) fIn(el, VOL.sfx * 0.28, 4000);
-    });
+    document.querySelectorAll('.outdoor-loop-clone[data-ambient-layer="city"]').forEach(el => { fadeVol(el, VOL.sfx * 0.36, 4000); });
+    document.querySelectorAll('.outdoor-loop-clone[data-ambient-layer="birds"]').forEach(el => { fadeVol(el, VOL.sfx * 0.28, 4000); });
   }
   window.playFan = function() {
     duckOutdoorAmbient();
@@ -3837,6 +3841,7 @@ function curlNoise(x, y) {
     });
   });
   window.revealAudTgl = revealAudTgl;
+  window.stopOutdoorAmbient = stopOutdoorAmbient;
 })();
 </script>
 
@@ -4281,15 +4286,12 @@ function curlNoise(x, y) {
 
   window.playGiggle = async function() {
     if (!sfxOk()) return;
-    // Hard-stop all outdoor sounds instantly on first giggle tap
-    if (typeof stopOutdoorAmbient === 'function') {
-      // Stop loop clones immediately (no fade)
-      document.querySelectorAll('.outdoor-loop-clone').forEach(el => {
-        el.pause(); el.volume = 0;
-        if (el.parentNode) el.parentNode.removeChild(el);
-      });
-      stopOutdoorAmbient(0);
-    }
+    // Hard-stop all outdoor loop clones instantly (DOM query works across script scopes)
+    document.querySelectorAll('.outdoor-loop-clone').forEach(el => {
+      el.pause(); el.volume = 0;
+      if (el.parentNode) el.parentNode.removeChild(el);
+    });
+    if (typeof window.stopOutdoorAmbient === 'function') window.stopOutdoorAmbient(0);
     // Hard-stop the door audio element
     const doorEl = document.getElementById('a-sfx-door');
     if (doorEl && !doorEl.paused) { doorEl.pause(); doorEl.currentTime = 0; }
