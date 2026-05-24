@@ -1391,9 +1391,9 @@ body::before {
 <button id="nav-prev" aria-label="Previous page">&#8249;</button>
 <button id="nav-next" aria-label="Next page">&#8250;</button>
 <div id="page-indicator"></div>
-<button id="replay-dust">↻ dust again</button>
-<button id="replay-fireworks">↻ fireworks again</button>
-<button id="dust-toggle">✦ dust</button>
+<button id="replay-dust" title="Replay dust particles">↻ dust again</button>
+<button id="replay-fireworks" title="Replay fireworks">↻ fireworks again</button>
+<button id="dust-toggle" title="Toggle dust particles">✦ dust</button>
 
 <!-- ════════════════════════════════════════════
      MOBILE FALLBACK
@@ -3403,9 +3403,9 @@ function curlNoise(x, y) {
   <div class="mix-row"><button class="mix-pp" id="mp-voice" title="pause voice">⏸</button><div class="mix-lbl">voice</div><input class="mix-slider" type="range" min="0" max="100" value="50" step="1" id="ms-voice"><div class="mix-val" id="mv-voice">50</div></div>
   <div class="mix-row"><button class="mix-pp" id="mp-sfx" title="pause sounds">⏸</button><div class="mix-lbl">sounds</div><input class="mix-slider" type="range" min="0" max="100" value="50" step="1" id="ms-sfx"><div class="mix-val" id="mv-sfx">50</div></div>
 </div>
-<button id="mix-btn">≡ mix</button>
+<button id="mix-btn" title="Volume mixer">≡ mix</button>
 <div id="aud-nar-ind"></div>
-<button id="aud-toggle" class="off" style="opacity:0;pointer-events:none;transition:opacity 0.8s ease;">♪ click for sound</button>
+<button id="aud-toggle" class="off" style="opacity:0;pointer-events:none;transition:opacity 0.8s ease;" title="Toggle sound">♪ click for sound</button>
 
 <!-- AUDIO ELEMENTS — update src paths when files are ready -->
 <div id="audio-engine" style="display:none;">
@@ -3915,8 +3915,8 @@ function curlNoise(x, y) {
 
   function at(t, k, dt, o) { pb(k, t + dt, o); }
 
-  // ── SHUFFLE-DECK — exhausts all 10 before repeating ──────
-  const NVARS = 10;
+  // ── SHUFFLE-DECK — exhausts all 16 before repeating ──────
+  const NVARS = 16;
   let deck = [];
 
   function nextVar() {
@@ -3978,6 +3978,32 @@ function curlNoise(x, y) {
         at(t, 'sg', 0,    { vol: V, dur: 1.0 });
         at(t, 'w2', 0.85, { vol: V * 0.55, rate: 1.15 });
         at(t, 'd3', 1.5,  { vol: V * 0.85 });
+        break;
+      case 10: // g3 straight + close door — light and crisp
+        at(t, 'g3',  0,    { vol: V, dur: 1.3 });
+        at(t, 'd1',  1.15, { vol: V * 0.85 });
+        break;
+      case 11: // g4 slightly slowed (lilting) + close door
+        at(t, 'g4',  0,    { vol: V, rate: 0.90, dur: 1.2 });
+        at(t, 'd1',  1.1,  { vol: V * 0.80 });
+        break;
+      case 12: // g9 + soft breeze whoosh — airy exit
+        at(t, 'g9',  0,    { vol: V, dur: 1.3 });
+        at(t, 'w2',  1.0,  { vol: V * 0.40, rate: 0.88 });
+        break;
+      case 13: // g10 + open-close door — bright giggle
+        at(t, 'g10', 0,    { vol: V, dur: 1.3 });
+        at(t, 'd2',  1.2,  { vol: V * 0.82 });
+        break;
+      case 14: // small giggle doubled with soft echo + door
+        at(t, 'sg',  0,    { vol: V, dur: 1.0 });
+        at(t, 'sg',  0.28, { vol: V * 0.55, rate: 1.08, delay: 0.15, fb: 0.36, dur: 0.9 });
+        at(t, 'd1',  1.2,  { vol: V * 0.88 });
+        break;
+      case 15: // g3 + g4 light stereo duo + door
+        at(t, 'g3',  0,    { vol: V * 0.82, pan: -0.42, dur: 1.3 });
+        at(t, 'g4',  0.14, { vol: V * 0.78, pan:  0.42, rate: 1.06, dur: 1.2 });
+        at(t, 'd3',  1.35, { vol: V * 0.85 });
         break;
     }
   }
@@ -4169,26 +4195,31 @@ function curlNoise(x, y) {
   window.playGiggle = async function() {
     if (!sfxOk()) return;
     if (typeof stopOutdoorAmbient === 'function') stopOutdoorAmbient(150);
+    // Truncate any HTML door audio still playing from playDoor()
+    const doorEl = document.getElementById('a-sfx-door');
+    if (doorEl && !doorEl.paused) { doorEl.pause(); doorEl.currentTime = 0; }
     await ensure();
     runVar(nextVar());
   };
 
   window.toggleGiggleExt = async function(mode) {
-    if (!sfxOk()) return;
-    await ensure();
     const i = mode - 1;
 
+    // Always allow turning OFF regardless of sfxOk / mix state
     if (extState[i]) {
       extState[i] = false;
       if (extTimer[i]) { clearTimeout(extTimer[i]); extTimer[i] = null; }
       if (extMG[i]) {
         const mg = extMG[i]; extMG[i] = null;
-        mg.gain.linearRampToValueAtTime(0, AC.currentTime + 0.7);
+        if (AC) mg.gain.linearRampToValueAtTime(0, AC.currentTime + 0.7);
         setTimeout(() => { try { mg.disconnect(); } catch(e) {} }, 1400);
       }
       updateExtBtn(mode);
       return;
     }
+
+    if (!sfxOk()) return;
+    await ensure();
 
     extState[i] = true;
     updateExtBtn(mode);
@@ -4260,15 +4291,26 @@ function curlNoise(x, y) {
 }
 .mct-btn.mct-hidden { display: none !important; }
 .mct-btn.off { color: rgba(200,169,106,0.28); border-color: rgba(200,169,106,0.16); }
+.mct-btn { flex-direction: column; gap: 2px; height: 50px; }
+.mct-lbl {
+  display: block;
+  font-size: 0.38em;
+  letter-spacing: 0.4px;
+  font-family: 'Cormorant Garamond', serif;
+  opacity: 0.72;
+  line-height: 1;
+  white-space: nowrap;
+  text-transform: uppercase;
+}
 </style>
 <div id="mob-ctrl-tray">
   <button id="mob-ctrl-handle" aria-label="Controls">⋮</button>
   <div id="mob-ctrl-drawer">
-    <button id="mct-sound"    class="mct-btn" aria-label="Toggle sound">♪</button>
-    <button id="mct-mix"      class="mct-btn" aria-label="Mix panel">≡</button>
-    <button id="mct-fw"       class="mct-btn mct-hidden" aria-label="Fireworks">✦</button>
-    <button id="mct-dust-tgl" class="mct-btn" aria-label="Dust">◎</button>
-    <button id="mct-dust-rep" class="mct-btn mct-hidden" aria-label="Replay dust">↻</button>
+    <button id="mct-sound"    class="mct-btn" aria-label="Toggle sound"   title="Sound on/off">♪<span class="mct-lbl">sound</span></button>
+    <button id="mct-mix"      class="mct-btn" aria-label="Mix panel"     title="Volume mixer">≡<span class="mct-lbl">mixer</span></button>
+    <button id="mct-fw"       class="mct-btn mct-hidden" aria-label="Replay fireworks" title="Replay fireworks">✦<span class="mct-lbl">sparks</span></button>
+    <button id="mct-dust-tgl" class="mct-btn" aria-label="Toggle dust"   title="Dust on/off">◎<span class="mct-lbl">dust</span></button>
+    <button id="mct-dust-rep" class="mct-btn mct-hidden" aria-label="Replay dust" title="Replay dust">↻<span class="mct-lbl">replay</span></button>
   </div>
 </div>
 <script>
