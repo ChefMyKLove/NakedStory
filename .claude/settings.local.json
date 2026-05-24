@@ -25,7 +25,10 @@
       "PowerShell($lines = Get-Content \"C:\\\\Users\\\\micha\\\\Desktop\\\\wereNaked_story\\\\index.html\"; \\($lines | Select-String \"snd-yt-wrap|snd-yt-cover|snd-yt-noplay|snd-yt-player|YOUTUBE VIDEO\" | Select-Object -First 15\\).foreach\\({ \"$\\($_.LineNumber\\): $\\($_.Line.Substring\\(0,[Math]::Min\\(90,$_.Line.Length\\)\\)\\)\" }\\))",
       "PowerShell($lines = Get-Content \"C:\\\\Users\\\\micha\\\\Desktop\\\\wereNaked_story\\\\index.html\"; \\($lines | Select-String \"END SOUNDTRACK PLAYER\"\\).foreach\\({ \"$\\($_.LineNumber\\): $\\($_.Line\\)\" }\\))",
       "PowerShell(Get-ChildItem \"c:\\\\Users\\\\micha\\\\Desktop\\\\wereNaked_story\" | ForEach-Object { $_.Name })",
-      "Bash(dir *)"
+      "Bash(dir *)",
+      "PowerShell(git -C \"c:\\\\Users\\\\micha\\\\Desktop\\\\wereNaked_story\" remote -v)",
+      "PowerShell(git -C \"c:\\\\Users\\\\micha\\\\Desktop\\\\wereNaked_story\" branch -a)",
+      "PowerShell(git -C \"c:\\\\Users\\\\micha\\\\Desktop\\\\wereNaked_story\" push origin master)"
     ],
     "additionalDirectories": [
       "C:\\Users\\micha\\Desktop\\wereNaked_story\\docs"
