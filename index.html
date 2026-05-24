@@ -1226,6 +1226,37 @@ body::before {
   animation: mob-splash-hint 2.2s ease-in-out infinite;
 }
 
+/* ── Mobile sticky audio strip ── */
+#mob-audio-strip {
+  position: sticky;
+  top: -1px;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  margin: 0 -28px;
+  padding: 10px 20px 14px;
+  background: linear-gradient(to bottom, rgba(10,6,3,0.97) 60%, rgba(10,6,3,0) 100%);
+}
+.mob-strip-btn {
+  background: rgba(200,169,106,0.10);
+  border: 1px solid rgba(200,169,106,0.40);
+  color: rgba(200,169,106,0.85);
+  padding: 7px 16px;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.80em;
+  letter-spacing: 1.2px;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: background 0.2s, border-color 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+.mob-strip-btn.snd-on {
+  border-color: rgba(200,169,106,0.85);
+  color: rgba(235,205,145,1);
+}
+
 @keyframes mob-cover-pulse { 0%, 100% { opacity: 0.30; } 50% { opacity: 0.90; } }
 
 @media (max-width: 800px) {
@@ -1236,7 +1267,8 @@ body::before {
   #replay-fireworks { display: block !important; z-index: 615; bottom: 72px; left: 28px; right: auto; }
   #aud-toggle       { z-index: 620; opacity: 1 !important; pointer-events: auto !important; }
   #snd-open-btn { display: none !important; }
-  #mix-panel { width: calc(100vw - 56px); }
+  #mix-btn   { z-index: 625; }
+  #mix-panel { z-index: 626; width: calc(100vw - 56px); }
   #mob-splash { display: flex; }
 
   /* ── Mobile cover section ── */
@@ -1410,6 +1442,12 @@ body::before {
     <div class="mob-cover-hint">scroll to begin</div>
   </div>
 
+  <!-- ── Sticky audio controls strip ── -->
+  <div id="mob-audio-strip">
+    <button class="mob-strip-btn" id="mob-snd-strip" onclick="(function(btn){var t=document.getElementById('aud-toggle');if(t){t.click();var on=!t.classList.contains('off');btn.textContent=on?'♪ on':'♪ off';btn.classList.toggle('snd-on',on);}})(this)">♪ off</button>
+    <button class="mob-strip-btn" onclick="var m=document.getElementById('mix-btn');if(m)m.click();">≡ mix</button>
+  </div>
+
   <h1>We're Naked!</h1>
   <p class="m-sub">A Rapture in Three Acts</p>
   <div class="m-epi">
@@ -1505,6 +1543,11 @@ body::before {
   </div>
   <p>Dripping with an irony that still stings enough to this day so as to populate such a dream as this...</p>
   <p>—as you spring from the heater onto the bed, into your rush-ready robe, then right out the door with a thumbs up. No words, just a <button onclick="window.playGiggle&&window.playGiggle()" style="background:none;border:1px solid rgba(100,80,60,0.3);border-radius:2px;cursor:pointer;font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--ink-faint);font-size:0.78em;padding:1px 7px;vertical-align:middle;" title="🔊">▶ giggle</button>.</p>
+  <div style="display:flex;gap:10px;margin:20px 0;justify-content:center;flex-wrap:wrap;">
+    <button id="gext-1" onclick="window.toggleGiggleExt&&window.toggleGiggleExt(1)" style="background:rgba(18,10,4,0.82);border:2px solid rgba(200,169,106,0.90);color:rgba(220,188,128,1);padding:9px 16px;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:0.88em;letter-spacing:1.5px;cursor:pointer;border-radius:3px;white-space:nowrap;transition:background 0.25s,border-color 0.25s,color 0.25s;">↻ dreamy</button>
+    <button id="gext-2" onclick="window.toggleGiggleExt&&window.toggleGiggleExt(2)" style="background:rgba(18,10,4,0.82);border:2px solid rgba(200,169,106,0.90);color:rgba(220,188,128,1);padding:9px 16px;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:0.88em;letter-spacing:1.5px;cursor:pointer;border-radius:3px;white-space:nowrap;transition:background 0.25s,border-color 0.25s,color 0.25s;">✦ chaos</button>
+    <button id="gext-3" onclick="window.toggleGiggleExt&&window.toggleGiggleExt(3)" style="background:rgba(18,10,4,0.82);border:2px solid rgba(200,169,106,0.90);color:rgba(220,188,128,1);padding:9px 16px;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:0.88em;letter-spacing:1.5px;cursor:pointer;border-radius:3px;white-space:nowrap;transition:background 0.25s,border-color 0.25s,color 0.25s;">✶ rapture</button>
+  </div>
   <p><strong>And I'm naked and alone.</strong></p>
   <p>I sit by the window for a wee while longer, this morning. Watching the last lingering dust motes catch the warming light and I'm thinking.</p>
   <p>Thinking about that time in Central Park with only forty-nine minutes to go; about how we're all walking around with a future of apocalypse dust on our skin and calling it just another Tuesday.</p>
