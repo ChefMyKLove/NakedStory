@@ -1260,62 +1260,18 @@ body::before {
 @keyframes mob-cover-pulse { 0%, 100% { opacity: 0.30; } 50% { opacity: 0.90; } }
 
 @media (max-width: 800px) {
-  #mobile-fallback { display: block; }
-  .book-scene, #nav-prev, #nav-next, #page-indicator, #replay-dust, #dust-toggle { display: none !important; }
-  /* Re-enable effects on mobile at z-index above the fallback (600) */
-  #dust-canvas      { display: block !important; z-index: 610; }
-  #replay-fireworks { display: block !important; z-index: 615; bottom: 72px; left: 28px; right: auto; }
-  #aud-toggle       { z-index: 620; opacity: 1 !important; pointer-events: auto !important; }
-  #snd-open-btn { display: none !important; }
-  #mix-btn   { z-index: 625; }
-  #mix-panel { z-index: 626; width: calc(100vw - 56px); }
-  #mob-splash { display: flex; }
-
-  /* ── Mobile cover section ── */
-  #mob-cover {
-    margin: -60px -28px 0;
-    height: 100vh;
-    position: relative;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-end;
-    padding: 0 28px 52px;
-  }
-  #mob-cover .cover-img-live {
-    position: absolute; inset: 0;
-    width: 100%; height: 100%;
-    object-fit: cover; object-position: center top;
-    display: block;
-  }
-  .mob-cover-grad {
-    position: absolute; inset: 0;
-    background: linear-gradient(to bottom, rgba(13,8,4,0) 30%, rgba(13,8,4,0.95) 100%);
-    z-index: 3; pointer-events: none;
-  }
-  .mob-cover-title {
-    position: relative; z-index: 5;
-    font-family: 'Cormorant Garamond', serif;
-    font-weight: 300; font-size: 2.6em; letter-spacing: 3px;
-    color: rgba(245,225,190,0.95); text-align: center;
-    margin-bottom: 6px;
-    text-shadow: 0 2px 24px rgba(0,0,0,0.7);
-  }
-  .mob-cover-sub {
-    position: relative; z-index: 5;
-    font-family: 'Cormorant Garamond', serif; font-style: italic;
-    font-size: 1.0em; color: rgba(200,175,130,0.72);
-    letter-spacing: 1.5px; text-align: center;
-    margin-bottom: 30px;
-  }
-  .mob-cover-hint {
-    position: relative; z-index: 5;
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 0.60em; letter-spacing: 4px; text-transform: uppercase;
-    color: rgba(200,169,106,0.50);
-    animation: mob-cover-pulse 2.4s ease-in-out infinite;
-  }
+  /* Show splash, hide scroll fallback — book is the mobile experience */
+  #mob-splash    { display: flex; }
+  #page-indicator { display: none !important; }
+  #snd-open-btn  { display: none !important; }
+  /* Raise controls above vignette (z-550) and dust canvas (z-500) */
+  #nav-prev, #nav-next { z-index: 620; }
+  #aud-toggle      { z-index: 620; }
+  #mix-btn         { z-index: 625; }
+  #mix-panel       { z-index: 626; width: calc(100vw - 56px); }
+  #replay-fireworks { z-index: 620; }
+  #replay-dust     { z-index: 620; }
+  #dust-toggle     { z-index: 620; }
 }
 
 /* ── MIX PANEL ──────────────────────────────────── */
@@ -1543,11 +1499,6 @@ body::before {
   </div>
   <p>Dripping with an irony that still stings enough to this day so as to populate such a dream as this...</p>
   <p>—as you spring from the heater onto the bed, into your rush-ready robe, then right out the door with a thumbs up. No words, just a <button onclick="window.playGiggle&&window.playGiggle()" style="background:none;border:1px solid rgba(100,80,60,0.3);border-radius:2px;cursor:pointer;font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--ink-faint);font-size:0.78em;padding:1px 7px;vertical-align:middle;" title="🔊">▶ giggle</button>.</p>
-  <div style="display:flex;gap:10px;margin:20px 0;justify-content:center;flex-wrap:wrap;">
-    <button id="gext-1" onclick="window.toggleGiggleExt&&window.toggleGiggleExt(1)" style="background:rgba(18,10,4,0.82);border:2px solid rgba(200,169,106,0.90);color:rgba(220,188,128,1);padding:9px 16px;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:0.88em;letter-spacing:1.5px;cursor:pointer;border-radius:3px;white-space:nowrap;transition:background 0.25s,border-color 0.25s,color 0.25s;">↻ dreamy</button>
-    <button id="gext-2" onclick="window.toggleGiggleExt&&window.toggleGiggleExt(2)" style="background:rgba(18,10,4,0.82);border:2px solid rgba(200,169,106,0.90);color:rgba(220,188,128,1);padding:9px 16px;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:0.88em;letter-spacing:1.5px;cursor:pointer;border-radius:3px;white-space:nowrap;transition:background 0.25s,border-color 0.25s,color 0.25s;">✦ chaos</button>
-    <button id="gext-3" onclick="window.toggleGiggleExt&&window.toggleGiggleExt(3)" style="background:rgba(18,10,4,0.82);border:2px solid rgba(200,169,106,0.90);color:rgba(220,188,128,1);padding:9px 16px;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:0.88em;letter-spacing:1.5px;cursor:pointer;border-radius:3px;white-space:nowrap;transition:background 0.25s,border-color 0.25s,color 0.25s;">✶ rapture</button>
-  </div>
   <p><strong>And I'm naked and alone.</strong></p>
   <p>I sit by the window for a wee while longer, this morning. Watching the last lingering dust motes catch the warming light and I'm thinking.</p>
   <p>Thinking about that time in Central Park with only forty-nine minutes to go; about how we're all walking around with a future of apocalypse dust on our skin and calling it just another Tuesday.</p>
@@ -2024,6 +1975,29 @@ const PAGES = [
 ];
 
 /* ══════════════════════════════════════════════════════
+   MOBILE PAGE ARRAY — spreads split into sequential singles
+   AP() returns MPAGES on mobile (≤800px), PAGES on desktop
+══════════════════════════════════════════════════════ */
+const MPAGES = (function() {
+  const pages = [];
+  for (const p of PAGES) {
+    if (p.type !== 'spread') {
+      pages.push(p);
+    } else {
+      const lFlags = {};
+      const rFlags = {};
+      if (p.dustStartPage) { lFlags.dustStartPage = true; rFlags.dustPage = true; }
+      if (p.dustPage)      { lFlags.dustPage = true;      rFlags.dustPage = true; }
+      if (p.dustSettlePage){ lFlags.dustSettlePage = true; rFlags.dustSettlePage = true; }
+      pages.push({ type: 'single', id: p.id + '-l', html: p.left,  ...lFlags });
+      pages.push({ type: 'single', id: p.id,        html: p.right, ...rFlags });
+    }
+  }
+  return pages;
+})();
+function AP() { return window.innerWidth <= 800 ? MPAGES : PAGES; }
+
+/* ══════════════════════════════════════════════════════
    SIMPLEX NOISE — 2D, self-contained
 ══════════════════════════════════════════════════════ */
 const _Simplex = (function() {
@@ -2080,16 +2054,20 @@ function curlNoise(x, y) {
   function computeSize() {
     const vw = window.innerWidth;
     const vh = window.innerHeight;
-    BH = Math.min(vh * 0.90, 900);
-    BW = Math.min(vw * 0.90, 1200);
-    // For single pages, book is half width
+    if (vw <= 800) {
+      BH = vh * 0.92;
+      BW = vw * 0.98;
+    } else {
+      BH = Math.min(vh * 0.90, 900);
+      BW = Math.min(vw * 0.90, 1200);
+    }
   }
 
   function applySize(isSingle) {
-    const w = isSingle ? BW * 0.52 : BW;
+    const isMobile = window.innerWidth <= 800;
+    const w = (isSingle && !isMobile) ? BW * 0.52 : BW;
     book.style.width  = w + 'px';
     book.style.height = BH + 'px';
-    // Position nav buttons flush with the book frame edges
     const inset = Math.max(4, (window.innerWidth - w) / 2 - 48);
     navP.style.left  = inset + 'px';
     navN.style.right = inset + 'px';
@@ -2150,7 +2128,7 @@ function curlNoise(x, y) {
     book.querySelectorAll('.leaf, .static-page').forEach(el => el.remove());
     leaves = [];
 
-    const page = PAGES[currentPage];
+    const page = AP()[currentPage];
     const isSingle = page.type === 'single';
     applySize(isSingle);
 
@@ -2183,13 +2161,13 @@ function curlNoise(x, y) {
     checkDust();
 
     // Trigger word-burst sequences
-    if (PAGES[currentPage].id === 'shout1') startNakedShoutBursts('shout1');
-    if (PAGES[currentPage].id === 'shout2') startShout2Bursts();
-    if (PAGES[currentPage].id === 'shout3') startNakedShoutBursts('shout3');
-    if (PAGES[currentPage].id === 'shout4') startShout4Bursts();
+    if (AP()[currentPage].id === 'shout1') startNakedShoutBursts('shout1');
+    if (AP()[currentPage].id === 'shout2') startShout2Bursts();
+    if (AP()[currentPage].id === 'shout3') startNakedShoutBursts('shout3');
+    if (AP()[currentPage].id === 'shout4') startShout4Bursts();
 
     // Unlock fireworks replay button on first shout page visit
-    const isShout = ['shout1','shout2','shout3','shout4'].includes(PAGES[currentPage].id);
+    const isShout = ['shout1','shout2','shout3','shout4'].includes(AP()[currentPage].id);
     if (isShout) {
       if (!fireworksEverPlayed) {
         fireworksEverPlayed = true;
@@ -2202,23 +2180,23 @@ function curlNoise(x, y) {
     }
 
     // Cover cloud: run JS-driven turbulence only on the cover page
-    if (PAGES[currentPage].id === 'cover') startCoverCloudAnim();
+    if (AP()[currentPage].id === 'cover') startCoverCloudAnim();
     else stopCoverCloudAnim();
 
-    if (PAGES[currentPage].id === 's8') {
+    if (AP()[currentPage].id === 's8' || AP()[currentPage].id === 's8-l') {
       setTimeout(() => { window.updateExtBtns && window.updateExtBtns(); }, 0);
     }
   }
 
   function splashLine(pageId, cx, y, spread) {
-    if (PAGES[currentPage].id !== pageId) return;
+    if (AP()[currentPage].id !== pageId) return;
     // 5 positions across the text width — left, mid-left, center, mid-right, right
     [-spread*0.8, -spread*0.35, 0, spread*0.35, spread*0.8].forEach(ox => {
       fireBurst(cx + ox + (Math.random()-0.5)*20, y + (Math.random()-0.5)*14, 52);
     });
     // bounce-echo ~140ms later — secondary glitter scatter
     setTimeout(() => {
-      if (PAGES[currentPage].id !== pageId) return;
+      if (AP()[currentPage].id !== pageId) return;
       [-spread*0.55, 0, spread*0.55].forEach(ox => {
         fireBurst(cx + ox + (Math.random()-0.5)*16, y + (Math.random()-0.5)*12, 30);
       });
@@ -2229,7 +2207,7 @@ function curlNoise(x, y) {
     const w = canvas.width, h = canvas.height;
     function shell(delay, xFrac, yFrac, count, color) {
       setTimeout(() => {
-        if (PAGES[currentPage].id !== pageId) return;
+        if (AP()[currentPage].id !== pageId) return;
         fireBurst(
           w * xFrac + (Math.random()-0.5) * w * 0.06,
           h * yFrac + (Math.random()-0.5) * h * 0.05,
@@ -2291,7 +2269,7 @@ function curlNoise(x, y) {
     });
     // Grand finale — all lines rejoin at 1.9s
     setTimeout(() => {
-      if (PAGES[currentPage].id !== 'shout4') return;
+      if (AP()[currentPage].id !== 'shout4') return;
       [-spread*1.0, -spread*0.4, 0, spread*0.4, spread*1.0].forEach(ox => {
         fireBurst(cx + ox + (Math.random()-0.5)*18, cy + (Math.random()-0.5)*28, 65);
       });
@@ -2299,18 +2277,18 @@ function curlNoise(x, y) {
     // n4-triple-pop bounces at 2.1s, 2.8s, 3.5s — fire on each peak (~35% into 0.7s = ~245ms)
     [2345, 3045, 3745].forEach(delay => {
       setTimeout(() => {
-        if (PAGES[currentPage].id !== 'shout4') return;
+        if (AP()[currentPage].id !== 'shout4') return;
         splashLine('shout4', cx, cy, spread * 1.0);
       }, delay);
     });
     // Trailing sparks — small quiet bursts drifting down for ~2s after the last bounce
     setTimeout(() => {
-      if (PAGES[currentPage].id !== 'shout4') return;
+      if (AP()[currentPage].id !== 'shout4') return;
       fireBurst(cx + (Math.random()-0.5)*spread*0.8, cy + (Math.random()-0.5)*40, 22);
       fireBurst(cx + (Math.random()-0.5)*spread*0.6, cy + (Math.random()-0.5)*30, 16);
     }, 4550);
     setTimeout(() => {
-      if (PAGES[currentPage].id !== 'shout4') return;
+      if (AP()[currentPage].id !== 'shout4') return;
       fireBurst(cx + (Math.random()-0.5)*spread*0.5, cy + (Math.random()-0.5)*35, 14);
     }, 5400);
 
@@ -2348,7 +2326,7 @@ function curlNoise(x, y) {
     });
     // Grand finale — all words rejoin at 2.8s, big celebration burst
     setTimeout(() => {
-      if (PAGES[currentPage].id !== 'shout2') return;
+      if (AP()[currentPage].id !== 'shout2') return;
       [-spread*1.1, -spread*0.5, 0, spread*0.5, spread*1.1].forEach(ox => {
         fireBurst(cx + ox + (Math.random()-0.5)*20, cy + (Math.random()-0.5)*30, 70);
       });
@@ -2356,18 +2334,18 @@ function curlNoise(x, y) {
     // shout2-bounce: 2 container bounces at 3.0s and 3.75s (0.75s each, peak at ~30%)
     [3225, 3975].forEach(delay => {
       setTimeout(() => {
-        if (PAGES[currentPage].id !== 'shout2') return;
+        if (AP()[currentPage].id !== 'shout2') return;
         splashLine('shout2', cx, cy, spread * 1.2);
       }, delay);
     });
     // Trailing sparks — small quiet bursts drifting down for ~2s after the last bounce
     setTimeout(() => {
-      if (PAGES[currentPage].id !== 'shout2') return;
+      if (AP()[currentPage].id !== 'shout2') return;
       fireBurst(cx + (Math.random()-0.5)*spread*0.7, cy + (Math.random()-0.5)*38, 20);
       fireBurst(cx + (Math.random()-0.5)*spread*0.5, cy + (Math.random()-0.5)*28, 14);
     }, 4800);
     setTimeout(() => {
-      if (PAGES[currentPage].id !== 'shout2') return;
+      if (AP()[currentPage].id !== 'shout2') return;
       fireBurst(cx + (Math.random()-0.5)*spread*0.4, cy + (Math.random()-0.5)*32, 12);
     }, 5750);
 
@@ -2580,13 +2558,13 @@ function curlNoise(x, y) {
 
   // ── NAVIGATION ─────────────────────────────────────
   function goNext() {
-    if (currentPage >= PAGES.length - 1 || isAnimating) return;
+    if (currentPage >= AP().length - 1 || isAnimating) return;
 
-    const page = PAGES[currentPage];
+    const page = AP()[currentPage];
     isAnimating = true;
 
     if (page.type === 'spread') {
-      const nextPage = PAGES[currentPage + 1];
+      const nextPage = AP()[currentPage + 1];
       const crossType = nextPage && nextPage.type !== 'spread';
 
       if (crossType) {
@@ -2656,11 +2634,11 @@ function curlNoise(x, y) {
 
   function updateNav() {
     navP.classList.toggle('hidden', currentPage === 0);
-    navN.classList.toggle('hidden', currentPage === PAGES.length - 1);
+    navN.classList.toggle('hidden', currentPage === AP().length - 1);
   }
 
   function updateIndicator() {
-    indic.textContent = `${currentPage + 1} / ${PAGES.length}`;
+    indic.textContent = `${currentPage + 1} / ${AP().length}`;
   }
 
   // ── DUST ───────────────────────────────────────────
@@ -2967,7 +2945,7 @@ function curlNoise(x, y) {
 
   function checkDust() {
     if (!dustEnabled) return;
-    const page = PAGES[currentPage];
+    const page = AP()[currentPage];
 
     // User explicitly forced dust on — run it regardless of page type
     if (dustForced) {
@@ -2992,7 +2970,7 @@ function curlNoise(x, y) {
       if (dustMode === 'cover' || dustMode === 'back-cover') stopDust();
       if (!dustStarted || dustMode === 'cover' || dustMode === 'back-cover') {
         setTimeout(() => {
-          if (PAGES[currentPage] && PAGES[currentPage].dustStartPage) startDust();
+          if (AP()[currentPage] && AP()[currentPage].dustStartPage) startDust();
         }, 45000);
       }
       replayBtn.classList.add('visible');
@@ -3351,7 +3329,7 @@ function curlNoise(x, y) {
       dustToggleBtn.classList.remove('dust-off');
       dustForced = true;
       // Force-start dust appropriate for the current page
-      const page = PAGES[currentPage];
+      const page = AP()[currentPage];
       if (page && page.coverDust) startCoverDust();
       else if (page && page.backCoverDust) startBackCoverDust();
       else { if (!dustStarted || dustMode === 'cover' || dustMode === 'back-cover') startDust(); }
@@ -3373,10 +3351,10 @@ function curlNoise(x, y) {
   navP.addEventListener('click', goPrev);
 
   // ── AUDIO PAGE HOOKS ───────────────────────────
-  window._getAudioPageId=()=>{const p=PAGES[currentPage];return p?p.id:null;};
+  window._getAudioPageId=()=>{const p=AP()[currentPage];return p?p.id:null;};
   let _firstTurnFired = false;
   function _notifyPage() {
-    const p = PAGES[currentPage];
+    const p = AP()[currentPage];
     if (p && window.onAudioPageChange) window.onAudioPageChange(p.id);
     if (!_firstTurnFired) {
       _firstTurnFired = true;
@@ -3387,6 +3365,7 @@ function curlNoise(x, y) {
   // ── WINDOW RESIZE ──────────────────────────────────
   window.addEventListener('resize', () => {
     computeSize();
+    if (currentPage >= AP().length) currentPage = AP().length - 1;
     render();
   });
 
@@ -3465,19 +3444,19 @@ function curlNoise(x, y) {
     'epigraph':  'a-n01',
     's1-left':   'a-n02',
     's1-right':  'a-n03',
-    's2':        'a-n04',
+    's2':        'a-n04', 's2-l':  'a-n04',
     's2b-left':  'a-n05',
     's2b-right': 'a-n05',
-    's3':        'a-n06',
-    's4':        'a-n07',
-    's5':        'a-n09',
-    's6':        'a-n10',
-    's7':        'a-n11',
-    's8':        'a-n12',
+    's3':        'a-n06', 's3-l':  'a-n06',
+    's4':        'a-n07', 's4-l':  'a-n07',
+    's5':        'a-n09', 's5-l':  'a-n09',
+    's6':        'a-n10', 's6-l':  'a-n10',
+    's7':        'a-n11', 's7-l':  'a-n11',
+    's8':        'a-n12', 's8-l':  'a-n12',
     'the-end':   'a-n13',
   };
 
-  const DS_START=new Set(['s4','s5','s6','part3-title','s7']);
+  const DS_START=new Set(['s4','s4-l','s5','s5-l','s6','s6-l','part3-title','s7','s7-l']);
   const DS_STOP=new Set(['the-end','about','back-cover']);
 
   function fIn(el,v,ms){if(!el)return;el.volume=0;if(el.paused)el.play().catch(()=>{});const s=40,d=ms/s;let i=0;const iv=setInterval(()=>{el.volume=Math.min(v,el.volume+v/s);if(++i>=s)clearInterval(iv);},d);}
@@ -3761,48 +3740,36 @@ function curlNoise(x, y) {
 </script>
 
 <script>
-/* ── MOBILE EFFECTS ─────────────────────────────────────────
-   Runs only on mobile (≤800px). Handles: splash/audio unlock,
-   dust, fireworks (scroll-based for iOS reliability), cover anim.
+/* ── MOBILE SPLASH UNLOCK ───────────────────────────────────
+   Tap splash to unlock audio and reveal the paged book.
 ──────────────────────────────────────────────────────────── */
 (function() {
   if (window.innerWidth > 800) return;
 
-  var fb      = document.getElementById('mobile-fallback');
-  var splash  = document.getElementById('mob-splash');
+  var splash = document.getElementById('mob-splash');
 
-  // ── Splash: blocks scroll until first tap, unlocks audio ──
-  if (splash && fb) {
-    fb.style.overflow = 'hidden'; // lock scroll behind splash
-
-    function dismissSplash() {
-      splash.style.opacity = '0';
-      splash.style.pointerEvents = 'none';
-      fb.style.overflow = ''; // re-enable scroll
-
-      // Reveal the audio toggle (needs a user gesture to show)
-      if (window.revealAudTgl) window.revealAudTgl();
-      else {
-        var t = document.getElementById('aud-toggle');
-        if (t) { t.style.opacity = '1'; t.style.pointerEvents = ''; }
-      }
-
-      // Prime the Web Audio context in this gesture frame
-      try {
-        var AC = window.AudioContext || window.webkitAudioContext;
-        if (AC) { var ac = new AC(); ac.resume().then(function(){ ac.close(); }); }
-      } catch(e) {}
-
-      setTimeout(function() { splash.style.display = 'none'; }, 700);
+  function dismissSplash() {
+    if (!splash) return;
+    splash.style.opacity = '0';
+    splash.style.pointerEvents = 'none';
+    if (window.revealAudTgl) window.revealAudTgl();
+    else {
+      var t = document.getElementById('aud-toggle');
+      if (t) { t.style.opacity = '1'; t.style.pointerEvents = ''; }
     }
+    try {
+      var AC = window.AudioContext || window.webkitAudioContext;
+      if (AC) { var ac = new AC(); ac.resume().then(function(){ ac.close(); }); }
+    } catch(e) {}
+    setTimeout(function() { splash.style.display = 'none'; }, 700);
+  }
 
+  if (splash) {
     splash.addEventListener('click',    dismissSplash, { once: true });
     splash.addEventListener('touchend', function(e) {
       e.preventDefault(); dismissSplash();
     }, { once: true, passive: false });
-
   } else {
-    // Splash not available — fall back to timed reveal
     setTimeout(function() {
       if (window.revealAudTgl) window.revealAudTgl();
       else {
@@ -3810,40 +3777,6 @@ function curlNoise(x, y) {
         if (t) { t.style.opacity = '1'; t.style.pointerEvents = ''; }
       }
     }, 900);
-  }
-
-  // ── Cover cloud animation ────────────────────────────────
-  if (window.startCoverCloudAnim) window.startCoverCloudAnim();
-
-  var scrollRoot = document.getElementById('mobile-fallback');
-  if (!scrollRoot) return;
-
-  // ── Dust trigger (IntersectionObserver) ─────────────────
-  var dustEl = document.getElementById('mob-dust-trigger');
-  if (dustEl && window.startDust) {
-    new IntersectionObserver(function(entries, obs) {
-      if (entries[0].isIntersecting) { window.startDust(); obs.disconnect(); }
-    }, { root: scrollRoot, threshold: 0.4 }).observe(dustEl);
-  }
-
-  // ── Fireworks trigger (scroll event — reliable on iOS Safari) ──
-  // IntersectionObserver with a position:fixed root is unreliable on iOS.
-  var fwEl    = document.getElementById('mob-fw-trigger');
-  var fwFired = false;
-
-  if (fwEl && window.replayFireworks) {
-    function checkFw() {
-      if (fwFired) return;
-      var rect  = fwEl.getBoundingClientRect();
-      var rootH = scrollRoot.getBoundingClientRect().height;
-      if (rect.top < rootH) {
-        fwFired = true;
-        window.replayFireworks();
-        scrollRoot.removeEventListener('scroll', checkFw);
-      }
-    }
-    scrollRoot.addEventListener('scroll', checkFw, { passive: true });
-    checkFw(); // in case page loaded scrolled down
   }
 })();
 </script>
