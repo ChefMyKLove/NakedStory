@@ -3034,7 +3034,8 @@ function curlNoise(x, y) {
     }
     // Any other page: stop dust
     else {
-      if (dustPhase === 'alive' || dustPhase === 'rising' || dustPhase === 'settling') stopDust();
+      if (dustPhase === 'alive' || dustPhase === 'rising') stopDust();
+      // 'settling' self-fades to 0 over 20s — don't interrupt it
       replayBtn.classList.remove('visible');
     }
   }
@@ -3158,8 +3159,20 @@ function curlNoise(x, y) {
       if (globalOpacity > readFloor) globalOpacity = Math.max(readFloor, globalOpacity - 0.008);
     } else if (dustPhase === 'settling') {
       settleVelocityScale = Math.max(0, settleVelocityScale - 0.000926);
-      globalOpacity = Math.max(0.38, globalOpacity - 0.000926);
-      hazeOpacity   = Math.max(0, hazeOpacity - 0.01);
+      if (globalOpacity > 0.38) {
+        globalOpacity = Math.max(0.38, globalOpacity - 0.000926);
+      } else {
+        globalOpacity = Math.max(0, globalOpacity - 0.000317); // 20s fade at 60fps
+        if (globalOpacity <= 0) {
+          dustPhase = 'hidden'; dustStarted = false; dustMode = 'normal'; coverClipRect = null;
+          particles = [];
+          if (burstParticles.length === 0 && flashRings.length === 0) {
+            canvas.classList.remove('active');
+            animId = null; return;
+          }
+        }
+      }
+      hazeOpacity = Math.max(0, hazeOpacity - 0.01);
     } else if (dustPhase === 'falling') {
       globalOpacity = Math.max(0, globalOpacity - 0.006);
       hazeOpacity   = Math.max(0, hazeOpacity - 0.012);
