@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Composer — We're Naked!</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body {
+  background: #090604;
+  color: rgba(232,218,196,0.88);
+  font-family: 'Georgia', serif;
+  min-height: 100vh;
+  padding-bottom: 60px;
+}
+h1 {
+  text-align: center;
+  padding: 28px 0 6px;
+  font-size: 1.1em;
+  font-weight: normal;
+  letter-spacing: 5px;
+  color: rgba(200,169,106,0.6);
+  text-transform: uppercase;
+}
+#load-status {
+  text-align: center;
+  font-size: 0.68em;
+  color: rgba(200,169,106,0.38);
+  letter-spacing: 2px;
+  padding-bottom: 20px;
+}
+.composers {
+  display: flex;
+  gap: 20px;
+  padding: 0 16px;
+  max-width: 1500px;
+  margin: 0 auto;
+}
+.composer {
+  flex: 1;
+  min-width: 0;
+  border: 1px solid rgba(200,169,106,0.13);
+  border-radius: 4px;
+  padding: 16px;
+}
+.composer-head {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(200,169,106,0.10);
+}
+.composer-name {
+  font-size: 0.85em;
+  letter-spacing: 4px;
+  color: rgba(220,188,128,0.85);
+  text-transform: uppercase;
+  flex: 1;
+}
+.composer-sub {
+  font-size: 0.65em;
+  color: rgba(200,169,106,0.42);
+  letter-spacing: 1px;
+}
+/* track grid */
+.tracks {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.track-card {
+  border: 1px solid rgba(200,169,106,0.10);
+  border-radius: 3px;
+  padding: 10px 10px 8px;
+  background: rgba(200,169,106,0.025);
+  transition: opacity 0.2s;
+}
+.track-card.off { opacity: 0.35; }
+.track-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+.track-en {
+  width: 14px; height: 14px;
+  accent-color: rgba(200,169,106,0.9);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.track-lbl {
+  flex: 1;
+  font-size: 0.70em;
+  letter-spacing: 1px;
+  color: rgba(220,188,128,0.82);
+}
+.track-dur-lbl {
+  font-size: 0.60em;
+  color: rgba(200,169,106,0.38);
+}
+.preview-btn {
+  background: none;
+  border: 1px solid rgba(200,169,106,0.28);
+  color: rgba(200,169,106,0.65);
+  font-size: 0.62em;
+  padding: 2px 7px;
+  cursor: pointer;
+  border-radius: 2px;
+  font-family: Georgia, serif;
+  transition: border-color 0.15s, color 0.15s;
+}
+.preview-btn:hover { border-color: rgba(200,169,106,0.7); color: rgba(220,188,128,0.9); }
+/* param rows */
+.pr {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 4px;
+}
+.pr-lbl {
+  font-size: 0.57em;
+  letter-spacing: 1px;
+  color: rgba(200,169,106,0.45);
+  width: 44px;
+  flex-shrink: 0;
+  text-transform: uppercase;
+}
+.pr-sl {
+  flex: 1;
+  height: 2px;
+  accent-color: rgba(200,169,106,0.8);
+  cursor: pointer;
+}
+.pr-val {
+  font-size: 0.57em;
+  color: rgba(200,169,106,0.60);
+  width: 40px;
+  text-align: right;
+  flex-shrink: 0;
+  font-family: monospace;
+}
+/* timeline */
+.timeline-wrap {
+  margin-bottom: 10px;
+  position: relative;
+}
+.timeline-canvas {
+  display: block;
+  width: 100%;
+  height: 56px;
+  border: 1px solid rgba(200,169,106,0.08);
+  border-radius: 2px;
+  background: rgba(200,169,106,0.03);
+}
+/* controls */
+.c-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.btn {
+  background: rgba(18,10,4,0.85);
+  border: 1px solid rgba(200,169,106,0.45);
+  color: rgba(220,188,128,0.88);
+  padding: 6px 14px;
+  font-family: Georgia, serif;
+  font-size: 0.72em;
+  letter-spacing: 1px;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: background 0.15s, border-color 0.15s;
+}
+.btn:hover { background: rgba(200,169,106,0.10); border-color: rgba(200,169,106,0.8); }
+.btn.on { background: rgba(100,65,10,0.65); border-color: rgba(200,169,106,0.95); }
+.loop-pos {
+  flex: 1;
+  text-align: right;
+  font-size: 0.63em;
+  color: rgba(200,169,106,0.38);
+  font-family: monospace;
+  letter-spacing: 1px;
+}
+/* export */
+.export-out {
+  margin-top: 10px;
+  background: rgba(0,0,0,0.5);
+  border: 1px solid rgba(200,169,106,0.10);
+  border-radius: 2px;
+  padding: 10px;
+  font-size: 0.60em;
+  font-family: monospace;
+  color: rgba(200,169,106,0.60);
+  white-space: pre;
+  overflow-x: auto;
+  max-height: 180px;
+  overflow-y: auto;
+  display: none;
+}
+.export-out.show { display: block; }
+/* copy btn inside export */
+.copy-btn {
+  margin-top: 6px;
+  font-size: 0.60em;
+  padding: 3px 10px;
+}
+@media (max-width: 960px) {
+  .composers { flex-direction: column; }
+  .tracks { grid-template-columns: 1fr; }
+}
+#serve-hint {
+  display: none;
+  text-align: center;
+  font-size: 0.62em;
+  color: rgba(200,169,106,0.42);
+  letter-spacing: 1.5px;
+  padding-bottom: 8px;
+}
+#serve-hint code {
+  font-family: monospace;
+  color: rgba(200,169,106,0.65);
+}
+</style>
+</head>
+<body>
+
+<h1>We're Naked — Sound Composer</h1>
+<div id="load-status">initialising…</div>
+<div id="serve-hint">
+  run: <code>python -m http.server 8080</code> in this folder, then open <code>localhost:8080/composer.html</code>
+</div>
+
+<div class="composers">
+  <div class="composer" id="c1">
+    <div class="composer-head">
+      <div class="composer-name">Composer 1</div>
+      <div class="composer-sub">90s · ambient loop</div>
+    </div>
+    <div class="tracks" id="tracks-1"></div>
+    <div class="timeline-wrap">
+      <canvas class="timeline-canvas" id="tl-1"></canvas>
+    </div>
+    <div class="c-controls">
+      <button class="btn" id="play-1">▶ Play</button>
+      <button class="btn" id="stop-1">■ Stop</button>
+      <button class="btn" id="reset-1">↺ Reset</button>
+      <button class="btn" id="export-1">↓ Export</button>
+      <div class="loop-pos" id="pos-1">0:00.0</div>
+    </div>
+    <div class="export-out" id="ebox-1"></div>
+    <button class="btn copy-btn" id="copy-1" style="display:none">⎘ Copy JSON</button>
+  </div>
+
+  <div class="composer" id="c2">
+    <div class="composer-head">
+      <div class="composer-name">Composer 2</div>
+      <div class="composer-sub">45s · dust storm</div>
+    </div>
+    <div class="tracks" id="tracks-2"></div>
+    <div class="timeline-wrap">
+      <canvas class="timeline-canvas" id="tl-2"></canvas>
+    </div>
+    <div class="c-controls">
+      <button class="btn" id="play-2">▶ Play</button>
+      <button class="btn" id="stop-2">■ Stop</button>
+      <button class="btn" id="reset-2">↺ Reset</button>
+      <button class="btn" id="export-2">↓ Export</button>
+      <div class="loop-pos" id="pos-2">0:00.0</div>
+    </div>
+    <div class="export-out" id="ebox-2"></div>
+    <button class="btn copy-btn" id="copy-2" style="display:none">⎘ Copy JSON</button>
+  </div>
+</div>
+
+<script>
+// ── FILES ────────────────────────────────────────────────────
+const FILES = [
+  { id:'p22', label:'Track 22', file:'418 Stirling Ave 22.m4a', clipDur:2  },
+  { id:'p23', label:'Track 23', file:'418 Stirling Ave 23.m4a', clipDur:10 },
+  { id:'p24', label:'Track 24', file:'418 Stirling Ave 24.m4a', clipDur:24 },
+  { id:'p25', label:'Track 25', file:'418 Stirling Ave 25.m4a', clipDur:24 },
+  { id:'p26', label:'Track 26', file:'418 Stirling Ave 26.m4a', clipDur:23 },
+  { id:'p27', label:'Track 27', file:'418 Stirling Ave 27.m4a', clipDur:10 },
+  { id:'p28', label:'Track 28', file:'418 Stirling Ave 28.m4a', clipDur:15 },
+  { id:'p29', label:'Track 29', file:'418 Stirling Ave 29.m4a', clipDur:16 },
+];
+
+// ── PARAM DEFINITIONS ────────────────────────────────────────
+const PARAMS = [
+  { k:'vol',    lbl:'Vol',    min:0,   max:150,  step:1,    def:80,
+    fmt:v=>v+'%' },
+  { k:'pan',    lbl:'Pan',    min:-100,max:100,  step:1,    def:0,
+    fmt:v=>v===0?'C':(v<0?Math.abs(v)+'L':v+'R') },
+  { k:'pitch',  lbl:'Pitch',  min:-12, max:12,   step:0.5,  def:0,
+    fmt:v=>(v>=0?'+':'')+v+'st' },
+  { k:'start',  lbl:'Start',  min:0,   max:89,   step:0.5,  def:0,
+    fmt:v=>v+'s', dynMax: true },
+  { k:'reverb', lbl:'Reverb', min:0,   max:100,  step:1,    def:0,
+    fmt:v=>v+'%' },
+  { k:'decay',  lbl:'Decay',  min:0,   max:93,   step:1,    def:55,
+    fmt:v=>v+'%' },
+  { k:'warmth', lbl:'Warmth', min:200, max:20000,step:100,  def:20000,
+    fmt:v=>v>=1000?(Math.round(v/100)/10)+'k':v+'Hz' },
+  { k:'fadein', lbl:'Fade',   min:0,   max:5000, step:100,  def:0,
+    fmt:v=>v===0?'off':(v/1000).toFixed(1)+'s' },
+];
+
+const TRACK_COLORS = [
+  '#c8a96a','#b8906a','#d4a060','#a87858',
+  '#c09058','#887050','#a06858','#906070',
+];
+
+// ── STATE ────────────────────────────────────────────────────
+let AC = null;
+const bufs = {};
+let loadProm = null;
+
+function makeTrack() {
+  const t = { enabled: true };
+  PARAMS.forEach(p => { t[p.k] = p.def; });
+  return t;
+}
+
+const S = {
+  1: { dur:90,  playing:false, startT:0, timer:null, nodes:[], tracks: FILES.map(()=>makeTrack()) },
+  2: { dur:45,  playing:false, startT:0, timer:null, nodes:[], tracks: FILES.map(()=>makeTrack()) },
+};
+
+// ── AUDIO CONTEXT ────────────────────────────────────────────
+function ac() {
+  if (!AC) AC = new (window.AudioContext||window.webkitAudioContext)();
+  if (AC.state==='suspended') AC.resume();
+  return AC;
+}
+
+// ── LOAD ─────────────────────────────────────────────────────
+function loadAll() {
+  if (loadProm) return loadProm;
+  const c = ac();
+  const st = document.getElementById('load-status');
+  let done = 0;
+  loadProm = Promise.all(FILES.map(f => new Promise(res => {
+    const xhr = new XMLHttpRequest();
+    xhr.open('GET', f.file.replace(/ /g,'%20'), true);
+    xhr.responseType = 'arraybuffer';
+    xhr.onload = async () => {
+      try {
+        bufs[f.id] = await c.decodeAudioData(xhr.response);
+        done++;
+        st.textContent = 'loading ' + done + ' / ' + FILES.length + '…';
+      } catch(e) { st.textContent = 'error loading ' + f.file; }
+      res();
+    };
+    xhr.onerror = () => {
+      st.textContent = 'network error — open via a local server, not file://';
+      document.getElementById('serve-hint').style.display = 'block';
+      res();
+    };
+    xhr.send();
+  }))).then(() => { st.textContent = done + ' tracks ready'; });
+  return loadProm;
+}
+
+// ── PLAY ONE CLIP ────────────────────────────────────────────
+function playClip(fileId, when, t) {
+  const buf = bufs[fileId];
+  if (!buf) return null;
+  const c = ac();
+
+  const rate  = Math.pow(2, t.pitch / 12);
+  const vol   = t.vol / 100;
+  const panV  = t.pan / 100;
+  const revAmt = t.reverb / 100;
+  const decV  = Math.min(t.decay / 100, 0.92);
+  const fi    = t.fadein / 1000;
+
+  const src = c.createBufferSource();
+  src.buffer = buf;
+  src.playbackRate.value = rate;
+
+  const gain = c.createGain();
+  gain.gain.value = vol;
+  if (fi > 0) {
+    gain.gain.setValueAtTime(0, when);
+    gain.gain.linearRampToValueAtTime(vol, when + fi);
+  }
+
+  const filter = c.createBiquadFilter();
+  filter.type = 'lowpass';
+  filter.frequency.value = t.warmth;
+  filter.Q.value = 0.7;
+
+  if (revAmt > 0.01) {
+    const delT = revAmt * 0.32;
+    const del  = c.createDelay(2.5);
+    const fbg  = c.createGain();
+    const dryG = c.createGain();
+    const wetG = c.createGain();
+    del.delayTime.value = delT;
+    fbg.gain.value      = decV;
+    dryG.gain.value     = 1 - revAmt * 0.45;
+    wetG.gain.value     = revAmt * 0.55;
+    src.connect(filter);
+    filter.connect(dryG); filter.connect(del);
+    del.connect(fbg); fbg.connect(del); del.connect(wetG);
+    dryG.connect(gain); wetG.connect(gain);
+  } else {
+    src.connect(filter); filter.connect(gain);
+  }
+
+  if (panV !== 0) {
+    const pan = c.createStereoPanner();
+    pan.pan.value = panV;
+    gain.connect(pan); pan.connect(c.destination);
+  } else {
+    gain.connect(c.destination);
+  }
+
+  const tail = (revAmt > 0 ? delT => delT * 8 + 1.5 : () => 0)(revAmt * 0.32);
+  src.start(when);
+  src.stop(when + buf.duration / rate + tail + 0.5);
+  return src;
+}
+
+// ── LOOP ─────────────────────────────────────────────────────
+function runLoop(cid) {
+  const s = S[cid];
+  if (!s.playing) return;
+  const c = ac();
+  s.startT = c.currentTime;
+  FILES.forEach((f, i) => {
+    const t = s.tracks[i];
+    if (!t.enabled) return;
+    const when = s.startT + Math.min(t.start, s.dur - 0.2);
+    const node = playClip(f.id, when, t);
+    if (node) s.nodes.push(node);
+  });
+  s.timer = setTimeout(() => runLoop(cid), s.dur * 1000);
+}
+
+function stopLoop(cid) {
+  const s = S[cid];
+  s.playing = false;
+  clearTimeout(s.timer); s.timer = null;
+  s.nodes.forEach(n => { try { n.stop(0); } catch(e){} });
+  s.nodes = [];
+}
+
+// ── TIMELINE ─────────────────────────────────────────────────
+function drawTL(cid) {
+  const canvas = document.getElementById('tl-'+cid);
+  if (!canvas) return;
+  const W = canvas.clientWidth, H = canvas.clientHeight;
+  if (!W || !H) return;
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext('2d');
+  const s = S[cid];
+
+  ctx.fillStyle = 'rgba(200,169,106,0.03)';
+  ctx.fillRect(0,0,W,H);
+
+  // tick marks every 10s
+  ctx.strokeStyle = 'rgba(200,169,106,0.07)';
+  ctx.lineWidth = 1;
+  for (let t = 0; t <= s.dur; t += 10) {
+    const x = (t/s.dur)*W;
+    ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke();
+    if (t > 0) {
+      ctx.fillStyle = 'rgba(200,169,106,0.2)';
+      ctx.font = '8px monospace';
+      ctx.fillText(t+'s', x+2, H-2);
+    }
+  }
+
+  const rowH = (H-4) / FILES.length;
+
+  FILES.forEach((f, i) => {
+    const t = s.tracks[i];
+    if (!t.enabled) return;
+    const rate = Math.pow(2, t.pitch/12);
+    const clipW = Math.max((f.clipDur/rate/s.dur)*W, 4);
+    const x = (t.start/s.dur)*W;
+    const y = 2 + i*rowH;
+    const bH = Math.max(rowH-2, 2);
+    const col = TRACK_COLORS[i];
+    ctx.fillStyle = col+'aa';
+    ctx.fillRect(x, y, Math.min(clipW, W-x), bH);
+    if (clipW > 28) {
+      ctx.fillStyle = 'rgba(255,240,210,0.75)';
+      ctx.font = '8px monospace';
+      ctx.fillText(f.label, x+3, y+bH-2);
+    }
+  });
+
+  // playhead
+  if (s.playing && AC) {
+    const el = (AC.currentTime - s.startT) % s.dur;
+    const px = (el/s.dur)*W;
+    ctx.strokeStyle = 'rgba(255,210,110,0.75)';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(px,0); ctx.lineTo(px,H); ctx.stroke();
+  }
+}
+
+// ── EXPORT ───────────────────────────────────────────────────
+function doExport(cid) {
+  const s = S[cid];
+  const out = {
+    composer: cid,
+    loopDuration: s.dur,
+    tracks: FILES.map((f,i) => {
+      const t = s.tracks[i];
+      const r = { file:f.file, clipDur:f.clipDur, enabled:t.enabled };
+      PARAMS.forEach(p => { r[p.k] = t[p.k]; });
+      return r;
+    })
+  };
+  const json = JSON.stringify(out, null, 2);
+  const box = document.getElementById('ebox-'+cid);
+  box.textContent = json;
+  box.classList.add('show');
+  const cb = document.getElementById('copy-'+cid);
+  cb.style.display = '';
+  cb.onclick = () => { navigator.clipboard.writeText(json).then(()=>{ cb.textContent='✓ Copied'; setTimeout(()=>cb.textContent='⎘ Copy JSON',1500); }); };
+}
+
+// ── RESET ────────────────────────────────────────────────────
+function doReset(cid) {
+  S[cid].tracks = FILES.map(()=>makeTrack());
+  buildComposer(cid);
+}
+
+// ── BUILD UI ─────────────────────────────────────────────────
+function buildComposer(cid) {
+  const s = S[cid];
+  const wrap = document.getElementById('tracks-'+cid);
+  wrap.innerHTML = '';
+
+  FILES.forEach((f, fi) => {
+    const t = s.tracks[fi];
+    const card = document.createElement('div');
+    card.className = 'track-card' + (t.enabled?'':' off');
+
+    // header
+    const head = document.createElement('div');
+    head.className = 'track-head';
+
+    const chk = document.createElement('input');
+    chk.type='checkbox'; chk.className='track-en'; chk.checked=t.enabled;
+    chk.onchange = () => {
+      t.enabled = chk.checked;
+      card.className = 'track-card' + (t.enabled?'':' off');
+    };
+
+    const nm = document.createElement('div');
+    nm.className='track-lbl';
+    nm.textContent = f.label;
+
+    const dl = document.createElement('div');
+    dl.className='track-dur-lbl';
+    dl.textContent = f.clipDur+'s';
+
+    const prev = document.createElement('button');
+    prev.className='preview-btn'; prev.textContent='▶ solo';
+    prev.onclick = () => { ac(); playClip(f.id, AC.currentTime+0.05, t); };
+
+    head.appendChild(chk); head.appendChild(nm); head.appendChild(dl); head.appendChild(prev);
+    card.appendChild(head);
+
+    // sliders
+    PARAMS.forEach(p => {
+      const row = document.createElement('div');
+      row.className = 'pr';
+
+      const lbl = document.createElement('div');
+      lbl.className='pr-lbl'; lbl.textContent=p.lbl;
+
+      const sl = document.createElement('input');
+      sl.type='range'; sl.className='pr-sl';
+      sl.min=p.min; sl.max=p.dynMax ? s.dur - 0.5 : p.max; sl.step=p.step; sl.value=t[p.k];
+
+      const val = document.createElement('div');
+      val.className='pr-val'; val.textContent=p.fmt(t[p.k]);
+
+      sl.oninput = () => {
+        t[p.k] = parseFloat(sl.value);
+        val.textContent = p.fmt(t[p.k]);
+      };
+
+      row.appendChild(lbl); row.appendChild(sl); row.appendChild(val);
+      card.appendChild(row);
+    });
+
+    wrap.appendChild(card);
+  });
+}
+
+// ── WIRE BUTTONS ─────────────────────────────────────────────
+[1,2].forEach(cid => {
+  document.getElementById('play-'+cid).onclick = async () => {
+    ac();
+    await loadAll();
+    stopLoop(cid);
+    S[cid].playing = true;
+    document.getElementById('play-'+cid).classList.add('on');
+    runLoop(cid);
+  };
+
+  document.getElementById('stop-'+cid).onclick = () => {
+    stopLoop(cid);
+    document.getElementById('play-'+cid).classList.remove('on');
+    document.getElementById('pos-'+cid).textContent = '0:00.0';
+  };
+
+  document.getElementById('reset-'+cid).onclick = () => {
+    stopLoop(cid);
+    document.getElementById('play-'+cid).classList.remove('on');
+    doReset(cid);
+  };
+
+  document.getElementById('export-'+cid).onclick = () => doExport(cid);
+});
+
+// ── ANIMATION TICK ────────────────────────────────────────────
+function tick() {
+  [1,2].forEach(cid => {
+    drawTL(cid);
+    if (S[cid].playing && AC) {
+      const el = (AC.currentTime - S[cid].startT) % S[cid].dur;
+      const m  = Math.floor(el/60);
+      const sc = (el%60).toFixed(1).padStart(4,'0');
+      document.getElementById('pos-'+cid).textContent = m+':'+sc+' / '+S[cid].dur+'s';
+    }
+  });
+  requestAnimationFrame(tick);
+}
+
+// ── INIT ──────────────────────────────────────────────────────
+buildComposer(1);
+buildComposer(2);
+loadAll();
+requestAnimationFrame(tick);
+</script>
+</body>
+</html>

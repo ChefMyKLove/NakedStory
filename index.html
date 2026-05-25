@@ -67,7 +67,7 @@ body::before {
   pointer-events: none;
   z-index: 500;
   opacity: 0;
-  transition: opacity 1.2s ease;
+  transition: opacity 0.15s ease;
 }
 #dust-canvas.active { opacity: 1; }
 
@@ -2673,7 +2673,7 @@ function curlNoise(x, y) {
   }
 
   // ── DUST ───────────────────────────────────────────
-  let dustPhase = 'hidden', globalOpacity = 0, dustClock = 0;
+  let dustPhase = 'hidden', globalOpacity = 0, hazeOpacity = 0, dustClock = 0;
   let masses = [], animId = null, dustStarted = false;
   let settleVelocityScale = 1;
   let particles = [], burstParticles = [], flashRings = [], dustMode = 'normal';
@@ -2695,7 +2695,7 @@ function curlNoise(x, y) {
         this.x = Math.random() * canvas.width;
         this.y = Math.random() * canvas.height;
       }
-      const baseSpd = this.micro ? 0.75 : (this.fine ? 1.8 : (this.cover ? 0.5 : 0.9));
+      const baseSpd = this.micro ? 0.75 : (this.fine ? (this.cover ? 1.8 : 2.8) : (this.cover ? 0.5 : 1.5));
       this.vx = (Math.random()-0.5) * baseSpd;
       this.vy = (Math.random()-0.5) * baseSpd * 0.6;
       // All sizes are 80% of original; micro layer is an additional ultra-fine haze
@@ -2712,13 +2712,13 @@ function curlNoise(x, y) {
       const cx2 = this.x + dustClock*(this.micro ? 0.25 : (this.fine ? 0.20 : 0.12));
       const cy2 = this.y + dustClock*(this.micro ? 0.18 : (this.fine ? 0.15 : 0.08));
       const curl = curlNoise(cx2, cy2);
-      const str = this.micro ? 1.6 : (this.fine ? (this.cover ? 0.70 : 1.05) : (this.cover ? 0.35 : 0.55));
+      const str = this.micro ? 1.6 : (this.fine ? (this.cover ? 0.70 : 2.20) : (this.cover ? 0.35 : 1.30));
       this.vx += curl.x * str * settleVelocityScale;
       this.vy += curl.y * str * settleVelocityScale;
       this.vx += (Math.random()-0.5)*(this.micro ? 0.06 : (this.fine ? 0.10 : 0.04))*settleVelocityScale;
       this.vy += (Math.random()-0.5)*(this.micro ? 0.05 : (this.fine ? 0.08 : 0.03))*settleVelocityScale;
       const spd = Math.sqrt(this.vx*this.vx+this.vy*this.vy);
-      const cap = (this.micro ? 1.8 : (this.fine ? (this.cover ? 2.8 : 3.5) : (this.cover ? 1.2 : 1.8))) * settleVelocityScale;
+      const cap = (this.micro ? 1.8 : (this.fine ? (this.cover ? 2.8 : 7.0) : (this.cover ? 1.2 : 4.5))) * settleVelocityScale;
       if (spd > cap) { this.vx *= cap/spd; this.vy *= cap/spd; }
       this.vx *= 0.982; this.vy *= 0.982;
       this.x += this.vx; this.y += this.vy;
@@ -2744,7 +2744,7 @@ function curlNoise(x, y) {
       return true;
     }
     draw() {
-      const a = this.life * globalOpacity * (this.micro ? 0.55 : (this.cover ? 0.80 : 0.85));
+      const a = this.life * globalOpacity * (this.micro ? 0.55 : (this.cover ? 0.80 : 0.93));
       if (a <= 0.01) return;
       const r = Math.round(195+this.warm*35), g2 = Math.round(168+this.warm*22), b = Math.round(128+this.warm*12);
       const spd = Math.sqrt(this.vx*this.vx+this.vy*this.vy);
@@ -3050,35 +3050,35 @@ function curlNoise(x, y) {
     constructor() {
       this.cx = Math.random() * canvas.width;
       this.cy = Math.random() * canvas.height;
-      this.vx = (Math.random() - 0.5) * 1.82;
-      this.vy = (Math.random() - 0.5) * 1.17;
+      this.vx = (Math.random() - 0.5) * 2.73;
+      this.vy = (Math.random() - 0.5) * 1.76;
       this.curlPhase = Math.random() * Math.PI * 2;
       this.curlSpeed = 0.004 + Math.random() * 0.006;
       this.puffs = [];
-      const count = 7 + Math.floor(Math.random() * 5);
+      const count = 10 + Math.floor(Math.random() * 6);
       for (let i = 0; i < count; i++) {
         this.puffs.push({
-          ox: (Math.random() - 0.5) * 160,
-          oy: (Math.random() - 0.5) * 100,
-          r: 170 + Math.random() * 260,
-          alpha: 0.050 + Math.random() * 0.068,
+          ox: (Math.random() - 0.5) * 260,
+          oy: (Math.random() - 0.5) * 170,
+          r: 180 + Math.random() * 300,
+          alpha: 0.22 + Math.random() * 0.16,
           angle: Math.random() * Math.PI * 2,
-          speed: (Math.random() < 0.5 ? 1 : -1) * (0.016 + Math.random() * 0.023),
-          orbit: (25 + Math.random() * 65) * 1.4,
+          speed: (Math.random() < 0.5 ? 1 : -1) * (0.039 + Math.random() * 0.057),
+          orbit: (45 + Math.random() * 117) * 1.4,
           orbitY: 0.4 + Math.random() * 0.45,
           warm: Math.random()
         });
       }
     }
     update() {
-      const cn = curlNoise(this.cx + dustClock * 0.5, this.cy + dustClock * 0.3);
-      this.vx += cn.x * 1.43 * settleVelocityScale;
-      this.vy += cn.y * 1.10 * settleVelocityScale;
-      this.vx += (Math.random() - 0.5) * 0.07 * settleVelocityScale;
-      this.vy += (Math.random() - 0.5) * 0.055 * settleVelocityScale;
+      const cn = curlNoise(this.cx + dustClock * 0.7, this.cy + dustClock * 0.45);
+      this.vx += cn.x * 3.30 * settleVelocityScale;
+      this.vy += cn.y * 2.55 * settleVelocityScale;
+      this.vx += (Math.random() - 0.5) * 0.21 * settleVelocityScale;
+      this.vy += (Math.random() - 0.5) * 0.17 * settleVelocityScale;
       const spd = Math.sqrt(this.vx * this.vx + this.vy * this.vy);
-      if (spd > 3.4 * settleVelocityScale) { this.vx *= (3.4 * settleVelocityScale) / spd; this.vy *= (3.4 * settleVelocityScale) / spd; }
-      this.vx *= 0.992; this.vy *= 0.992;
+      if (spd > 8.25 * settleVelocityScale) { this.vx *= (8.25 * settleVelocityScale) / spd; this.vy *= (8.25 * settleVelocityScale) / spd; }
+      this.vx *= 0.990; this.vy *= 0.990;
       this.cx += this.vx; this.cy += this.vy;
       const pad = 300;
       if (this.cx > canvas.width + pad)  this.cx = -pad;
@@ -3091,20 +3091,35 @@ function curlNoise(x, y) {
       this.puffs.forEach(p => {
         const px = this.cx + p.ox + Math.cos(p.angle) * p.orbit;
         const py = this.cy + p.oy + Math.sin(p.angle) * p.orbit * p.orbitY;
-        const r  = Math.round(195 + p.warm * 35);
-        const g  = Math.round(170 + p.warm * 22);
-        const b  = Math.round(130 + p.warm * 10);
         const sn = Math.sin(p.angle * 1.7 + p.warm * Math.PI * 2);
         const pulse = 0.70 + 0.30 * (sn > 0 ? Math.pow(sn, 0.35) : -Math.pow(-sn, 2.2));
-        const a  = p.alpha * globalOpacity * pulse;
+        const a = p.alpha * globalOpacity * pulse;
+        if (a < 0.01) return;
+
+        // Core: warm cream/gold; edges: cooler amber — gives each puff visible contrast
+        const cR = Math.round(238 + p.warm * 17), cG = Math.round(208 + p.warm * 14), cB = Math.round(148 + p.warm * 10);
+        const eR = Math.round(168 + p.warm * 28), eG = Math.round(135 + p.warm * 20), eB = Math.round(92 + p.warm * 14);
         const grad = ctx.createRadialGradient(px, py, 0, px, py, p.r);
-        grad.addColorStop(0,    `rgba(${r},${g},${b},${a})`);
-        grad.addColorStop(0.45, `rgba(${r},${g},${b},${(a * 0.55).toFixed(4)})`);
-        grad.addColorStop(0.75, `rgba(${r},${g},${b},${(a * 0.18).toFixed(4)})`);
-        grad.addColorStop(1,    `rgba(${r},${g},${b},0)`);
+        grad.addColorStop(0,    `rgba(${cR},${cG},${cB},${a.toFixed(4)})`);
+        grad.addColorStop(0.30, `rgba(${cR},${cG},${cB},${(a * 0.78).toFixed(4)})`);
+        grad.addColorStop(0.62, `rgba(${eR},${eG},${eB},${(a * 0.26).toFixed(4)})`);
+        grad.addColorStop(1,    `rgba(${eR},${eG},${eB},0)`);
         ctx.fillStyle = grad;
         ctx.beginPath();
         ctx.arc(px, py, p.r, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Leading-edge highlight: cream spot orbiting ahead of the puff — shows the spin
+        const motionDir = p.angle + (Math.PI / 2) * Math.sign(p.speed || 1);
+        const lx = px + Math.cos(motionDir) * p.r * 0.34;
+        const ly = py + Math.sin(motionDir) * p.r * 0.34 * p.orbitY;
+        const hA = a * 0.55;
+        const hl = ctx.createRadialGradient(lx, ly, 0, lx, ly, p.r * 0.48);
+        hl.addColorStop(0, `rgba(255,244,212,${hA.toFixed(4)})`);
+        hl.addColorStop(1, `rgba(255,244,212,0)`);
+        ctx.fillStyle = hl;
+        ctx.beginPath();
+        ctx.arc(lx, ly, p.r * 0.48, 0, Math.PI * 2);
         ctx.fill();
       });
     }
@@ -3112,10 +3127,10 @@ function curlNoise(x, y) {
 
   function buildCloud() {
     masses = [];
-    for (let i = 0; i < 15; i++) masses.push(new CloudMass());
+    for (let i = 0; i < 24; i++) masses.push(new CloudMass());
     particles = [];
-    for (let i = 0; i < 240; i++) particles.push(new DustParticle(false, false));
-    for (let i = 0; i < 216; i++) particles.push(new DustParticle(false, true));
+    for (let i = 0; i < 320; i++) particles.push(new DustParticle(false, false));
+    for (let i = 0; i < 290; i++) particles.push(new DustParticle(false, true));
     for (let i = 0; i < 320; i++) particles.push(new DustParticle(false, false, true));
   }
 
@@ -3134,11 +3149,17 @@ function curlNoise(x, y) {
     const coverCap = (dustMode === 'cover' || dustMode === 'back-cover') ? 0.78 : 1.0;
 
     if (dustPhase === 'rising') {
-      globalOpacity = Math.min(coverCap, globalOpacity + 0.008);
+      globalOpacity = Math.min(coverCap, globalOpacity + 0.040); // reach peak in ~0.4s
+      hazeOpacity   = Math.min(1.0, hazeOpacity + 0.040);
       if (globalOpacity >= coverCap) dustPhase = 'alive';
+    } else if (dustPhase === 'alive') {
+      hazeOpacity = Math.max(0, hazeOpacity - 0.006);
+      const readFloor = (dustMode === 'cover' || dustMode === 'back-cover') ? coverCap : 0.04;
+      if (globalOpacity > readFloor) globalOpacity = Math.max(readFloor, globalOpacity - 0.008);
     } else if (dustPhase === 'settling') {
       settleVelocityScale = Math.max(0, settleVelocityScale - 0.000926);
       globalOpacity = Math.max(0, globalOpacity - 0.000926);
+      hazeOpacity   = Math.max(0, hazeOpacity - 0.01);
       if (globalOpacity <= 0) {
         dustPhase = 'hidden'; dustStarted = false;
         canvas.classList.remove('active');
@@ -3146,6 +3167,7 @@ function curlNoise(x, y) {
       }
     } else if (dustPhase === 'falling') {
       globalOpacity = Math.max(0, globalOpacity - 0.006);
+      hazeOpacity   = Math.max(0, hazeOpacity - 0.012);
       if (globalOpacity <= 0) {
         dustPhase = 'hidden'; dustStarted = false; dustMode = 'normal'; coverClipRect = null;
         particles = [];
@@ -3154,6 +3176,13 @@ function curlNoise(x, y) {
           animId = null; return;
         }
       }
+    }
+
+    // Subtle warm ambient tint — just enough to unify the palette, doesn't flatten motes
+    if (dustMode === 'normal' && hazeOpacity > 0) {
+      ctx.globalAlpha = 1;
+      ctx.fillStyle = `rgba(205, 172, 118, ${hazeOpacity * 0.10})`;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
     }
 
     // Cloud masses (background layer, softened)
@@ -3196,6 +3225,7 @@ function curlNoise(x, y) {
     dustStarted = true;
     buildCloud();
     globalOpacity = 0;
+    hazeOpacity = 0;
     dustPhase = 'rising';
     canvas.classList.add('active');
     if (!animId) animId = requestAnimationFrame(tick);
@@ -3248,6 +3278,7 @@ function curlNoise(x, y) {
     dustStarted = false;
     dustMode = 'normal';
     globalOpacity = 0;
+    hazeOpacity = 0;
     dustPhase = 'hidden';
     dustClock = 0;
     settleVelocityScale = 1;
@@ -3427,7 +3458,7 @@ function curlNoise(x, y) {
 
 <!-- AUDIO ELEMENTS — update src paths when files are ready -->
 <div id="audio-engine" style="display:none;">
-  <audio id="a-ambient"  src="audio/ambient_loop.mp3"   loop preload="none"></audio>
+  <audio id="a-ambient"  src="audio/ambient_loop.mp3"        preload="none"></audio>
   <audio id="a-dust"     src="audio/dust_loop.mp3"      loop preload="none"></audio>
   <audio id="a-n01" src="audio/narration_n01.mp3" preload="none"></audio>
   <audio id="a-n02" src="audio/narration_n02.mp3" preload="none"></audio>
@@ -3468,7 +3499,7 @@ function curlNoise(x, y) {
   const audTgl=document.getElementById('aud-toggle'),mixBtn=document.getElementById('mix-btn');
   const mixPanel=document.getElementById('mix-panel'),narInd=document.getElementById('aud-nar-ind');
   let audOn=false,mixOpen=false,curNar=null;
-  const VOL={music:0.50,atmos:0.50,voice:0.50,sfx:0.50};
+  const VOL={music:0.28,atmos:0.50,voice:0.50,sfx:0.50};
   const CH_PAUSED={music:false,atmos:false,voice:false,sfx:false};
 
   const PAGE_NAR={
@@ -3493,6 +3524,87 @@ function curlNoise(x, y) {
 
   function fIn(el,v,ms){if(!el)return;el.volume=0;if(el.paused)el.play().catch(()=>{});const s=40,d=ms/s;let i=0;const iv=setInterval(()=>{el.volume=Math.min(v,el.volume+v/s);if(++i>=s)clearInterval(iv);},d);}
   function fOut(el,ms,cb){if(!el||el.paused){cb&&cb();return;}const sv=el.volume,s=30,d=ms/s;let i=0;const iv=setInterval(()=>{el.volume=Math.max(0,el.volume-sv/s);if(++i>=s){clearInterval(iv);el.pause();el.volume=sv;cb&&cb();}},d);}
+
+  // ── AMBIENT MUSIC LOOP SYSTEM ─────────────────────────────────
+  // Two staggered layers of ambient_loop.mp3, each natively looping so
+  // there are ZERO file-boundary gaps. Pitch drifts slowly (±2.2%) per
+  // layer. Layers refresh every 45–90 s with a crossfade to a new clone
+  // at a fresh pitch, masking any sense of repetition. A floor volume
+  // keeps music audible at all times — it never goes silent.
+  const AMBT_FLOOR = 0.11; // minimum volume — always audible
+  let ambActive = false;
+  const ambTimers = [];
+
+  function _ambSpawn(baseVol, fadeInMs) {
+    if (!ambActive) return;
+    const src = document.getElementById('a-ambient');
+    if (!src) return;
+    const el = src.cloneNode(false);
+    el.loop = true;           // native loop = zero file-boundary gaps
+    el.volume = 0;
+    el.playbackRate = 0.978 + Math.random() * 0.044; // 0.978–1.022
+    el.classList.add('ambient-clone');
+    document.getElementById('audio-engine').appendChild(el);
+    el.play().catch(() => {});
+    fIn(el, baseVol, fadeInMs || 2400);
+
+    // Slow pitch drift: every 9 s, glide toward a new random target
+    let pitchTgt = el.playbackRate;
+    const pitchIv = setInterval(() => {
+      if (!ambActive || el.paused) { clearInterval(pitchIv); return; }
+      if (Math.random() < 0.45) pitchTgt = 0.978 + Math.random() * 0.044;
+      el.playbackRate += (pitchTgt - el.playbackRate) * 0.07;
+    }, 9000);
+
+    // Hold for 45–90 s, then crossfade to a fresh clone and retire this one
+    const holdMs = 45000 + Math.random() * 45000;
+    const t = setTimeout(() => {
+      if (!ambActive) return;
+      _ambSpawn(Math.max(AMBT_FLOOR, VOL.music * (0.93 + Math.random() * 0.14)), 2800);
+      fOut(el, 3000, () => {
+        clearInterval(pitchIv);
+        if (el.parentNode) el.parentNode.removeChild(el);
+      });
+    }, holdMs);
+    ambTimers.push(t);
+  }
+
+  function startAmbientMusic() {
+    if (ambActive || window._pianoHandlesMusic) return; // Piano system owns music channel
+    ambActive = true;
+    _ambSpawn(VOL.music, 2400);           // Layer A — starts immediately
+    const t = setTimeout(() => {          // Layer B — 10 s later, different pitch
+      if (ambActive) _ambSpawn(VOL.music * (0.88 + Math.random() * 0.18), 2800);
+    }, 10000);
+    ambTimers.push(t);
+  }
+
+  function stopAmbientMusic(ms) {
+    ambActive = false;
+    ambTimers.forEach(t => clearTimeout(t));
+    ambTimers.length = 0;
+    const dur = typeof ms === 'number' ? ms : 1500;
+    document.querySelectorAll('.ambient-clone').forEach(el => {
+      fOut(el, dur, () => { if (el.parentNode) el.parentNode.removeChild(el); });
+    });
+  }
+
+  function duckAmbientMusic(targetVol, ms) {
+    const steps = 30, d = ms / steps;
+    document.querySelectorAll('.ambient-clone').forEach(el => {
+      if (el.paused) return;
+      const sv = el.volume, tgt = targetVol;
+      let i = 0;
+      const iv = setInterval(() => {
+        i++;
+        el.volume = sv + (tgt - sv) * (i / steps);
+        if (i >= steps) { el.volume = tgt; clearInterval(iv); }
+      }, d);
+    });
+  }
+
+  function ambientMusicIsActive() { return ambActive; }
+  // ─────────────────────────────────────────────────────────────
 
   function _btnState(key,playing){
     const b=document.getElementById('mp-'+key);
@@ -3534,8 +3646,12 @@ function curlNoise(x, y) {
     CH_PAUSED[key]=!CH_PAUSED[key];
     const paused=CH_PAUSED[key];
     if(key==='music'){
-      if(paused){fOut(ambient,600);ytCmd('mute');}
-      else if(audOn){if(ambient.paused)fIn(ambient,VOL.music,1500);ytCmd('unMute');}
+      if(paused){stopAmbientMusic(600);ytCmd('mute');}
+      else if(audOn){
+        if(!ambientMusicIsActive())startAmbientMusic();
+        else duckAmbientMusic(VOL.music,1500);
+        ytCmd('unMute');
+      }
       _btnState('music',!paused);
     }else if(key==='atmos'){
       if(paused)fOut(dustLp,600);
@@ -3548,14 +3664,15 @@ function curlNoise(x, y) {
       if(paused){document.querySelectorAll('[id^="a-sfx-"],.fw-clone,.outdoor-loop-clone').forEach(el=>{if(!el.paused){el.pause();el.currentTime=0;}});if(typeof stopOutdoorAmbient==='function')stopOutdoorAmbient();}
       _btnState('sfx',!paused);
     }
+    if(window._pianoMixToggle)window._pianoMixToggle(key,paused,audOn);
   };
 
   window.onAudioPageChange=function(pid){
     if(pid==='epigraph')setTimeout(revealAudTgl,2000);
     if(!audOn)return;
-    if(pid==='title'&&ambient.paused&&!CH_PAUSED.music)fIn(ambient,VOL.music,3000);
+    if(pid==='title'&&!ambientMusicIsActive()&&!CH_PAUSED.music)startAmbientMusic();
     if(pid==='epigraph'){ytActivate();setTimeout(ytActivate,900);}
-    if(pid==='back-cover')fOut(ambient,4000);
+    if(pid==='back-cover')duckAmbientMusic(AMBT_FLOOR,4000);
     if(DS_START.has(pid)&&dustLp.paused&&!CH_PAUSED.atmos)fIn(dustLp,VOL.atmos,2000);
     if(DS_STOP.has(pid)&&!dustLp.paused)fOut(dustLp,3000);
     playNar(pid);
@@ -3819,6 +3936,10 @@ function curlNoise(x, y) {
   window.onFirstPageTurn=()=>{};
   window._giggleCheck = () => audOn && !CH_PAUSED.sfx;
   window._giggleVol   = () => VOL.sfx;
+  window._musicVol    = () => VOL.music;
+  window._atmosVol    = () => VOL.atmos;
+  window._musicOn     = () => audOn && !CH_PAUSED.music;
+  window._atmosOn     = () => audOn && !CH_PAUSED.atmos;
 
   function ytCmd(cmd,args){const f=document.getElementById('epi-yt');if(f&&f.contentWindow)f.contentWindow.postMessage(JSON.stringify({event:'command',func:cmd,args:args!==undefined?args:''}), '*');}
   function ytActivate(){ytCmd('unMute');}
@@ -3849,7 +3970,7 @@ function curlNoise(x, y) {
     document.getElementById('mp-'+key).addEventListener('click',()=>window.toggleMixChannel(key));
   });
 
-  [['ms-music','mv-music','music',[ambient]],
+  [['ms-music','mv-music','music',[]],
    ['ms-atmos','mv-atmos','atmos',[dustLp]],
    ['ms-voice','mv-voice','voice',[]],
    ['ms-sfx',  'mv-sfx',  'sfx',  []]
@@ -3860,9 +3981,16 @@ function curlNoise(x, y) {
       v.textContent=n;
       VOL[key]=n/100;
       els.forEach(el=>{if(el&&!el.paused)el.volume=VOL[key];});
-      if(key==='music')ytCmd('setVolume',[n]);
+      if(key==='music'){
+        ytCmd('setVolume',[n]);
+        document.querySelectorAll('.ambient-clone').forEach(el=>{if(!el.paused)el.volume=VOL.music;});
+      }
       if(key==='sfx')document.querySelectorAll('[id^="a-sfx-"],.fw-clone').forEach(el=>{if(!el.paused)el.volume=VOL.sfx;});
       if(key==='voice'&&curNar)curNar.volume=VOL[key];
+      if(window._pianoSetVol){
+        if(key==='music')window._pianoSetVol(1,VOL.music);
+        if(key==='atmos')window._pianoSetVol(2,VOL.atmos);
+      }
     });
   });
   window.revealAudTgl = revealAudTgl;
@@ -4466,6 +4594,360 @@ function curlNoise(x, y) {
     }
     loop();
   };
+/* ══════════════════════════════════════════════════════
+   PIANO AMBIENT SYSTEM
+   Composer 1 (90s) -> music channel   plays continuously
+   Composer 2 (45s) -> atmos channel   mirrors dust storm
+══════════════════════════════════════════════════════ */
+(function() {
+  if (!window.AudioContext && !window.webkitAudioContext) return;
+
+  var PFILES = [
+    { id:'p22', file:'418 Stirling Ave 22.m4a' },
+    { id:'p23', file:'418 Stirling Ave 23.m4a' },
+    { id:'p24', file:'418 Stirling Ave 24.m4a' },
+    { id:'p25', file:'418 Stirling Ave 25.m4a' },
+    { id:'p26', file:'418 Stirling Ave 26.m4a' },
+    { id:'p27', file:'418 Stirling Ave 27.m4a' },
+    { id:'p28', file:'418 Stirling Ave 28.m4a' },
+    { id:'p29', file:'418 Stirling Ave 29.m4a' },
+  ];
+
+  var C1_DUR = 90;
+  var C1 = [
+    { id:'p22', clipDur:2,  vol:0,   pan:0.00,  pitch:0,     start:0, reverb:0,  decay:55, warmth:20000, fadein:0    },
+    { id:'p23', clipDur:10, vol:131, pan:0.00,  pitch:-11.5, start:0, reverb:89, decay:77, warmth:20000, fadein:0    },
+    { id:'p24', clipDur:24, vol:120, pan:0.65,  pitch:0,     start:0, reverb:46, decay:93, warmth:20000, fadein:5000 },
+    { id:'p25', clipDur:24, vol:142, pan:0.00,  pitch:0,     start:0, reverb:72, decay:5,  warmth:20000, fadein:3400 },
+    { id:'p26', clipDur:23, vol:0,   pan:0.00,  pitch:0,     start:0, reverb:0,  decay:55, warmth:20000, fadein:0    },
+    { id:'p27', clipDur:10, vol:0,   pan:0.00,  pitch:0,     start:0, reverb:0,  decay:55, warmth:20000, fadein:0    },
+    { id:'p28', clipDur:15, vol:0,   pan:0.00,  pitch:0,     start:0, reverb:0,  decay:55, warmth:20000, fadein:0    },
+    { id:'p29', clipDur:16, vol:0,   pan:0.00,  pitch:0,     start:0, reverb:0,  decay:55, warmth:20000, fadein:0    },
+  ];
+
+  var C2_DUR = 45;
+  var C2 = [
+    { id:'p22', clipDur:6,  vol:80, pan:0,     pitch:0,   start:0, reverb:0,   decay:55, warmth:20000, fadein:0    },
+    { id:'p23', clipDur:8,  vol:80, pan:0,     pitch:0,   start:0, reverb:0,   decay:55, warmth:20000, fadein:0    },
+    { id:'p24', clipDur:11, vol:80, pan:0,     pitch:10,  start:0, reverb:46,  decay:55, warmth:20000, fadein:1000 },
+    { id:'p25', clipDur:14, vol:80, pan:0,     pitch:12,  start:0, reverb:100, decay:93, warmth:20000, fadein:0    },
+    { id:'p26', clipDur:9,  vol:80, pan:-0.38, pitch:9,   start:0, reverb:88,  decay:55, warmth:20000, fadein:3700 },
+    { id:'p27', clipDur:7,  vol:80, pan:0,     pitch:0,   start:0, reverb:0,   decay:55, warmth:20000, fadein:0    },
+    { id:'p28', clipDur:13, vol:80, pan:0,     pitch:3,   start:0, reverb:60,  decay:55, warmth:20000, fadein:3500 },
+    { id:'p29', clipDur:17, vol:80, pan:-1,    pitch:2.5, start:0, reverb:100, decay:55, warmth:20000, fadein:4900 },
+  ];
+
+  var PAC = null;
+  var pRaw  = {};
+  var pBufs = {};
+  var pMG   = {};
+
+  function pac() {
+    if (!PAC) PAC = new (window.AudioContext || window.webkitAudioContext)();
+    if (PAC.state === 'suspended') PAC.resume();
+    return PAC;
+  }
+
+  function getMG(lid) {
+    if (!pMG[lid]) {
+      var c = pac();
+      pMG[lid] = c.createGain();
+      pMG[lid].connect(c.destination);
+    }
+    return pMG[lid];
+  }
+
+  function prefetch() {
+    PFILES.forEach(function(f) {
+      var xhr = new XMLHttpRequest();
+      xhr.open('GET', f.file.replace(/ /g, '%20'), true);
+      xhr.responseType = 'arraybuffer';
+      xhr.onload = function() { if (!pRaw[f.id]) pRaw[f.id] = xhr.response; };
+      xhr.onerror = function() {};
+      xhr.send();
+    });
+  }
+
+  var decoding = null;
+  function ensureDecoded() {
+    if (decoding) return decoding;
+    var c = pac();
+    decoding = Promise.all(PFILES.map(function(f) {
+      return new Promise(function(res) {
+        if (pBufs[f.id]) { res(); return; }
+        if (pRaw[f.id]) {
+          c.decodeAudioData(pRaw[f.id].slice(0)).then(function(buf) {
+            pBufs[f.id] = buf; res();
+          }).catch(res);
+        } else { res(); }
+      });
+    }));
+    return decoding;
+  }
+
+  function playPianoClip(id, when, t, dest, loopDur) {
+    var buf = pBufs[id];
+    if (!buf) return null;
+    var vol = t.vol / 100;
+    if (vol <= 0) return null; // track disabled
+    var c = pac();
+    var rate   = Math.pow(2, t.pitch / 12);
+    var revAmt = t.reverb / 100;
+    var decV   = Math.min(t.decay / 100, 0.92);
+    var fi     = t.fadein / 1000;
+
+    var src = c.createBufferSource();
+    src.buffer = buf;
+    src.playbackRate.value = rate;
+
+    // clipDur: loop within that many real-time seconds for the full composition
+    if (t.clipDur && t.clipDur > 0 && loopDur) {
+      src.loop = true;
+      src.loopStart = 0;
+      src.loopEnd = Math.min(t.clipDur * rate, buf.duration); // source-buffer seconds
+    }
+
+    var gain = c.createGain();
+    gain.gain.value = vol;
+    if (fi > 0) {
+      gain.gain.setValueAtTime(0, when);
+      gain.gain.linearRampToValueAtTime(vol, when + fi);
+    }
+
+    var filt = c.createBiquadFilter();
+    filt.type = 'lowpass';
+    filt.frequency.value = t.warmth;
+    filt.Q.value = 0.7;
+
+    if (revAmt > 0.01) {
+      var delT = revAmt * 0.32;
+      var del  = c.createDelay(2.5);
+      var fbg  = c.createGain();
+      var dryG = c.createGain();
+      var wetG = c.createGain();
+      del.delayTime.value = delT;
+      fbg.gain.value      = decV;
+      dryG.gain.value     = 1 - revAmt * 0.45;
+      wetG.gain.value     = revAmt * 0.55;
+      src.connect(filt);
+      filt.connect(dryG); filt.connect(del);
+      del.connect(fbg); fbg.connect(del); del.connect(wetG);
+      dryG.connect(gain); wetG.connect(gain);
+    } else {
+      src.connect(filt); filt.connect(gain);
+    }
+
+    if (t.pan && t.pan !== 0) {
+      var panner = c.createStereoPanner();
+      panner.pan.value = t.pan;
+      gain.connect(panner); panner.connect(dest);
+    } else {
+      gain.connect(dest);
+    }
+
+    var tail = revAmt > 0.01 ? revAmt * 0.32 * 8 + 1.5 : 0;
+    src.start(when, 0);
+    // If clipDur loops are active, run for the full composition duration
+    if (t.clipDur && t.clipDur > 0 && loopDur) {
+      src.stop(when + loopDur + tail + 0.5);
+    } else {
+      src.stop(when + buf.duration / rate + tail + 0.5);
+    }
+    return src;
+  }
+
+  var PL = {
+    1: { playing:false, timer:null, nodes:[], startT:0, dur:C1_DUR, tracks:C1 },
+    2: { playing:false, timer:null, nodes:[], startT:0, dur:C2_DUR, tracks:C2, warp:{mode:'random', depth:12} },
+    3: { playing:false, timer:null, nodes:[], startT:0, dur:C1_DUR, tracks:C1 }, // 2nd C1 layer +20s
+    4: { playing:false, timer:null, nodes:[], startT:0, dur:C2_DUR, tracks:C2, warp:{mode:'random', depth:10} }, // random, naturally different from PL[2]
+    5: { playing:false, timer:null, nodes:[], startT:0, dur:C2_DUR, tracks:C2, warp:{mode:'sweep',  depth:14} }, // slow single sweep, 1 cycle per loop
+  };
+
+  // PL[3] shares music channel gain; PL[4] and PL[5] share atmos channel gain
+  function getMGKey(lid) { return lid === 3 ? 1 : (lid === 4 || lid === 5) ? 2 : lid; }
+  function getMG(lid) {
+    var key = getMGKey(lid);
+    if (!pMG[key]) {
+      var c = pac();
+      pMG[key] = c.createGain();
+      pMG[key].connect(c.destination);
+    }
+    return pMG[key];
+  }
+
+  // Schedules pitch warp on a source node's playbackRate.
+  // mode:'random' — random pitch targets scattered across the loop (different every fire)
+  // mode:'sweep'  — one slow sine cycle low→high→low across the full loop duration
+  function scheduleWarp(src, startWhen, totalDur, basePitch, warp) {
+    src.playbackRate.cancelScheduledValues(startWhen);
+    src.playbackRate.setValueAtTime(Math.pow(2, basePitch / 12), startWhen);
+
+    if (warp.mode === 'sweep') {
+      // Single slow sine sweep — 8 evenly-spaced keyframes, one cycle
+      var steps = 8;
+      for (var i = 1; i <= steps; i++) {
+        var ang = (i / steps) * 2 * Math.PI;
+        var st = basePitch + Math.sin(ang) * warp.depth;
+        src.playbackRate.linearRampToValueAtTime(Math.pow(2, st / 12), startWhen + (i / steps) * totalDur);
+      }
+    } else {
+      // Random mode: 14–20 pitch targets at random times → unpredictable warble
+      var nPts = 14 + Math.floor(Math.random() * 7);
+      var times = [];
+      for (var j = 0; j < nPts; j++) times.push(0.04 + Math.random() * 0.92); // 4%–96% of loop
+      times.sort(function(a, b) { return a - b; });
+      for (var k = 0; k < times.length; k++) {
+        var sign = Math.random() < 0.5 ? 1 : -1;
+        var mag  = (0.3 + Math.random() * 0.7) * warp.depth; // 30–100% of max depth
+        var st2  = basePitch + sign * mag;
+        src.playbackRate.linearRampToValueAtTime(Math.pow(2, st2 / 12), startWhen + times[k] * totalDur);
+      }
+      // Settle back close to base at end
+      src.playbackRate.linearRampToValueAtTime(Math.pow(2, basePitch / 12), startWhen + totalDur * 0.98);
+    }
+  }
+
+  function fireLoop(lid) {
+    var lp = PL[lid];
+    if (!lp.playing) return;
+    var c = pac();
+    var dest = getMG(lid);
+    lp.startT = c.currentTime;
+    lp.tracks.forEach(function(t) {
+      var when = lp.startT + Math.min(t.start, lp.dur - 0.2);
+      var nd = playPianoClip(t.id, when, t, dest, lp.dur);
+      if (nd) {
+        lp.nodes.push(nd);
+        if (lp.warp) scheduleWarp(nd, when, lp.dur, t.pitch, lp.warp);
+      }
+    });
+    lp.timer = setTimeout(function() { fireLoop(lid); }, lp.dur * 1000);
+  }
+
+  function startPiano(lid) {
+    if (PL[lid].playing) return;
+    PL[lid].playing = true;
+    var mv = (lid === 1 || lid === 3)
+      ? (window._musicVol ? window._musicVol() : 0.5)
+      : (window._atmosVol ? window._atmosVol() : 0.5);
+    var mg = getMG(lid);
+    mg.gain.cancelScheduledValues(0);
+    mg.gain.value = mv;
+    ensureDecoded().then(function() {
+      if (PL[lid].playing) fireLoop(lid);
+      // When lid=1 starts, launch the second music layer (lid=3) 20s later
+      if (lid === 1 && !PL[3].playing) {
+        PL[3].playing = true;
+        PL[3].timer = setTimeout(function() { if (PL[3].playing) fireLoop(3); }, 20000);
+      }
+      // When lid=2 starts, launch the 2nd atmos layer (lid=4) 20s later and 3rd (lid=5) 40s later
+      if (lid === 2 && !PL[4].playing) {
+        PL[4].playing = true;
+        PL[4].timer = setTimeout(function() { if (PL[4].playing) fireLoop(4); }, 20000);
+      }
+      if (lid === 2 && !PL[5].playing) {
+        PL[5].playing = true;
+        PL[5].timer = setTimeout(function() { if (PL[5].playing) fireLoop(5); }, 40000);
+      }
+    });
+  }
+
+  function stopPiano(lid) {
+    var lp = PL[lid];
+    lp.playing = false;
+    clearTimeout(lp.timer); lp.timer = null;
+    lp.nodes.forEach(function(n) { try { n.stop(0); } catch(e) {} });
+    lp.nodes = [];
+    if (lid === 1) stopPiano(3); // always stop both music layers together
+    if (lid === 2) { stopPiano(4); stopPiano(5); } // stop all three atmos layers together
+  }
+
+  function fadePiano(lid, toVal, ms) {
+    var mg = getMG(lid);
+    var c = pac();
+    mg.gain.cancelScheduledValues(c.currentTime);
+    mg.gain.setValueAtTime(mg.gain.value, c.currentTime);
+    mg.gain.linearRampToValueAtTime(toVal, c.currentTime + ms / 1000);
+    // pMG[1] drives both PL[1] and PL[3]; stop scheduling on both when silent
+    if (toVal <= 0.001) setTimeout(function() { stopPiano(lid); }, ms + 200);
+  }
+
+  window.onAudioPageChange = (function(prev) {
+    return function(pid) {
+      if (prev) prev(pid);
+      var musicOk = window._musicOn ? window._musicOn() : false;
+      if (musicOk && !PL[1].playing) startPiano(1);
+    };
+  }(window.onAudioPageChange));
+
+  var dustActive = false;
+
+  window.onDustStart = (function(prev) {
+    return function() {
+      if (prev) prev();
+      dustActive = true;
+      var atmosOk = window._atmosOn ? window._atmosOn() : false;
+      if (!atmosOk) return;
+      var mv = (window._atmosVol ? window._atmosVol() : 0.5) * 0.9; // cap 10% below atmos fader
+      var mg = getMG(2);
+      var c = pac();
+      if (PL[2].playing) {
+        // Already running (e.g. dust restarts) — ramp back up slowly
+        mg.gain.cancelScheduledValues(c.currentTime);
+        mg.gain.setValueAtTime(mg.gain.value, c.currentTime);
+        mg.gain.linearRampToValueAtTime(mv, c.currentTime + 12);
+      } else {
+        // Fresh start: begin silent then build slowly over 12s
+        mg.gain.cancelScheduledValues(c.currentTime);
+        mg.gain.setValueAtTime(0, c.currentTime);
+        mg.gain.linearRampToValueAtTime(mv, c.currentTime + 12);
+        startPiano(2);
+      }
+    };
+  }(window.onDustStart));
+
+  window.onDustSettle = (function(prev) {
+    return function() {
+      if (prev) prev();
+      dustActive = false;
+      if (PL[2].playing) fadePiano(2, 0, 5000);
+    };
+  }(window.onDustSettle));
+
+  window._pianoMixToggle = function(key, paused, audOn) {
+    if (key === 'music') {
+      if (paused) {
+        fadePiano(1, 0, 600);
+      } else if (audOn && !PL[1].playing) {
+        startPiano(1);
+      } else if (audOn && pMG[1]) {
+        pMG[1].gain.value = window._musicVol ? window._musicVol() : 0.5;
+      }
+    } else if (key === 'atmos') {
+      if (paused) {
+        fadePiano(2, 0, 600);
+      } else if (audOn && dustActive && !PL[2].playing) {
+        startPiano(2);
+      } else if (audOn && PL[2].playing && pMG[2]) {
+        pMG[2].gain.value = window._atmosVol ? window._atmosVol() : 0.5;
+      }
+    }
+  };
+
+  window._pianoSetVol = function(lid, val) {
+    var key = getMGKey(lid);
+    if (pMG[key] && (PL[lid] && PL[lid].playing)) {
+      pMG[key].gain.cancelScheduledValues(0);
+      pMG[key].gain.value = val;
+    }
+  };
+
+  window._pianoHandlesMusic = true; // tells ambient-clone system to stay idle
+
+  prefetch();
+})();
+
 })();
 </script>
 
