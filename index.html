@@ -1940,6 +1940,9 @@ const PAGES = [
           <button id="gext-4" class="gext-btn" data-h="who's there" onclick="window.toggleGiggleExt&&window.toggleGiggleExt(4)">⁕ rando</button>
         </div>
         <p>I sit by the window for a wee while longer, this morning. Watching the last lingering dust motes catch the warming light and I'm thinking.</p>
+        <div class="gext-single-wrap">
+          <button id="outside-btn" class="gext-btn" data-h="the world outside" onclick="window.toggleOutside&&window.toggleOutside()">◌ outside</button>
+        </div>
       </div>
       <span class="pg-num verso">21</span>
     `,
@@ -4003,6 +4006,8 @@ function curlNoise(x, y) {
   });
   window.revealAudTgl = revealAudTgl;
   window.stopOutdoorAmbient = stopOutdoorAmbient;
+  window.startOutdoorAmbient = startOutdoorAmbient;
+  window.outdoorIsActive = function() { return outdoorActive; };
 })();
 </script>
 
@@ -5057,20 +5062,24 @@ function curlNoise(x, y) {
   </div>
 
   <div class="im-section">
-    <div class="im-head">Custom Sound Effects</div>
-    <p>Throughout the text you'll find play buttons — <button style="background:none;border:1px solid rgba(100,80,60,0.3);border-radius:2px;cursor:default;font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--ink-faint);font-size:0.78em;padding:1px 7px;vertical-align:middle;pointer-events:none;">▶ play</button> — pressing those activates things in the following ways:</p>
-    <p><em>▶ lighter</em> — plays the click and hiss of the morning's first light. <em>▶ giggle</em> — hears the moment; the door and outside world go quiet while it plays, then ease back in when it ends. <em>▶ door</em> — opens the outside: city hum, birds, the odd car passing. Its volume lowers while the fan runs and returns when the fan stops.</p>
-    <p>Four extended modes — <em>Dreamy, Chaos, Rapture,</em> and <em>Rando</em> — appear alongside the giggle. Each transforms the soundscape for about thirty seconds. Rando generates a completely new arrangement every loop — no two cycles are the same.</p>
+    <div class="im-head">The Lighter</div>
+    <p>Early in the story a <button style="background:none;border:1px solid rgba(100,80,60,0.3);border-radius:2px;cursor:default;font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--ink-faint);font-size:0.78em;padding:1px 7px;vertical-align:middle;pointer-events:none;">▶ …<em>click</em>… …<em>fssschhh.</em>…</button> button appears in the text — the click and hiss of the morning's first light.</p>
   </div>
 
   <div class="im-section">
-    <div class="im-head">The Door &amp; Outside World</div>
-    <p>When you reach the sliding-door moment, a <em>door</em> button opens the outside: city hum, birds, the odd car passing. It plays until you tap the giggle.</p>
+    <div class="im-head">The Outside World</div>
+    <p>A <em>◌ outside</em> button on the final page opens the outside world: city hum, birds, the odd car passing. Press it again to close it. The giggle always silences it — press <em>◌ outside</em> again whenever you want the world back in.</p>
   </div>
 
   <div class="im-section">
     <div class="im-head">The Fan</div>
-    <p>In Act Three the <em>fan</em> button turns on the room fan, gently lowering the outdoor sounds while it runs.</p>
+    <p>In Act Three a <em>fan</em> button turns on the room fan, gently lowering the outdoor sounds while it runs. The dust rises with it.</p>
+  </div>
+
+  <div class="im-section">
+    <div class="im-head">The Giggle</div>
+    <p>A <em>▶ giggle</em> button marks the moment of departure. Everything outside goes quiet while it plays, then eases back in when it ends.</p>
+    <p>Four extended modes — <em>↻ Dreamy, ✦ Chaos, ✶ Rapture,</em> and <em>⁕ Rando</em> — appear alongside it. Each transforms the soundscape for about thirty seconds. Rando generates a completely new arrangement every loop — no two cycles are the same.</p>
   </div>
 
   <div class="im-section">
@@ -5096,7 +5105,9 @@ function curlNoise(x, y) {
   position: fixed;
   inset: 0;
   z-index: 950;
-  background: rgba(5,2,1,0.96);
+  background: rgba(5,2,1,0.52);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
 }
@@ -5106,7 +5117,7 @@ function curlNoise(x, y) {
   margin: 0 auto;
   padding: 52px 32px 90px;
   font-family: 'Cormorant Garamond', serif;
-  color: rgba(232,218,196,0.86);
+  color: rgba(240,228,208,0.97);
   position: relative;
 }
 #info-close {
@@ -5127,22 +5138,25 @@ function curlNoise(x, y) {
   font-size: 0.62em;
   letter-spacing: 3px;
   text-transform: uppercase;
-  color: rgba(200,169,106,0.45);
+  color: rgba(200,169,106,0.72);
   margin-bottom: 4px;
+  text-shadow: 0 1px 6px rgba(0,0,0,0.7);
 }
 .im-title {
   font-style: italic;
   font-size: 1.7em;
   font-weight: 400;
-  color: rgba(200,169,106,0.88);
+  color: rgba(212,182,118,1.0);
   margin: 0 0 10px;
+  text-shadow: 0 1px 8px rgba(0,0,0,0.8);
 }
 .im-note {
   font-size: 0.82em;
   font-style: italic;
-  color: rgba(200,169,106,0.5);
+  color: rgba(200,169,106,0.82);
   margin-bottom: 0;
   line-height: 1.7;
+  text-shadow: 0 1px 5px rgba(0,0,0,0.7);
 }
 .im-rule {
   height: 0.5px;
@@ -5154,16 +5168,18 @@ function curlNoise(x, y) {
   font-size: 0.68em;
   letter-spacing: 2px;
   text-transform: uppercase;
-  color: rgba(200,169,106,0.55);
+  color: rgba(200,169,106,0.85);
   margin-bottom: 7px;
+  text-shadow: 0 1px 6px rgba(0,0,0,0.75);
 }
 #info-modal-inner p {
   font-size: 0.88em;
   line-height: 1.75;
-  color: rgba(232,218,196,0.78);
+  color: rgba(240,228,208,0.95);
   margin: 0 0 8px;
+  text-shadow: 0 1px 5px rgba(0,0,0,0.75);
 }
-#info-modal-inner strong { color: rgba(232,218,196,0.94); font-weight: 600; }
+#info-modal-inner strong { color: rgba(255,244,224,1.0); font-weight: 600; }
 #info-modal-inner em { font-style: italic; }
 /* Desktop info button */
 #info-btn-desk {
@@ -5253,11 +5269,18 @@ function curlNoise(x, y) {
 .gext-btn:hover {
   animation: gext-drift 2.2s ease-in-out infinite, gext-flicker 3.5s ease-in-out infinite;
 }
+.gext-single-wrap {
+  display: flex;
+  justify-content: center;
+  margin: 0 auto 2.0em;
+  max-width: 320px;
+}
+.gext-single-wrap .gext-btn { min-width: 148px; }
 </style>
 
 <script>
 (function(){
-  var hoverLabels = { 'gext-1':'is this real?', 'gext-2':'make it stop', 'gext-3':'I hear them', 'gext-4':"who's there" };
+  var hoverLabels = { 'gext-1':'is this real?', 'gext-2':'make it stop', 'gext-3':'I hear them', 'gext-4':"who's there", 'outside-btn':'the world outside' };
   document.addEventListener('mouseover', function(e){
     var btn = e.target.closest('.gext-btn');
     if(!btn || btn._gh || btn.textContent.trim().startsWith('■')) return;
@@ -5274,6 +5297,35 @@ function curlNoise(x, y) {
     btn.textContent = btn._orig;
     btn._orig = null;
   });
+})();
+</script>
+
+<script>
+(function() {
+  function outsideBtn() { return document.getElementById('outside-btn'); }
+
+  function syncBtn() {
+    var btn = outsideBtn(); if (!btn) return;
+    var on = window.outdoorIsActive ? window.outdoorIsActive() : false;
+    btn.textContent = on ? '■ outside' : '◌ outside';
+  }
+
+  window.toggleOutside = function() {
+    var on = window.outdoorIsActive ? window.outdoorIsActive() : false;
+    if (on) {
+      if (window.stopOutdoorAmbient) window.stopOutdoorAmbient(800);
+    } else {
+      if (window.startOutdoorAmbient) window.startOutdoorAmbient();
+    }
+    setTimeout(syncBtn, 60);
+  };
+
+  // Wrap stopOutdoorAmbient so giggle/fan/etc auto-reset the button
+  var _rawStop = window.stopOutdoorAmbient;
+  window.stopOutdoorAmbient = function(ms) {
+    if (_rawStop) _rawStop(ms);
+    setTimeout(syncBtn, 60);
+  };
 })();
 </script>
 
