@@ -1304,7 +1304,9 @@ body::before {
 /* ── MIX PANEL ──────────────────────────────────── */
 #mix-panel{position:fixed;bottom:154px;right:28px;z-index:403;width:274px;background:rgba(6,3,1,1);border:1px solid rgba(200,169,106,0.28);border-radius:3px;padding:19px 22px 15px;backdrop-filter:blur(10px);overflow:hidden;opacity:0;pointer-events:none;transform:translateY(6px);transition:opacity 0.2s ease,transform 0.2s ease;}
 #mix-panel.open{opacity:1;pointer-events:all;transform:translateY(0);}
-.mix-head{font-family:'Cormorant Garamond',serif;font-size:0.72em;letter-spacing:3px;color:rgba(200,169,106,0.38);text-transform:uppercase;text-align:center;margin-bottom:16px;padding-bottom:10px;border-bottom:0.5px solid rgba(200,169,106,0.16);}
+.mix-head{font-family:'Cormorant Garamond',serif;font-size:0.72em;letter-spacing:3px;color:rgba(200,169,106,0.38);text-transform:uppercase;text-align:center;margin-bottom:16px;padding-bottom:10px;border-bottom:0.5px solid rgba(200,169,106,0.16);position:relative;}
+#mix-close{position:absolute;top:-2px;right:0;background:none;border:none;cursor:pointer;color:rgba(200,169,106,0.45);font-size:1.3em;line-height:1;padding:0 2px;font-family:inherit;transition:color 0.18s;}
+#mix-close:hover{color:rgba(200,169,106,0.9);}
 .mix-row{display:flex;align-items:center;gap:9px;margin-bottom:13px;}
 .mix-row:last-child{margin-bottom:0;}
 .mix-dot{width:6px;height:6px;border-radius:50%;background:rgba(200,169,106,0.2);flex-shrink:0;transition:background 0.3s;}
@@ -3457,7 +3459,7 @@ function curlNoise(x, y) {
 
 <!-- MIX PANEL -->
 <div id="mix-panel">
-  <div class="mix-head">mix</div>
+  <div class="mix-head">mix<button id="mix-close" onclick="if(window.toggleMixPanel)window.toggleMixPanel()" title="Close">✕</button></div>
   <div class="mix-row"><button class="mix-pp" id="mp-music" title="pause music">⏸</button><div class="mix-lbl">music</div><input class="mix-slider" type="range" min="0" max="100" value="50" step="1" id="ms-music"><div class="mix-val" id="mv-music">50</div></div>
   <div class="mix-row"><button class="mix-pp" id="mp-atmos" title="pause atmosphere">⏸</button><div class="mix-lbl">atmosphere</div><input class="mix-slider" type="range" min="0" max="100" value="50" step="1" id="ms-atmos"><div class="mix-val" id="mv-atmos">50</div></div>
   <div class="mix-row"><button class="mix-pp" id="mp-voice" title="pause voice">⏸</button><div class="mix-lbl">voice</div><input class="mix-slider" type="range" min="0" max="100" value="50" step="1" id="ms-voice"><div class="mix-val" id="mv-voice">50</div></div>
@@ -4029,10 +4031,20 @@ function curlNoise(x, y) {
       var t = document.getElementById('aud-toggle');
       if (t) { t.style.opacity = '1'; t.style.pointerEvents = ''; }
     }
+    // Unlock audio context with a silent buffer (required on iOS)
     try {
-      var AC = window.AudioContext || window.webkitAudioContext;
-      if (AC) { var ac = new AC(); ac.resume().then(function(){ ac.close(); }); }
+      var ACtmp = window.AudioContext || window.webkitAudioContext;
+      if (ACtmp) {
+        var ctx = new ACtmp();
+        var buf = ctx.createBuffer(1, 1, 22050);
+        var src = ctx.createBufferSource();
+        src.buffer = buf; src.connect(ctx.destination); src.start(0);
+        ctx.resume().then(function() { ctx.close(); });
+      }
     } catch(e) {}
+    // Turn sound on automatically — tap to begin = tap to hear
+    var t = document.getElementById('aud-toggle');
+    if (t && t.classList.contains('off')) { t.click(); }
     setTimeout(function() { splash.style.display = 'none'; }, 700);
   }
 
@@ -5032,8 +5044,8 @@ function curlNoise(x, y) {
 </style>
 <div id="mob-ctrl-tray">
   <button id="mob-ctrl-handle" aria-label="Controls">⋮</button>
+  <button id="mct-sound" class="mct-btn off" aria-label="Toggle sound" title="Sound on/off">♪<span class="mct-lbl">sound</span></button>
   <div id="mob-ctrl-drawer">
-    <button id="mct-sound"    class="mct-btn" aria-label="Toggle sound"   title="Sound on/off">♪<span class="mct-lbl">sound</span></button>
     <button id="mct-mix"      class="mct-btn" aria-label="Mix panel"     title="Volume mixer">≡<span class="mct-lbl">mixer</span></button>
     <button id="mct-fw"       class="mct-btn mct-hidden" aria-label="Replay fireworks" title="Replay fireworks">✦<span class="mct-lbl">sparks</span></button>
     <button id="mct-dust-tgl" class="mct-btn" aria-label="Toggle dust"   title="Dust on/off">◎<span class="mct-lbl">dust</span></button>
@@ -5078,7 +5090,7 @@ function curlNoise(x, y) {
 
   <div class="im-section">
     <div class="im-head">The Giggle</div>
-    <p>A <em>▶ giggle</em> button marks the moment of departure. Everything outside goes quiet while it plays, then eases back in when it ends.</p>
+    <p>A <em>▶ giggle</em> button marks the moment of departure. Everything outside goes quiet while it plays.</p>
     <p>Four extended modes — <em>↻ Dreamy, ✦ Chaos, ✶ Rapture,</em> and <em>⁕ Rando</em> — appear alongside it. Each transforms the soundscape for about thirty seconds. Rando generates a completely new arrangement every loop — no two cycles are the same.</p>
   </div>
 
