@@ -3968,6 +3968,7 @@ function curlNoise(x, y) {
     audTgl.textContent=audOn?'♪ click to mute':'♪ click for sound';
     if(!audOn){
       stopNar();
+      if(window._pianoStopAll)window._pianoStopAll();
       document.querySelectorAll('audio').forEach(el=>{ el.muted=true; });
       ytCmd('mute');
     }
@@ -4861,13 +4862,15 @@ function curlNoise(x, y) {
   function startPiano(lid) {
     if (PL[lid].playing) return;
     PL[lid].playing = true;
+    var c = pac();
     var mv = (lid === 1 || lid === 3)
       ? (window._musicVol ? window._musicVol() : 0.5)
       : (window._atmosVol ? window._atmosVol() : 0.5);
     var mg = getMG(lid);
     mg.gain.cancelScheduledValues(0);
     mg.gain.value = mv;
-    ensureDecoded().then(function() {
+    var resumeP = c.state === 'suspended' ? c.resume() : Promise.resolve();
+    resumeP.then(function() { return ensureDecoded(); }).then(function() {
       if (PL[lid].playing) fireLoop(lid);
       // When lid=1 starts, launch the second music layer (lid=3) 20s later
       if (lid === 1 && !PL[3].playing) {
@@ -4977,6 +4980,8 @@ function curlNoise(x, y) {
   };
 
   window._pianoHandlesMusic = true; // tells ambient-clone system to stay idle
+
+  window._pianoStopAll = function() { stopPiano(1); stopPiano(2); };
 
   prefetch();
 })();
