@@ -3154,11 +3154,11 @@ function curlNoise(x, y) {
       if (globalOpacity >= coverCap) dustPhase = 'alive';
     } else if (dustPhase === 'alive') {
       hazeOpacity = Math.max(0, hazeOpacity - 0.006);
-      const readFloor = (dustMode === 'cover' || dustMode === 'back-cover') ? coverCap : 0.50;
+      const readFloor = (dustMode === 'cover' || dustMode === 'back-cover') ? coverCap : 0.38;
       if (globalOpacity > readFloor) globalOpacity = Math.max(readFloor, globalOpacity - 0.008);
     } else if (dustPhase === 'settling') {
       settleVelocityScale = Math.max(0, settleVelocityScale - 0.000926);
-      globalOpacity = Math.max(0.50, globalOpacity - 0.000926);
+      globalOpacity = Math.max(0.38, globalOpacity - 0.000926);
       hazeOpacity   = Math.max(0, hazeOpacity - 0.01);
     } else if (dustPhase === 'falling') {
       globalOpacity = Math.max(0, globalOpacity - 0.006);
