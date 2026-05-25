@@ -3162,7 +3162,7 @@ function curlNoise(x, y) {
       if (globalOpacity > 0.38) {
         globalOpacity = Math.max(0.38, globalOpacity - 0.000926);
       } else {
-        globalOpacity = Math.max(0, globalOpacity - 0.000317); // 20s fade at 60fps
+        globalOpacity = Math.max(0, globalOpacity - 0.000528); // 12s fade at 60fps
         if (globalOpacity <= 0) {
           dustPhase = 'hidden'; dustStarted = false; dustMode = 'normal'; coverClipRect = null;
           particles = [];
