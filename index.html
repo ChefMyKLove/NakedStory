@@ -3034,7 +3034,7 @@ function curlNoise(x, y) {
     }
     // Any other page: stop dust
     else {
-      if (dustPhase === 'alive' || dustPhase === 'rising') stopDust();
+      if (dustPhase === 'alive' || dustPhase === 'rising' || dustPhase === 'settling') stopDust();
       replayBtn.classList.remove('visible');
     }
   }
@@ -3158,13 +3158,8 @@ function curlNoise(x, y) {
       if (globalOpacity > readFloor) globalOpacity = Math.max(readFloor, globalOpacity - 0.008);
     } else if (dustPhase === 'settling') {
       settleVelocityScale = Math.max(0, settleVelocityScale - 0.000926);
-      globalOpacity = Math.max(0, globalOpacity - 0.000926);
+      globalOpacity = Math.max(0.20, globalOpacity - 0.000926);
       hazeOpacity   = Math.max(0, hazeOpacity - 0.01);
-      if (globalOpacity <= 0) {
-        dustPhase = 'hidden'; dustStarted = false;
-        canvas.classList.remove('active');
-        animId = null; return;
-      }
     } else if (dustPhase === 'falling') {
       globalOpacity = Math.max(0, globalOpacity - 0.006);
       hazeOpacity   = Math.max(0, hazeOpacity - 0.012);
@@ -4111,7 +4106,7 @@ function curlNoise(x, y) {
   function fetchAB(path) {
     return new Promise(function(res, rej) {
       var x = new XMLHttpRequest();
-      x.open('GET', path, true);
+      x.open('GET', path.replace(/ /g, '%20').replace(/\(/g, '%28').replace(/\)/g, '%29'), true);
       x.responseType = 'arraybuffer';
       x.onload = function() { (x.status === 0 || x.status === 200) ? res(x.response) : rej(x.status); };
       x.onerror = rej;

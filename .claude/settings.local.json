@@ -28,7 +28,21 @@
       "Bash(dir *)",
       "PowerShell(git -C \"c:\\\\Users\\\\micha\\\\Desktop\\\\wereNaked_story\" remote -v)",
       "PowerShell(git -C \"c:\\\\Users\\\\micha\\\\Desktop\\\\wereNaked_story\" branch -a)",
-      "PowerShell(git -C \"c:\\\\Users\\\\micha\\\\Desktop\\\\wereNaked_story\" push origin master)"
+      "PowerShell(git -C \"c:\\\\Users\\\\micha\\\\Desktop\\\\wereNaked_story\" push origin master)",
+      "Bash(Rename-Item \"418 Stirling Ave 22.m4a\" \"piano 1.m4a\")",
+      "Bash(Rename-Item \"418 Stirling Ave 23.m4a\" \"piano 2.m4a\")",
+      "Bash(Rename-Item \"418 Stirling Ave 24.m4a\" \"piano 3.m4a\")",
+      "Bash(Rename-Item \"418 Stirling Ave 25.m4a\" \"piano 4.m4a\")",
+      "Bash(Rename-Item \"418 Stirling Ave 26.m4a\" \"piano 5.m4a\")",
+      "Bash(mv \"418 Stirling Ave 22.m4a\" \"piano 1.m4a\")",
+      "Bash(mv \"418 Stirling Ave 23.m4a\" \"piano 2.m4a\")",
+      "Bash(mv \"418 Stirling Ave 24.m4a\" \"piano 3.m4a\")",
+      "Bash(mv \"418 Stirling Ave 25.m4a\" \"piano 4.m4a\")",
+      "Bash(mv \"418 Stirling Ave 26.m4a\" \"piano 5.m4a\")",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git remote *)",
+      "Bash(git push *)"
     ],
     "additionalDirectories": [
       "C:\\Users\\micha\\Desktop\\wereNaked_story\\docs"
