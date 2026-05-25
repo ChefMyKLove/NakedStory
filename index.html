@@ -1933,13 +1933,13 @@ const PAGES = [
         <p class="no-indent">Dripping with an irony that still stings enough to this day so as to populate such a dream as this...</p>
         <p>—as you spring from the heater onto the bed, into your rush-ready robe, then right out the door with a thumbs up. No words, just a <button onclick="window.playGiggle&&window.playGiggle()" style="background:none;border:1px solid rgba(100,80,60,0.3);border-radius:2px;cursor:pointer;font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--ink-faint);font-size:0.78em;padding:1px 7px;vertical-align:middle;" title="🔊">▶ giggle</button>.</p>
         <p><strong>And I'm naked and alone.</strong></p>
-        <p>I sit by the window for a wee while longer, this morning. Watching the last lingering dust motes catch the warming light and I'm thinking.</p>
-        <div style="display:flex;gap:10px;margin-top:1.8em;justify-content:center;flex-wrap:nowrap;">
-          <button id="gext-1" onclick="window.toggleGiggleExt&&window.toggleGiggleExt(1)" style="background:rgba(18,10,4,0.82);border:2px solid rgba(200,169,106,0.90);color:rgba(220,188,128,1);padding:9px 16px;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:0.88em;letter-spacing:1.5px;cursor:pointer;border-radius:3px;white-space:nowrap;transition:background 0.25s,border-color 0.25s,color 0.25s;">↻ dreamy</button>
-          <button id="gext-2" onclick="window.toggleGiggleExt&&window.toggleGiggleExt(2)" style="background:rgba(18,10,4,0.82);border:2px solid rgba(200,169,106,0.90);color:rgba(220,188,128,1);padding:9px 16px;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:0.88em;letter-spacing:1.5px;cursor:pointer;border-radius:3px;white-space:nowrap;transition:background 0.25s,border-color 0.25s,color 0.25s;">✦ chaos</button>
-          <button id="gext-3" onclick="window.toggleGiggleExt&&window.toggleGiggleExt(3)" style="background:rgba(18,10,4,0.82);border:2px solid rgba(200,169,106,0.90);color:rgba(220,188,128,1);padding:9px 16px;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:0.88em;letter-spacing:1.5px;cursor:pointer;border-radius:3px;white-space:nowrap;transition:background 0.25s,border-color 0.25s,color 0.25s;">✶ rapture</button>
-          <button id="gext-4" onclick="window.toggleGiggleExt&&window.toggleGiggleExt(4)" style="background:rgba(18,10,4,0.82);border:2px solid rgba(200,169,106,0.90);color:rgba(220,188,128,1);padding:9px 16px;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:0.88em;letter-spacing:1.5px;cursor:pointer;border-radius:3px;white-space:nowrap;transition:background 0.25s,border-color 0.25s,color 0.25s;">⁕ rando</button>
+        <div class="gext-wrap">
+          <button id="gext-1" class="gext-btn" data-h="is this real?" onclick="window.toggleGiggleExt&&window.toggleGiggleExt(1)">↻ dreamy</button>
+          <button id="gext-2" class="gext-btn" data-h="make it stop" onclick="window.toggleGiggleExt&&window.toggleGiggleExt(2)">✦ chaos</button>
+          <button id="gext-3" class="gext-btn" data-h="I hear them" onclick="window.toggleGiggleExt&&window.toggleGiggleExt(3)">✶ rapture</button>
+          <button id="gext-4" class="gext-btn" data-h="who's there" onclick="window.toggleGiggleExt&&window.toggleGiggleExt(4)">⁕ rando</button>
         </div>
+        <p>I sit by the window for a wee while longer, this morning. Watching the last lingering dust motes catch the warming light and I'm thinking.</p>
       </div>
       <span class="pg-num verso">21</span>
     `,
@@ -3972,7 +3972,7 @@ function curlNoise(x, y) {
     qs:  'freesound_community-quick-swhooshing-noise-80898.mp3',
   };
 
-  let AC = null, bufs = {}, loadProm = null;
+  let AC = null, bufs = {}, revBufs = {}, loadProm = null;
 
   function ac() {
     if (!AC) AC = new (window.AudioContext || window.webkitAudioContext)();
@@ -4011,8 +4011,21 @@ function curlNoise(x, y) {
   // pb(key, when, opt, dest) — plays buffer with optional echo/pan/rate.
   // Routes to dest AudioNode (defaults to c.destination).
   function pb(key, when, opt = {}, dest) {
-    const buf = bufs[key];
-    if (!buf) return;
+    const origBuf = bufs[key];
+    if (!origBuf) return;
+    let buf = origBuf;
+    if (opt.reverse) {
+      if (!revBufs[key]) {
+        const rc = ac();
+        const rb = rc.createBuffer(origBuf.numberOfChannels, origBuf.length, origBuf.sampleRate);
+        for (let ch = 0; ch < origBuf.numberOfChannels; ch++) {
+          const od = origBuf.getChannelData(ch), rd = rb.getChannelData(ch);
+          for (let i = 0; i < origBuf.length; i++) rd[i] = od[origBuf.length - 1 - i];
+        }
+        revBufs[key] = rb;
+      }
+      buf = revBufs[key];
+    }
     const c = ac();
     const src = c.createBufferSource();
     src.buffer = buf;
@@ -4325,8 +4338,8 @@ function curlNoise(x, y) {
   // Fully procedural — new random arrangement every loop.
   // Density, timing, pan, pitch, effect mode, and voice all re-rolled each cycle.
   // Effect modes: reverb wash (tiny delay + high fb), normal echo, long trailing echo, dry.
-  function runExt4(mg) {
-    const c = ac(), t = c.currentTime + 0.1, base = sfxV() * 0.76;
+  function runExt4(mg, volScale, timeOffset) {
+    const c = ac(), t = c.currentTime + 0.1 + (timeOffset || 0), base = sfxV() * 0.76 * (volScale || 1);
     const laughKeys  = ['m1','m2','f1','f2','f3','g3','g4','g9','g10','sg','lf','cl','sl','sw'];
     const doorKeys   = ['d1','d2','d3'];
     const whooshKeys = ['w1','w2','qw','qs'];
@@ -4339,41 +4352,64 @@ function curlNoise(x, y) {
 
     for (let i = 0; i < count; i++) {
       const roll = r();
-      let key, isLaugh;
-      if (roll < 0.60)      { key = pick(laughKeys);  isLaugh = true;  }
-      else if (roll < 0.80) { key = pick(doorKeys);   isLaugh = false; }
-      else                   { key = pick(whooshKeys); isLaugh = false; }
+      let key, type;
+      if (roll < 0.60)      { key = pick(laughKeys);  type = 'laugh';  }
+      else if (roll < 0.80) { key = pick(doorKeys);   type = 'door';   }
+      else                   { key = pick(whooshKeys); type = 'whoosh'; }
 
       const dt  = rng(0.0, 29.5);
       const pan = rng(-0.95, 0.95);
 
       // Pitch: mostly natural, occasionally extreme or deep
       const pr = r();
-      const rate = pr < 0.10 ? rng(0.38, 0.58)   // deep / slow
-                 : pr < 0.18 ? rng(1.55, 2.20)   // chipmunk / fast
-                 : isLaugh   ? rng(0.68, 1.40)
-                 :              rng(0.72, 1.32);
+      const rate = pr < 0.10 ? rng(0.38, 0.58)          // deep / slow
+                 : pr < 0.18 ? rng(1.55, 2.20)          // chipmunk / fast
+                 : type === 'laugh' ? rng(0.68, 1.40)
+                 :                    rng(0.72, 1.32);
 
-      // Effect mode: reverb wash | normal echo | long trailing echo | dry
+      // Effect probabilities differ by sound type:
+      //   whoosh → mostly dry (they don't need dressing up)
+      //   door   → medium dry bias
+      //   laugh  → full mix of effects
       let delay = 0, fb = 0;
       const fx = r();
-      if      (fx < 0.28) { delay = rng(0.015, 0.065); fb = rng(0.72, 0.87); } // reverb wash
-      else if (fx < 0.66) { delay = rng(0.12, 0.38);   fb = rng(0.34, 0.70); } // echo
-      else if (fx < 0.82) { delay = rng(0.40, 0.78);   fb = rng(0.42, 0.62); } // long tail
-      // else: dry
+      if (type === 'whoosh') {
+        if      (fx < 0.20) { delay = rng(0.015, 0.065); fb = rng(0.72, 0.87); } // reverb wash
+        else if (fx < 0.35) { delay = rng(0.12, 0.38);   fb = rng(0.34, 0.60); } // echo
+        else if (fx < 0.45) { delay = rng(0.40, 0.78);   fb = rng(0.38, 0.58); } // long tail
+        // else 55%: dry
+      } else if (type === 'door') {
+        if      (fx < 0.20) { delay = rng(0.015, 0.065); fb = rng(0.72, 0.87); } // reverb wash
+        else if (fx < 0.50) { delay = rng(0.12, 0.38);   fb = rng(0.34, 0.65); } // echo
+        else if (fx < 0.65) { delay = rng(0.40, 0.78);   fb = rng(0.42, 0.62); } // long tail
+        // else 35%: dry
+      } else {
+        if      (fx < 0.25) { delay = rng(0.015, 0.065); fb = rng(0.72, 0.87); } // reverb wash
+        else if (fx < 0.60) { delay = rng(0.12, 0.38);   fb = rng(0.34, 0.70); } // echo
+        else if (fx < 0.75) { delay = rng(0.40, 0.78);   fb = rng(0.42, 0.62); } // long tail
+        // else 25%: dry
+      }
 
-      const dur  = isLaugh ? rng(0.85, 1.65) : undefined;
+      // ~10% chance of reverse playback (first use computes + caches the flipped buffer)
+      const rev = r() < 0.10;
+
+      const dur  = type === 'laugh' ? rng(0.85, 1.65) : undefined;
       const vMul = rng(0.42, 1.00);
-      events.push([key, dt, pan, rate, delay, fb, dur, vMul]);
+      events.push([key, dt, pan, rate, delay, fb, dur, vMul, rev]);
     }
 
     events.sort((a, b) => a[1] - b[1]);
-    events.forEach(([k, dt, pan, rate, delay, fb, dur, vMul]) => {
-      pb(k, t + dt, { vol: base * vMul, pan, rate, delay, fb, dur }, mg);
+    events.forEach(([k, dt, pan, rate, delay, fb, dur, vMul, rev]) => {
+      pb(k, t + dt, { vol: base * vMul, pan, rate, delay, fb, dur, reverse: rev }, mg);
     });
   }
 
-  const extRunners = [runExt1, runExt2, runExt3, runExt4];
+  function runExt4Double(mg) {
+    runExt4(mg, 0.68, 0);
+    runExt4(mg, 0.68, 4.5);
+  }
+
+  const extRunners = [runExt1, runExt2, runExt3, runExt4Double];
 
   // ── PUBLIC API ────────────────────────────────────────────
   async function ensure() { ac(); await ensureLoaded(); }
@@ -4660,6 +4696,96 @@ function curlNoise(x, y) {
 #info-btn-desk:hover { background: rgba(200,169,106,0.18); color: rgba(200,169,106,0.9); border-color: rgba(200,169,106,0.55); }
 @media (max-width: 800px) { #info-btn-desk { display: none; } }
 </style>
+
+<style>
+/* ── Extended giggle buttons ─────────────────────────── */
+.gext-wrap {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 0.6em auto 2.4em;
+  max-width: 320px;
+}
+.gext-btn {
+  background: rgba(18,10,4,0.82);
+  border: 2px solid rgba(200,169,106,0.90);
+  color: rgba(220,188,128,1);
+  padding: 14px 10px;
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 1.05em;
+  letter-spacing: 1.5px;
+  cursor: pointer;
+  border-radius: 3px;
+  white-space: nowrap;
+  position: relative;
+  transition: border-color 0.25s, color 0.25s, background 0.25s;
+}
+/* ghost: faint offset duplicate on hover */
+.gext-btn::after {
+  content: attr(data-h);
+  position: absolute;
+  inset: -2px;
+  border: 2px solid transparent;
+  border-radius: 3px;
+  color: transparent;
+  transform: translate(5px, 4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: inherit;
+  font-family: inherit;
+  font-style: inherit;
+  letter-spacing: inherit;
+  transition: border-color 0.35s, color 0.35s;
+  pointer-events: none;
+}
+.gext-btn:hover::after {
+  border-color: rgba(200,169,106,0.20);
+  color: rgba(220,188,128,0.14);
+}
+@keyframes gext-drift {
+  0%   { transform: translate(0,    0);    }
+  20%  { transform: translate(1px, -1px);  }
+  45%  { transform: translate(-1px, 2px);  }
+  65%  { transform: translate(2px,  1px);  }
+  85%  { transform: translate(-1px,-1px);  }
+  100% { transform: translate(0,    0);    }
+}
+@keyframes gext-flicker {
+  0%,100% { opacity:1;    filter:brightness(1);    }
+  11%     { opacity:0.86; filter:brightness(0.90); }
+  27%     { opacity:1;    filter:brightness(1.07); }
+  54%     { opacity:0.91; filter:brightness(0.95); }
+  79%     { opacity:1;    filter:brightness(1.02); }
+  92%     { opacity:0.94; filter:brightness(0.97); }
+}
+.gext-btn:hover {
+  animation: gext-drift 2.2s ease-in-out infinite, gext-flicker 3.5s ease-in-out infinite;
+}
+</style>
+
+<script>
+(function(){
+  var hoverLabels = { 'gext-1':'is this real?', 'gext-2':'make it stop', 'gext-3':'I hear them', 'gext-4':"who's there" };
+  document.addEventListener('mouseover', function(e){
+    var btn = e.target.closest('.gext-btn');
+    if(!btn || btn._gh || btn.textContent.trim().startsWith('■')) return;
+    btn._gh = true;
+    btn._orig = btn.textContent;
+    btn.textContent = hoverLabels[btn.id] || btn.textContent;
+  });
+  document.addEventListener('mouseout', function(e){
+    var btn = e.target.closest('.gext-btn');
+    if(!btn || !btn._gh) return;
+    var rel = e.relatedTarget;
+    if(rel && btn.contains(rel)) return;
+    btn._gh = false;
+    btn.textContent = btn._orig;
+    btn._orig = null;
+  });
+})();
+</script>
 
 <button id="info-btn-desk" onclick="document.getElementById('info-modal').classList.add('open')">? guide</button>
 
