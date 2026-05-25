@@ -1278,8 +1278,10 @@ body::before {
   .page-frame { padding: 8px; }
   /* Scrollable page surface; side padding clears the 30px nav arrow footprint */
   .page-frame > .page-surface {
-    overflow-y: auto;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
     -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
     padding: 20px 34px 80px;
   }
   .page-frame > .page-surface .story-text {
@@ -1299,6 +1301,8 @@ body::before {
   }
   /* Page number shifted to match reduced bottom padding */
   .page-frame > .page-surface .pg-num { bottom: 20px; }
+  /* Allow full-height page containers to grow beyond viewport on mobile */
+  .epigraph-page, .contents-page { height: auto; min-height: 100%; }
 }
 
 /* ── MIX PANEL ──────────────────────────────────── */
@@ -4682,29 +4686,33 @@ function curlNoise(x, y) {
     return pMG[lid];
   }
 
+  var pFetch = {};
   function prefetch() {
     PFILES.forEach(function(f) {
-      var xhr = new XMLHttpRequest();
-      xhr.open('GET', f.file.replace(/ /g, '%20'), true);
-      xhr.responseType = 'arraybuffer';
-      xhr.onload = function() { if (!pRaw[f.id]) pRaw[f.id] = xhr.response; };
-      xhr.onerror = function() {};
-      xhr.send();
+      pFetch[f.id] = new Promise(function(resolve) {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', f.file.replace(/ /g, '%20'), true);
+        xhr.responseType = 'arraybuffer';
+        xhr.onload = function() { if (!pRaw[f.id]) pRaw[f.id] = xhr.response; resolve(); };
+        xhr.onerror = function() { resolve(); };
+        xhr.send();
+      });
     });
   }
 
   var decoding = null;
   function ensureDecoded() {
     if (decoding) return decoding;
-    var c = pac();
     decoding = Promise.all(PFILES.map(function(f) {
-      return new Promise(function(res) {
-        if (pBufs[f.id]) { res(); return; }
-        if (pRaw[f.id]) {
-          c.decodeAudioData(pRaw[f.id].slice(0)).then(function(buf) {
-            pBufs[f.id] = buf; res();
-          }).catch(res);
-        } else { res(); }
+      return (pFetch[f.id] || Promise.resolve()).then(function() {
+        return new Promise(function(res) {
+          if (pBufs[f.id]) { res(); return; }
+          if (pRaw[f.id]) {
+            pac().decodeAudioData(pRaw[f.id].slice(0)).then(function(buf) {
+              pBufs[f.id] = buf; res();
+            }).catch(res);
+          } else { res(); }
+        });
       });
     }));
     return decoding;
@@ -5060,7 +5068,7 @@ function curlNoise(x, y) {
   <button id="info-close" aria-label="Close guide">✕</button>
   <div class="im-eyebrow">We're Naked!</div>
   <h2 class="im-title">How to Read</h2>
-  <p class="im-note">This interactive book is best experienced on <strong>desktop</strong> — some visual effects and animations are scaled for larger screens. On mobile, pages are scrollable if the text runs long.</p>
+  <p class="im-note">This interactive book is best experienced on <strong>desktop</strong> — some visual effects and animations are scaled for larger screens.</p>
   <div class="im-rule"></div>
 
   <div class="im-section">
