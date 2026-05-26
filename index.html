@@ -782,7 +782,7 @@ body::before {
 #dust-toggle {
   position: fixed;
   bottom: 28px;
-  left: 28px;
+  left: 120px;
   z-index: 400;
   background: rgba(200,169,106,0.12);
   border: 1px solid rgba(200,169,106,0.35);
@@ -1485,6 +1485,9 @@ body::before {
   <p>"It's certainly not the weather of my dream," I say, looking out at the crisp blue sky. "Shit. Where's the fan?"</p>
   <p>The fan's in the closet. I run quickly to get it, then stop where you're standing—to kiss-kiss you, a kiss-kissy-kiss. You kiss-kissy-kiss me right back, put the joint in my mouth, and start the <button onclick="window.playFan&&playFan()" style="background:none;border:1px solid rgba(100,80,60,0.3);border-radius:2px;cursor:pointer;font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--ink-faint);font-size:0.78em;padding:1px 7px;vertical-align:middle;" title="🔊">▶ fan</button> up on</p>
   <span class="mh">……………High……………</span>
+  <div class="gext-single-wrap" style="margin:-0.1em 0 0.9em;">
+    <button id="high-btn-mob" class="gext-btn" data-h="lighter, laughs, rockets" onclick="window.toggleHigh&&window.toggleHigh()">◎ high</button>
+  </div>
   <p>The blades start to spin and so I begin:</p>
   <p>"Before anything else, there was this: we were at a huge party being thrown in Central Park in New York City. The entire park, you understand? Packed with people! This wasn't a normal party—it was a celebration. A celebration of the day of the apocalypse."</p>
   <p>I pause. You're watching me. The bag of dust in my hands is open now, waiting.</p>
@@ -1799,6 +1802,9 @@ const PAGES = [
         <p class="no-indent">"It's certainly not the weather of my dream," I say, looking out at the crisp blue sky. "Shit. Where's the fan?"</p>
         <p>The fan's in the closet. I run quickly to get it, then stop where you're standing—to kiss-kiss you, a kiss-kissy-kiss. You kiss-kissy-kiss me right back, put the joint in my mouth, and start the <button onclick="window.playFan&&playFan()" style="background:none;border:1px solid rgba(100,80,60,0.3);border-radius:2px;cursor:pointer;font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--ink-faint);font-size:0.78em;padding:1px 7px;vertical-align:middle;" title="🔊">▶ fan</button> up on</p>
         <span class="high">……………High……………</span>
+        <div class="gext-single-wrap" style="margin:-0.1em 0 0.9em;">
+          <button id="high-btn" class="gext-btn" data-h="lighter, laughs, rockets" onclick="window.toggleHigh&&window.toggleHigh()">◎ high</button>
+        </div>
         <p>The blades start to spin and so I begin:</p>
         <p>"Before anything else, there was this: we were at a huge party being thrown in Central Park in New York City. The entire park, you understand? Packed with people! This wasn't a normal party—it was a celebration. A celebration of the day of the apocalypse."</p>
         <p>I pause. You're watching me. The bag of dust in my hands is open now, waiting.</p>
@@ -1953,6 +1959,12 @@ const PAGES = [
         <p>I sit by the window for a wee while longer, this morning. Watching the last lingering dust motes catch the warming light and I'm thinking.</p>
         <div class="gext-single-wrap">
           <button id="outside-btn" class="gext-btn" data-h="the world outside" onclick="window.toggleOutside&&window.toggleOutside()">◌ outside</button>
+        </div>
+        <div class="gext-single-wrap" style="margin-top:10px;">
+          <button id="cityair-btn" class="gext-btn" data-h="birds, cars, sky" onclick="window.toggleCityAir&&window.toggleCityAir()">◎ city air</button>
+        </div>
+        <div class="gext-single-wrap" style="margin-top:6px;">
+          <button class="ca-open-mix-btn" onclick="document.getElementById('ca-mix-modal').classList.add('open')">⚙ mix</button>
         </div>
       </div>
       <span class="pg-num verso">21</span>
@@ -4140,6 +4152,12 @@ function curlNoise(x, y) {
     w2:  'studiokolomna-fast-whoosh-118248.mp3',
     qw:  'dragon-studio-quick-whoosh-405448.mp3',
     qs:  'freesound_community-quick-swhooshing-noise-80898.mp3',
+    ch:  'freesound_community-bird-chirps-short-96913.mp3',
+    cp:  'tanweraman-car-pass-by-337871.mp3',
+    fw1: 'freesound_community-single-firework-79814.mp3',
+    fwc: 'freesound_community-firework-cluster-90480.mp3',
+    fww: 'freesound_community-whistlingrocket_3-90478.mp3',
+    lt:  'freesound_community-cigarette-cracklings-lighter-smoke-6693.mp3',
   };
 
   let AC = null, bufs = {}, revBufs = {}, loadProm = null;
@@ -4336,6 +4354,9 @@ function curlNoise(x, y) {
   const extTimer = [null,  null,  null,  null];
   const EXT_LABELS = ['↻ dreamy', '✦ chaos', '✶ rapture', '⁕ rando'];
   const EXT_DUR    = [31500, 31500, 32000, 31000];
+
+  // City air mixer — category weights (live via gain nodes) + layer weights (next-cycle)
+  const OMIX = { birds: 0.75, whoosh: 0.65, traffic: 0.70, kapow: 0.40, L1: 1.0, L2: 0.80, L3: 0.90, L4: 0.75 };
 
   function updateExtBtn(mode) {
     const i = mode - 1;
@@ -4628,6 +4649,155 @@ function curlNoise(x, y) {
     runExt4Rev(mg, 1, 9.0);
   }
 
+  // ── HIGH — generative multi-layer loop ───────────────────
+  // runHighLayer(mg, volScale, timeOffset, withLighter)
+  // Lighter is the backbone on the primary layer only.
+  // Secondary layers offset in time so events overlap cycle boundaries,
+  // creating a continuous texture like City Air.
+  function runHighLayer(mg, volScale, timeOffset, withLighter) {
+    const c   = ac(), t = c.currentTime + 0.1 + (timeOffset || 0);
+    const V   = sfxV() * 0.78 * (volScale || 1);
+    const r   = Math.random.bind(Math);
+    const rng = (lo, hi) => lo + r() * (hi - lo);
+    const pick = arr => arr[Math.floor(r() * arr.length)];
+
+    const laughKeys  = ['m1','m2','f1','f2','f3','g3','g4','g9','g10','sg','lf','cl','sl','sw'];
+    const whooshKeys = ['w1','w2','qw','qs'];
+    const rocketKeys = ['fww','fw1','fwc'];
+
+    // ── Lighter backbone (primary layer only) ──────────────
+    if (withLighter) {
+      [0, 9, 18, 27].forEach(base => {
+        const dt = Math.max(0, base + rng(-0.35, 0.35));
+        pb('lt', t + dt, { vol: V * rng(0.78, 0.96), pan: rng(-0.12, 0.12), rate: rng(0.96, 1.04) }, mg);
+      });
+    }
+
+    // ── Laughs & giggles ──────────────────────────────────
+    const laughCount = 8 + Math.floor(r() * 6);
+    for (let i = 0; i < laughCount; i++) {
+      const rate = rng(0.72, 1.38);
+      let delay = 0, fb = 0;
+      const fx = r();
+      if      (fx < 0.28) { delay = rng(0.015, 0.065); fb = rng(0.68, 0.86); }
+      else if (fx < 0.62) { delay = rng(0.12,  0.38);  fb = rng(0.30, 0.66); }
+      else if (fx < 0.76) { delay = rng(0.40,  0.76);  fb = rng(0.38, 0.58); }
+      pb(pick(laughKeys), t + rng(0.5, 29.0), {
+        vol: V * rng(0.48, 0.92), pan: rng(-0.90, 0.90), rate, delay, fb, dur: rng(0.80, 1.60)
+      }, mg);
+    }
+
+    // ── Whooshes ──────────────────────────────────────────
+    const whooshCount = 3 + Math.floor(r() * 3);
+    for (let i = 0; i < whooshCount; i++) {
+      let delay = 0, fb = 0;
+      if (r() < 0.32) { delay = rng(0.08, 0.24); fb = rng(0.22, 0.52); }
+      pb(pick(whooshKeys), t + rng(0.5, 29.0), {
+        vol: V * rng(0.38, 0.76), pan: rng(-0.95, 0.95), rate: rng(0.65, 1.58), delay, fb
+      }, mg);
+    }
+
+    // ── Rockets ───────────────────────────────────────────
+    const rocketCount = 2 + Math.floor(r() * 3);
+    for (let i = 0; i < rocketCount; i++) {
+      pb(pick(rocketKeys), t + rng(0.5, 29.0), {
+        vol: V * rng(0.38, 0.72), pan: rng(-0.85, 0.85), rate: rng(0.80, 1.22)
+      }, mg);
+    }
+  }
+
+  function runHigh(mg) {
+    runHighLayer(mg, 1.00,  0.0, true);   // Layer 1 — primary, carries the lighters
+    runHighLayer(mg, 0.62,  8.5, false);  // Layer 2 — offset mid, no lighters
+    runHighLayer(mg, 0.44, 17.0, false);  // Layer 3 — offset late, sparse tail
+  }
+
+  // ── CITY AIR ENGINE — outdoor ambient soundscape ──────────
+  // caCtGain: per-category gain nodes for real-time fader control
+  let caCtGain = null;
+
+  function _pbOD(ev, t, baseVol, mg) {
+    const routeDest = (caCtGain && caCtGain[ev.cat]) ? caCtGain[ev.cat] : mg;
+    pb(ev.key, t + ev.dt, {
+      vol: baseVol * ev.vMul, pan: ev.pan, rate: ev.rate,
+      pitchEnd: ev.pitchEnd, delay: ev.delay, fb: ev.fb, reverse: ev.rev
+    }, routeDest);
+  }
+
+  function runOutdoor(mg, layerVol, timeOffset) {
+    const c = ac(), t = c.currentTime + 0.1 + (timeOffset || 0);
+    const base = sfxV() * (layerVol || 1);
+    const r = Math.random.bind(Math), rng = (lo, hi) => lo + r() * (hi - lo);
+    const pick = arr => arr[Math.floor(r() * arr.length)];
+    const count = 18 + Math.floor(r() * 9);
+    const events = [];
+    for (let i = 0; i < count; i++) {
+      const roll = r();
+      let ev = { pitchEnd: undefined, delay: 0, fb: 0, rev: false };
+      if (roll < 0.35) {
+        ev.key = 'ch'; ev.cat = 'birds';
+        ev.vMul = rng(0.50, 1.0); ev.rate = rng(0.80, 1.40); ev.pan = rng(-1, 1);
+        ev.rev = r() < 0.55;
+        if (r() < 0.45) ev.pitchEnd = ev.rate * rng(0.50, 0.85);
+        if (r() < 0.40) { ev.delay = rng(0.08, 0.20); ev.fb = rng(0.30, 0.60); }
+      } else if (roll < 0.60) {
+        ev.key = pick(['cp']); ev.cat = 'traffic';
+        ev.vMul = rng(0.45, 0.85); ev.rate = rng(0.65, 1.10); ev.pan = rng(-0.45, 0.45);
+        ev.rev = r() < 0.20;
+        if (r() < 0.30) { ev.delay = rng(0.15, 0.35); ev.fb = rng(0.15, 0.35); }
+      } else if (roll < 0.80) {
+        ev.key = pick(['w1','w2','qw','qs']); ev.cat = 'whoosh';
+        ev.vMul = rng(0.40, 0.80); ev.rate = rng(0.70, 1.60); ev.pan = rng(-1, 1);
+        if (r() < 0.65) ev.pitchEnd = r() < 0.5 ? ev.rate * rng(0.40, 0.75) : ev.rate * rng(1.30, 2.20);
+      } else {
+        ev.key = pick(['fw1','fwc','fww']); ev.cat = 'kapow';
+        ev.vMul = rng(0.20, 0.45); ev.rate = rng(0.85, 1.20); ev.pan = rng(-1, 1);
+        if (r() < 0.30) { ev.delay = rng(0.05, 0.15); ev.fb = rng(0.10, 0.25); }
+      }
+      ev.dt = rng(0, 28.5);
+      events.push(ev);
+    }
+    events.sort((a, b) => a.dt - b.dt);
+    events.forEach(ev => _pbOD(ev, t, base, mg));
+  }
+
+  function runOutdoorSparse(mg, layerVol, timeOffset) {
+    const c = ac(), t = c.currentTime + 0.1 + (timeOffset || 0);
+    const base = sfxV() * (layerVol || 1);
+    const r = Math.random.bind(Math), rng = (lo, hi) => lo + r() * (hi - lo);
+    const pick = arr => arr[Math.floor(r() * arr.length)];
+    const count = 8 + Math.floor(r() * 5);
+    const events = [];
+    for (let i = 0; i < count; i++) {
+      const roll = r();
+      let ev = { pitchEnd: undefined, delay: 0, fb: 0, rev: false };
+      if (roll < 0.50) {
+        ev.key = 'ch'; ev.cat = 'birds';
+        ev.vMul = rng(0.35, 0.75); ev.rate = rng(0.75, 1.30); ev.pan = rng(-1, 1);
+        ev.rev = r() < 0.60;
+        if (r() < 0.65) ev.pitchEnd = ev.rate * rng(0.45, 0.80);
+        ev.delay = rng(0.12, 0.28); ev.fb = rng(0.45, 0.72);
+      } else if (roll < 0.75) {
+        ev.key = pick(['w1','w2','qw','qs']); ev.cat = 'whoosh';
+        ev.vMul = rng(0.30, 0.65); ev.rate = rng(0.55, 1.20); ev.pan = rng(-1, 1);
+        if (r() < 0.75) ev.pitchEnd = ev.rate * rng(0.35, 0.70);
+        ev.delay = rng(0.10, 0.22); ev.fb = rng(0.40, 0.65);
+      } else if (roll < 0.90) {
+        ev.key = 'cp'; ev.cat = 'traffic';
+        ev.vMul = rng(0.25, 0.55); ev.rate = rng(0.70, 1.00); ev.pan = rng(-0.35, 0.35);
+        ev.rev = r() < 0.15;
+      } else {
+        ev.key = pick(['fw1','fww']); ev.cat = 'kapow';
+        ev.vMul = rng(0.12, 0.30); ev.rate = rng(0.80, 1.10); ev.pan = rng(-0.8, 0.8);
+        ev.delay = rng(0.08, 0.20); ev.fb = rng(0.20, 0.45);
+      }
+      ev.dt = rng(0, 28.5);
+      events.push(ev);
+    }
+    events.sort((a, b) => a.dt - b.dt);
+    events.forEach(ev => _pbOD(ev, t, base, mg));
+  }
+
   const extRunners = [runExt1, runExt2, runExt3, runExt4Double];
 
   // ── PUBLIC API ────────────────────────────────────────────
@@ -4685,6 +4855,123 @@ function curlNoise(x, y) {
     }
     loop();
   };
+  // ── CITY AIR TOGGLE ──────────────────────────────────────
+  let caState = false, caMG = null, caTimer = null;
+  const CA_DUR = 30500;
+
+  function updateCABtn(on) {
+    var btn = document.getElementById('cityair-btn');
+    if (!btn) return;
+    if (on) {
+      btn.textContent = '■ mute';
+      btn.style.borderColor = 'rgba(220,185,110,1)';
+      btn.style.color = 'rgba(255,230,160,1)';
+      btn.style.background = 'rgba(120,80,20,0.88)';
+    } else {
+      btn.textContent = '◎ city air';
+      btn.style.borderColor = '';
+      btn.style.color = '';
+      btn.style.background = '';
+      var modal = document.getElementById('ca-mix-modal');
+      if (modal) modal.classList.remove('open');
+    }
+  }
+
+  window.setCityAirMix = function(k, v) {
+    OMIX[k] = v;
+    if (caCtGain && caCtGain[k] && AC) caCtGain[k].gain.setValueAtTime(v, AC.currentTime);
+  };
+
+  window.toggleCityAir = async function() {
+    if (caState) {
+      caState = false;
+      if (caTimer) { clearTimeout(caTimer); caTimer = null; }
+      if (caCtGain) {
+        ['birds','whoosh','traffic','kapow'].forEach(k => { try { caCtGain[k].disconnect(); } catch(e) {} });
+        caCtGain = null;
+      }
+      if (caMG && AC) {
+        const g = caMG; caMG = null;
+        g.gain.linearRampToValueAtTime(0, AC.currentTime + 0.7);
+        setTimeout(() => { try { g.disconnect(); } catch(e) {} }, 1400);
+      }
+      updateCABtn(false);
+      return;
+    }
+    if (!sfxOk()) return;
+    await ensure();
+    caState = true;
+    updateCABtn(true);
+    var _camm = document.getElementById('ca-mix-modal');
+    if (_camm) _camm.classList.add('open');
+    const c = ac();
+    caMG = c.createGain(); caMG.gain.value = sfxV(); caMG.connect(c.destination);
+    caCtGain = {};
+    ['birds','whoosh','traffic','kapow'].forEach(k => {
+      const g = c.createGain(); g.gain.value = OMIX[k]; g.connect(caMG);
+      caCtGain[k] = g;
+    });
+    function loop() {
+      if (!caState || !caMG) return;
+      caMG.gain.setValueAtTime(sfxV(), c.currentTime);
+      runOutdoor(caMG,       0.80 * OMIX.L1, 0);
+      runOutdoor(caMG,       0.65 * OMIX.L2, 6.0);
+      runOutdoorSparse(caMG, 0.90 * OMIX.L3, 12.0);
+      runOutdoor(caMG,       0.75 * OMIX.L4, 15.0);
+      caTimer = setTimeout(loop, CA_DUR);
+    }
+    loop();
+  };
+
+  // ── HIGH SOUNDSCAPE TOGGLE ───────────────────────────────
+  let hiState = false, hiMG = null, hiTimer = null;
+  const HI_DUR = 30500;
+
+  function updateHiBtn(on) {
+    ['high-btn', 'high-btn-mob'].forEach(function(id) {
+      var btn = document.getElementById(id);
+      if (!btn) return;
+      if (on) {
+        btn.textContent = '■ mute';
+        btn.style.borderColor = 'rgba(220,185,110,1)';
+        btn.style.color = 'rgba(255,230,160,1)';
+        btn.style.background = 'rgba(120,80,20,0.88)';
+      } else {
+        btn.textContent = '◎ high';
+        btn.style.borderColor = 'rgba(200,169,106,0.90)';
+        btn.style.color = 'rgba(220,188,128,1)';
+        btn.style.background = 'rgba(18,10,4,0.82)';
+      }
+    });
+  }
+
+  window.toggleHigh = async function() {
+    if (hiState) {
+      hiState = false;
+      if (hiTimer) { clearTimeout(hiTimer); hiTimer = null; }
+      if (hiMG && AC) {
+        const g = hiMG; hiMG = null;
+        g.gain.linearRampToValueAtTime(0, AC.currentTime + 0.7);
+        setTimeout(() => { try { g.disconnect(); } catch(e) {} }, 1400);
+      }
+      updateHiBtn(false);
+      return;
+    }
+    if (!sfxOk()) return;
+    await ensure();
+    hiState = true;
+    updateHiBtn(true);
+    const c = ac();
+    hiMG = c.createGain(); hiMG.gain.value = sfxV(); hiMG.connect(c.destination);
+    function loop() {
+      if (!hiState || !hiMG) return;
+      hiMG.gain.setValueAtTime(sfxV(), c.currentTime);
+      runHigh(hiMG);
+      hiTimer = setTimeout(loop, HI_DUR);
+    }
+    loop();
+  };
+
 /* ══════════════════════════════════════════════════════
    PIANO AMBIENT SYSTEM
    Composer 1 (90s) -> music channel   plays continuously
@@ -5156,23 +5443,35 @@ function curlNoise(x, y) {
 
   <div class="im-section">
     <div class="im-head">The Outside World</div>
-    <p>A <em>◌ outside</em> button on the final page opens the outside world: city hum, birds, the odd car passing. Press it again to close it. The giggle always silences it — press <em>◌ outside</em> again whenever you want the world back in.</p>
+    <p>When you reach the passage and press the <em>▶ door</em> button, the door opens and the outside world fades in. The <em>◌ outside</em> button on the final spread keeps it playing — press it again to close it out. The giggle always silences it; press <em>◌ outside</em> again whenever you want the world back in.</p>
+    <p><em>The ▶ door button works on all devices. The ◌ outside loop button is on the desktop spread only.</em></p>
   </div>
 
   <div class="im-section">
     <div class="im-head">The Fan</div>
-    <p>In Act Three a <em>fan</em> button turns on the room fan, gently lowering the outdoor sounds while it runs. The dust rises with it.</p>
+    <p>In Act Three a <em>fan</em> button turns on the room fan, gently lowering the outdoor sounds while it runs.</p>
+  </div>
+
+  <div class="im-section">
+    <div class="im-head">High</div>
+    <p>Right at the <em>……………High……………</em> moment, a <button style="background:rgba(200,169,106,0.18);border:1px solid rgba(200,169,106,0.72);border-radius:2px;cursor:default;font-family:'Cormorant Garamond',serif;font-style:italic;color:rgba(232,208,158,0.97);font-size:0.78em;padding:2px 8px;vertical-align:middle;pointer-events:none;box-shadow:0 2px 8px rgba(0,0,0,0.55),inset 0 1px 0 rgba(255,240,200,0.10);text-shadow:0 1px 3px rgba(0,0,0,0.65);">◎ high</button> button appears. It loops a generative thirty-second soundscape of laughs, giggles, whooshes, and rockets — with a lighter firing every nine seconds.</p>
   </div>
 
   <div class="im-section">
     <div class="im-head">The Giggle</div>
-    <p>A <em>▶ giggle</em> button marks the moment of departure. Everything outside goes quiet while it plays.</p>
-    <p>Four extended modes — <em>↻ Dreamy, ✦ Chaos, ✶ Rapture,</em> and <em>⁕ Rando</em> — appear alongside it. Each transforms the soundscape for about thirty seconds. Rando generates a completely new arrangement every loop — no two cycles are the same.</p>
+    <p>A <em>▶ giggle</em> button marks the moment of departure. Everything outside goes quiet while it plays. Works on all devices.</p>
+    <p>Four extended modes — <em>↻ Dreamy, ✦ Chaos, ✶ Rapture,</em> and <em>⁕ Rando</em> — appear alongside it on the desktop spread. Each transforms the soundscape for about thirty seconds. Rando generates a completely new arrangement every loop — no two cycles are the same.</p>
+  </div>
+
+  <div class="im-section">
+    <div class="im-head">City Air <span style="font-size:0.72em;color:rgba(200,169,106,0.45);font-family:'Cormorant Garamond',serif;letter-spacing:0.04em;font-style:normal;text-transform:none;">— desktop only</span></div>
+    <p><em>◎ city air</em> — below the outside button on the final spread — launches a generative outdoor soundscape: bird chirps, passing cars, distant whooshes, and the occasional firework, woven across four simultaneous layers that cycle and re-randomise every thirty seconds. No two cycles are alike.</p>
+    <p>A <strong>mixer panel</strong> opens automatically when you start it. The <strong>category faders</strong> (birds, whoosh, traffic, kapow) adjust in real time — you hear the change immediately. The <strong>layer faders</strong> (L1–L4) reshape the density and depth of the next cycle: L3 is the sparse reverb air behind everything; L4 is a late-cycle surge of L1 that fills the back half of each loop.</p>
   </div>
 
   <div class="im-section">
     <div class="im-head">Dust &amp; Particles</div>
-    <p><strong>◎ dust</strong> toggles the floating dust particle effect. <strong>↻ replay</strong> restarts the animation from the beginning.</p>
+    <p>The dust appears automagically as you're reading — but if you get there early, you can fire it yourself with the <button style="background:rgba(200,169,106,0.18);border:1px solid rgba(200,169,106,0.72);border-radius:2px;cursor:default;font-family:'Cormorant Garamond',serif;font-style:italic;color:rgba(232,208,158,0.97);font-size:0.78em;padding:2px 8px;vertical-align:middle;pointer-events:none;box-shadow:0 2px 8px rgba(0,0,0,0.55),inset 0 1px 0 rgba(255,240,200,0.10);text-shadow:0 1px 3px rgba(0,0,0,0.65);">▶ dust starts-a-flying</button> button in the text.</p>
   </div>
 
   <div class="im-section">
@@ -5185,6 +5484,35 @@ function curlNoise(x, y) {
     <p>A <em>↺ read again</em> button on the back cover returns you to the beginning with all your sound and settings intact.</p>
   </div>
 </div>
+</div>
+
+<!-- ── CITY AIR MIX MODAL ───────────────────────── -->
+<div id="ca-mix-modal" role="dialog" aria-label="City Air Mixer">
+  <div class="ca-modal-box">
+    <div class="ca-modal-header">
+      <span class="ca-modal-title">◎ city air mix</span>
+      <button class="ca-modal-close" aria-label="Close mixer">✕</button>
+    </div>
+    <div class="ca-modal-body">
+      <div class="ca-mix-cols">
+        <div class="ca-mix-group">
+          <div class="ca-mix-lbl-head">category</div>
+          <label class="ca-mix-row"><span class="ca-lbl">birds</span><input type="range" id="ca-birds" min="0" max="100" value="75"><span class="ca-val" id="ca-v-birds">75</span></label>
+          <label class="ca-mix-row"><span class="ca-lbl">whoosh</span><input type="range" id="ca-whoosh" min="0" max="100" value="65"><span class="ca-val" id="ca-v-whoosh">65</span></label>
+          <label class="ca-mix-row"><span class="ca-lbl">traffic</span><input type="range" id="ca-traffic" min="0" max="100" value="70"><span class="ca-val" id="ca-v-traffic">70</span></label>
+          <label class="ca-mix-row"><span class="ca-lbl">kapow</span><input type="range" id="ca-kapow" min="0" max="100" value="40"><span class="ca-val" id="ca-v-kapow">40</span></label>
+        </div>
+        <div class="ca-mix-group">
+          <div class="ca-mix-lbl-head">layers <button class="ca-why-btn" onclick="event.stopPropagation();var t=document.getElementById('ca-why-tip');t.style.display=t.style.display==='none'?'block':'none';">?</button></div>
+          <label class="ca-mix-row"><span class="ca-lbl">L1</span><input type="range" id="ca-L1" min="0" max="100" value="100"><span class="ca-val" id="ca-v-L1">100</span></label>
+          <label class="ca-mix-row"><span class="ca-lbl">L2</span><input type="range" id="ca-L2" min="0" max="100" value="80"><span class="ca-val" id="ca-v-L2">80</span></label>
+          <label class="ca-mix-row"><span class="ca-lbl">L3</span><input type="range" id="ca-L3" min="0" max="100" value="90"><span class="ca-val" id="ca-v-L3">90</span></label>
+          <label class="ca-mix-row"><span class="ca-lbl">L4</span><input type="range" id="ca-L4" min="0" max="100" value="75"><span class="ca-val" id="ca-v-L4">75</span></label>
+        </div>
+      </div>
+      <div id="ca-why-tip" class="ca-why-tip" style="display:none">Layer faders queue for the next cycle (~30s). Applying them mid-flight would interrupt hundreds of already-scheduled audio events and create glitches in the generative texture — so your changes land cleanly at the top of the next loop instead.</div>
+    </div>
+  </div>
 </div>
 
 <style>
@@ -5261,7 +5589,7 @@ function curlNoise(x, y) {
   text-shadow: 0 1px 6px rgba(0,0,0,0.75);
 }
 #info-modal-inner p {
-  font-size: 0.88em;
+  font-size: 0.97em;
   line-height: 1.75;
   color: rgba(240,228,208,0.95);
   margin: 0 0 8px;
@@ -5375,11 +5703,207 @@ function curlNoise(x, y) {
   max-width: 320px;
 }
 .gext-single-wrap .gext-btn { min-width: 148px; }
+
+/* ── City Air Mixer Panel ─────────────────────────── */
+.ca-mix-panel {
+  width: 100%;
+  box-sizing: border-box;
+  background: rgba(8,5,2,0.92);
+  border: 1px solid rgba(200,169,106,0.30);
+  border-radius: 6px;
+  margin: 10px 0 0;
+  overflow: hidden;
+}
+/* Header bar — always visible, clickable to toggle */
+.ca-mix-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 12px;
+  cursor: pointer;
+  border-bottom: 1px solid rgba(200,169,106,0.15);
+  transition: background 0.2s;
+}
+.ca-mix-header:hover { background: rgba(200,169,106,0.06); }
+.ca-mix-title {
+  font-size: 0.62em;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(200,169,106,0.65);
+  font-family: 'Cormorant Garamond', serif;
+}
+.ca-mix-close {
+  background: none;
+  border: none;
+  color: rgba(200,169,106,0.50);
+  cursor: pointer;
+  font-size: 0.80em;
+  padding: 0 0 0 8px;
+  line-height: 1;
+}
+.ca-mix-close:hover { color: rgba(220,188,128,1); }
+.ca-collapsed-only { display: none; }
+/* Collapsed state — body hidden, header shows reopen hint */
+.ca-collapsed .ca-mix-body { display: none; }
+.ca-collapsed .ca-mix-close { display: none; }
+.ca-collapsed .ca-collapsed-only { display: inline; font-size: 0.60em; color: rgba(200,169,106,0.40); }
+.ca-collapsed .ca-mix-header { border-bottom-color: transparent; }
+/* Body */
+.ca-mix-body { padding: 14px 14px 12px; }
+.ca-mix-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 24px;
+}
+.ca-mix-lbl-head {
+  font-size: 0.60em;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(200,169,106,0.50);
+  margin-bottom: 10px;
+  font-family: 'Cormorant Garamond', serif;
+}
+.ca-mix-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 10px;
+  cursor: pointer;
+}
+.ca-lbl {
+  font-size: 0.68em;
+  color: rgba(220,200,160,0.75);
+  font-family: 'Cormorant Garamond', serif;
+  width: 44px;
+  flex-shrink: 0;
+}
+.ca-mix-row input[type=range] {
+  -webkit-appearance: none;
+  flex: 1;
+  height: 3px;
+  background: rgba(200,169,106,0.22);
+  border-radius: 2px;
+  outline: none;
+  min-width: 0;
+}
+.ca-mix-row input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 13px; height: 13px;
+  border-radius: 50%;
+  background: rgba(200,169,106,0.85);
+  cursor: pointer;
+  box-shadow: 0 0 4px rgba(200,169,106,0.30);
+}
+.ca-mix-row input[type=range]::-moz-range-thumb {
+  width: 13px; height: 13px;
+  border-radius: 50%;
+  background: rgba(200,169,106,0.85);
+  border: none;
+  cursor: pointer;
+}
+.ca-val {
+  font-size: 0.60em;
+  color: rgba(200,169,106,0.45);
+  font-family: 'Cormorant Garamond', serif;
+  width: 24px;
+  text-align: right;
+  flex-shrink: 0;
+}
+.ca-why-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.68em;
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  border: 1px solid rgba(200,169,106,0.40);
+  background: none;
+  color: rgba(200,169,106,0.55);
+  cursor: pointer;
+  padding: 0;
+  font-family: 'Cormorant Garamond', serif;
+  margin-left: 5px;
+  vertical-align: middle;
+}
+.ca-why-btn:hover { color: rgba(220,188,128,1); border-color: rgba(200,169,106,0.80); }
+.ca-why-tip {
+  font-size: 0.62em;
+  color: rgba(200,180,140,0.75);
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  line-height: 1.5;
+  margin: 6px 0 2px;
+  padding: 8px 10px;
+  background: rgba(200,169,106,0.07);
+  border-left: 2px solid rgba(200,169,106,0.25);
+  border-radius: 0 3px 3px 0;
+}
+/* City Air Mix Modal */
+#ca-mix-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 945;
+  background: rgba(4,2,1,0.58);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  align-items: center;
+  justify-content: center;
+}
+#ca-mix-modal.open { display: flex; }
+.ca-modal-box {
+  background: rgba(8,5,2,0.97);
+  border: 1px solid rgba(200,169,106,0.35);
+  border-radius: 6px;
+  width: 340px;
+  max-width: calc(100vw - 40px);
+  font-family: 'Cormorant Garamond', serif;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.80);
+}
+.ca-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(200,169,106,0.15);
+}
+.ca-modal-title {
+  font-size: 0.65em;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(200,169,106,0.75);
+}
+.ca-modal-close {
+  background: none;
+  border: 1px solid rgba(200,169,106,0.25);
+  border-radius: 2px;
+  color: rgba(200,169,106,0.55);
+  font-size: 0.80em;
+  cursor: pointer;
+  padding: 3px 10px;
+  font-family: inherit;
+  transition: color 0.2s, border-color 0.2s;
+}
+.ca-modal-close:hover { color: rgba(200,169,106,0.9); border-color: rgba(200,169,106,0.6); }
+.ca-modal-body { padding: 16px 16px 14px; }
+.ca-open-mix-btn {
+  background: none;
+  border: 1px solid rgba(200,169,106,0.22);
+  border-radius: 2px;
+  color: rgba(200,169,106,0.45);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.68em;
+  letter-spacing: 0.10em;
+  padding: 3px 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.ca-open-mix-btn:hover { color: rgba(200,169,106,0.85); border-color: rgba(200,169,106,0.50); }
 </style>
 
 <script>
 (function(){
-  var hoverLabels = { 'gext-1':'is this real?', 'gext-2':'make it stop', 'gext-3':'I hear them', 'gext-4':"who's there", 'outside-btn':'the world outside' };
+  var hoverLabels = { 'gext-1':'is this real?', 'gext-2':'make it stop', 'gext-3':'I hear them', 'gext-4':"who's there", 'outside-btn':'the world outside', 'cityair-btn':'birds, cars, sky' };
   document.addEventListener('mouseover', function(e){
     var btn = e.target.closest('.gext-btn');
     if(!btn || btn._gh || btn.textContent.trim().startsWith('■')) return;
@@ -5425,6 +5949,33 @@ function curlNoise(x, y) {
     if (_rawStop) _rawStop(ms);
     setTimeout(syncBtn, 60);
   };
+})();
+</script>
+
+<script>
+(function() {
+  // City air mixer slider wiring
+  var cats   = ['birds','whoosh','traffic','kapow'];
+  var layers = ['L1','L2','L3','L4'];
+  cats.concat(layers).forEach(function(k) {
+    var sl = document.getElementById('ca-' + k);
+    var vl = document.getElementById('ca-v-' + k);
+    if (!sl || !vl) return;
+    sl.addEventListener('input', function() {
+      vl.textContent = sl.value;
+      if (window.setCityAirMix) window.setCityAirMix(k, parseInt(sl.value) / 100);
+    });
+  });
+})();
+</script>
+<script>
+(function() {
+  var modal = document.getElementById('ca-mix-modal');
+  if (!modal) return;
+  var closeBtn = modal.querySelector('.ca-modal-close');
+  if (closeBtn) closeBtn.addEventListener('click', function() { modal.classList.remove('open'); });
+  modal.addEventListener('click', function(e) { if (e.target === modal) modal.classList.remove('open'); });
+  document.addEventListener('keydown', function(e) { if (e.key === 'Escape') modal.classList.remove('open'); });
 })();
 </script>
 
