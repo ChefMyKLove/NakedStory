@@ -1497,7 +1497,7 @@ body::before {
   <p>And the MC came on again—this was later, this was close—and told us 'Two minutes to go!' And we all quietly counted down together, watching the sky... and this is where it felt odd to me. We all noticed the smoke trails. Missiles. Over the city. Over the park, and we were all just… there. It didn't matter that they were coming or that they were coming right down upon us."</p>
   <p>Your hand finds my shoulder. I don't stop.</p>
   <p id="mob-fw-trigger">"But it wasn't scary in the way you'd think. There was no panic in the scene at all. We knew that this was exactly why we were all here. It was like… we'd already accepted it? Like we'd spent those last special minutes together coming to terms en masse with something we couldn't change, so when the actual moment arrived, we were ready. We were together. The countdown reached zero and then—"</p>
-  <p id="mob-dust-trigger">I throw open the bag I am holding. You point the fan at me smiling and that dust starts-a-flying. All around, all around, outside and in, it covers the Lovers and the room that <strong>WE'RE NAKED!</strong> in.</p>
+  <p id="mob-dust-trigger">I throw open the bag I am holding. You point the fan at me smiling and that <button onclick="window.startDust&&window.startDust()" style="background:none;border:1px solid rgba(100,80,60,0.3);border-radius:2px;cursor:pointer;font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--ink-faint);font-size:0.78em;padding:1px 7px;vertical-align:middle;" title="✦ fire the dust">▶ dust starts-a-flying</button>. All around, all around, outside and in, it covers the Lovers and the room that <strong>WE'RE NAKED!</strong> in.</p>
   <p>The sunlight through the window catches it, and for a fraction of an instant it looks like we created something sacred and not just something I'd have to clean up later. Like we were having a little mini communion with the dreamscape aether.</p>
   <p>"Do you see the way it's swirling around?" I ask, and my voice sounds younger than I am. It sounds like the voice of the little kid that day in the park who was unsure of how to ask you if you wanted to play.</p>
   <p>"Yes," you say. You're watching the dust, but you're also watching me.</p>
@@ -1835,7 +1835,7 @@ const PAGES = [
       <div class="story-text">
         <p class="no-indent">Your hand finds my shoulder. I don't stop.</p>
         <p>"But it wasn't scary in the way you'd think. There was no panic in the scene at all. We knew that this was exactly why we were all here. It was like… we'd already accepted it? Like we'd spent those last special minutes together coming to terms en masse with something we couldn't change, so when the actual moment arrived, we were ready. We were together. The countdown reached zero and then—"</p>
-        <p>I throw open the bag I am holding. You point the fan at me smiling and that dust starts-a-flying. All around, all around, outside and in, it covers the Lovers and the room that <strong>WE'RE NAKED!</strong> in.</p>
+        <p>I throw open the bag I am holding. You point the fan at me smiling and that <button onclick="window.startDust&&window.startDust()" style="background:none;border:1px solid rgba(100,80,60,0.3);border-radius:2px;cursor:pointer;font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--ink-faint);font-size:0.78em;padding:1px 7px;vertical-align:middle;" title="✦ fire the dust">▶ dust starts-a-flying</button>. All around, all around, outside and in, it covers the Lovers and the room that <strong>WE'RE NAKED!</strong> in.</p>
         <p>The sunlight through the window catches it, and for a fraction of an instant it looks like we created something sacred and not just something I'd have to clean up later. Like we were having a little mini communion with the dreamscape aether.</p>
       </div>
       <span class="pg-num recto">14</span>
@@ -2737,7 +2737,7 @@ function curlNoise(x, y) {
       this.vx *= 0.982; this.vy *= 0.982;
       this.x += this.vx; this.y += this.vy;
       const dying = dustPhase === 'settling' || dustPhase === 'falling';
-      this.life -= this.decay * (dying ? 3.5 : 1);
+      this.life -= this.decay * (dying ? 3.85 : 1);
       if (this.cover && coverClipRect) {
         const pad = 8;
         if (this.x > coverClipRect.right+pad)  this.x = coverClipRect.left-pad;
@@ -3172,11 +3172,11 @@ function curlNoise(x, y) {
       const readFloor = (dustMode === 'cover' || dustMode === 'back-cover') ? coverCap : 0.38;
       if (globalOpacity > readFloor) globalOpacity = Math.max(readFloor, globalOpacity - 0.008);
     } else if (dustPhase === 'settling') {
-      settleVelocityScale = Math.max(0, settleVelocityScale - 0.000926);
+      settleVelocityScale = Math.max(0, settleVelocityScale - 0.001019);
       if (globalOpacity > 0.38) {
-        globalOpacity = Math.max(0.38, globalOpacity - 0.000926);
+        globalOpacity = Math.max(0.38, globalOpacity - 0.001019);
       } else {
-        globalOpacity = Math.max(0, globalOpacity - 0.000528); // 12s fade at 60fps
+        globalOpacity = Math.max(0, globalOpacity - 0.000581); // ~10.9s fade at 60fps
         if (globalOpacity <= 0) {
           dustPhase = 'hidden'; dustStarted = false; dustMode = 'normal'; coverClipRect = null;
           particles = [];
@@ -3473,6 +3473,7 @@ function curlNoise(x, y) {
   <div class="mix-row"><button class="mix-pp" id="mp-atmos" title="pause atmosphere">⏸</button><div class="mix-lbl">atmosphere</div><input class="mix-slider" type="range" min="0" max="100" value="50" step="1" id="ms-atmos"><div class="mix-val" id="mv-atmos">50</div></div>
   <div class="mix-row"><button class="mix-pp" id="mp-voice" title="pause voice">⏸</button><div class="mix-lbl">voice</div><input class="mix-slider" type="range" min="0" max="100" value="50" step="1" id="ms-voice"><div class="mix-val" id="mv-voice">50</div></div>
   <div class="mix-row"><button class="mix-pp" id="mp-sfx" title="pause sounds">⏸</button><div class="mix-lbl">sounds</div><input class="mix-slider" type="range" min="0" max="100" value="50" step="1" id="ms-sfx"><div class="mix-val" id="mv-sfx">50</div></div>
+  <div class="mix-row"><button class="mix-pp" id="mp-youtube" title="pause video">⏸</button><div class="mix-lbl">video</div><input class="mix-slider" type="range" min="0" max="100" value="50" step="1" id="ms-youtube"><div class="mix-val" id="mv-youtube">50</div></div>
 </div>
 <button id="mix-btn" title="Volume mixer">≡ mix</button>
 <div id="aud-nar-ind"></div>
@@ -3521,8 +3522,8 @@ function curlNoise(x, y) {
   const audTgl=document.getElementById('aud-toggle'),mixBtn=document.getElementById('mix-btn');
   const mixPanel=document.getElementById('mix-panel'),narInd=document.getElementById('aud-nar-ind');
   let audOn=false,mixOpen=false,curNar=null;
-  const VOL={music:0.28,atmos:0.50,voice:0.50,sfx:0.50};
-  const CH_PAUSED={music:false,atmos:false,voice:false,sfx:false};
+  const VOL={music:0.28,atmos:0.50,voice:0.50,sfx:0.50,youtube:0.50};
+  const CH_PAUSED={music:false,atmos:false,voice:false,sfx:false,youtube:false};
 
   const PAGE_NAR={
     'title':     'a-n01',
@@ -3668,13 +3669,16 @@ function curlNoise(x, y) {
     CH_PAUSED[key]=!CH_PAUSED[key];
     const paused=CH_PAUSED[key];
     if(key==='music'){
-      if(paused){stopAmbientMusic(600);ytCmd('mute');}
+      if(paused){stopAmbientMusic(600);}
       else if(audOn){
         if(!ambientMusicIsActive())startAmbientMusic();
         else duckAmbientMusic(VOL.music,1500);
-        ytCmd('unMute');
       }
       _btnState('music',!paused);
+    }else if(key==='youtube'){
+      if(paused){ytCmd('mute');}
+      else if(audOn){ytCmd('unMute');}
+      _btnState('youtube',!paused);
     }else if(key==='atmos'){
       if(paused)fOut(dustLp,600);
       else if(audOn&&dustLp.paused)fIn(dustLp,VOL.atmos,1500);
@@ -3979,8 +3983,8 @@ function curlNoise(x, y) {
     }
     else{
       document.querySelectorAll('audio').forEach(el=>{ el.muted=false; });
-      if(!CH_PAUSED.music) ytCmd('unMute');
-      ytActivate();setTimeout(ytActivate,900);
+      if(!CH_PAUSED.youtube){ytActivate();setTimeout(ytActivate,900);}
+      if(window._pianoStartIfNeeded)window._pianoStartIfNeeded();
       const pid=window._getAudioPageId?window._getAudioPageId():null;
       if(pid&&window.onAudioPageChange)window.onAudioPageChange(pid);
     }
@@ -3989,14 +3993,15 @@ function curlNoise(x, y) {
   window.toggleMixPanel=function(){mixOpen=!mixOpen;mixPanel.classList.toggle('open',mixOpen);mixBtn.classList.toggle('open',mixOpen);};
   document.addEventListener('click',e=>{if(mixOpen&&!mixPanel.contains(e.target)&&e.target!==mixBtn){mixOpen=false;mixPanel.classList.remove('open');mixBtn.classList.remove('open');}});
 
-  ['music','atmos','voice','sfx'].forEach(key=>{
+  ['music','atmos','voice','sfx','youtube'].forEach(key=>{
     document.getElementById('mp-'+key).addEventListener('click',()=>window.toggleMixChannel(key));
   });
 
   [['ms-music','mv-music','music',[]],
    ['ms-atmos','mv-atmos','atmos',[dustLp]],
    ['ms-voice','mv-voice','voice',[]],
-   ['ms-sfx',  'mv-sfx',  'sfx',  []]
+   ['ms-sfx',  'mv-sfx',  'sfx',  []],
+   ['ms-youtube','mv-youtube','youtube',[]]
   ].forEach(([sl,vl,key,els])=>{
     const s=document.getElementById(sl),v=document.getElementById(vl);
     s.addEventListener('input',()=>{
@@ -4005,9 +4010,9 @@ function curlNoise(x, y) {
       VOL[key]=n/100;
       els.forEach(el=>{if(el&&!el.paused)el.volume=VOL[key];});
       if(key==='music'){
-        ytCmd('setVolume',[n]);
         document.querySelectorAll('.ambient-clone').forEach(el=>{if(!el.paused)el.volume=VOL.music;});
       }
+      if(key==='youtube'){ytCmd('setVolume',[n]);}
       if(key==='sfx')document.querySelectorAll('[id^="a-sfx-"],.fw-clone').forEach(el=>{if(!el.paused)el.volume=VOL.sfx;});
       if(key==='voice'&&curNar)curNar.volume=VOL[key];
       if(window._pianoSetVol){
@@ -4020,6 +4025,8 @@ function curlNoise(x, y) {
   window.stopOutdoorAmbient = stopOutdoorAmbient;
   window.startOutdoorAmbient = startOutdoorAmbient;
   window.outdoorIsActive = function() { return outdoorActive; };
+  // Show the sound button as soon as the audio engine is ready (cover page)
+  setTimeout(revealAudTgl, 600);
 })();
 </script>
 
@@ -5001,7 +5008,7 @@ function curlNoise(x, y) {
     return function() {
       if (prev) prev();
       dustActive = false;
-      if (PL[2].playing) fadePiano(2, 0, 5000);
+      if (PL[2].playing) fadePiano(2, 0, 7500);
     };
   }(window.onDustSettle));
 
@@ -5036,6 +5043,8 @@ function curlNoise(x, y) {
   window._pianoHandlesMusic = true; // tells ambient-clone system to stay idle
 
   window._pianoStopAll = function() { stopPiano(1); stopPiano(2); };
+
+  window._pianoStartIfNeeded = function() { if (!PL[1].playing) startPiano(1); };
 
   prefetch();
 })();
