@@ -1274,14 +1274,19 @@ body::before {
   #dust-toggle      { display: none !important; }
   /* Mix panel repositioned above tray handle */
   #mix-panel { z-index: 635 !important; bottom: 70px !important; right: 10px !important; width: calc(100vw - 56px) !important; }
-  /* Tighter frame padding — recover ~12px vertical */
-  .page-frame { padding: 8px; }
-  /* Scrollable page surface; side padding clears the 30px nav arrow footprint */
+  /* Frame: no padding, acts as positioned scroll-container parent */
+  .page-frame { padding: 0; position: relative; overflow: hidden; }
+  /* Page surface: absolutely sized to the frame so overflow-y has an explicit height to work against.
+     This bypasses the flex/3D-transform chain that prevented scroll in mobile browsers. */
   .page-frame > .page-surface {
+    position: absolute !important;
+    inset: 0 !important;
+    box-sizing: border-box !important;
     overflow-x: hidden !important;
     overflow-y: auto !important;
     -webkit-overflow-scrolling: touch;
     touch-action: pan-y;
+    overscroll-behavior-y: contain;
     padding: 20px 34px 80px;
   }
   .page-frame > .page-surface .story-text {
@@ -1798,7 +1803,7 @@ const PAGES = [
         <p>"Before anything else, there was this: we were at a huge party being thrown in Central Park in New York City. The entire park, you understand? Packed with people! This wasn't a normal party—it was a celebration. A celebration of the day of the apocalypse."</p>
         <p>I pause. You're watching me. The bag of dust in my hands is open now, waiting.</p>
       </div>
-      <span class="pg-num verso">9</span>
+      <span class="pg-num verso">11</span>
     `,
     right: `
       <div class="running-head">A Rapture in Three Acts</div>
@@ -1808,7 +1813,7 @@ const PAGES = [
         <p><em>The fan hums.</em></p>
         <p>"We partied and partied like it was the end of the world. Because it was. Not a care in the world, you understand? That kind of care just… stopped mattering. We all moved into a different way of being with each other.</p>
       </div>
-      <span class="pg-num recto">10</span>
+      <span class="pg-num recto">12</span>
     `
   },
 
@@ -1823,7 +1828,7 @@ const PAGES = [
         <p>"As we partied we shed all of the hangups until we were dancing 'naked' and together all as one. Everyone was. We all just… shed that society stuff… That pretense, that worry about what anyone thought…. Some even lost their clothes!!</p>
         <p>And the MC came on again—this was later, this was close—and told us 'Two minutes to go!' And we all quietly counted down together, watching the sky... and this is where it felt odd to me. We all noticed the smoke trails. Missiles. Over the city. Over the park, and we were all just… there. It didn't matter that they were coming or that they were coming right down upon us."</p>
       </div>
-      <span class="pg-num verso">11</span>
+      <span class="pg-num verso">13</span>
     `,
     right: `
       <div class="running-head">A Rapture in Three Acts</div>
@@ -1833,7 +1838,7 @@ const PAGES = [
         <p>I throw open the bag I am holding. You point the fan at me smiling and that dust starts-a-flying. All around, all around, outside and in, it covers the Lovers and the room that <strong>WE'RE NAKED!</strong> in.</p>
         <p>The sunlight through the window catches it, and for a fraction of an instant it looks like we created something sacred and not just something I'd have to clean up later. Like we were having a little mini communion with the dreamscape aether.</p>
       </div>
-      <span class="pg-num recto">12</span>
+      <span class="pg-num recto">14</span>
     `
   },
 
@@ -1849,7 +1854,7 @@ const PAGES = [
         <p>You're amusedly confused as I'm aware of the absurdity of me trying to describe this indescribable sensation, with a bag of dust and a fan. The bizarre bliss of that dream: Trying to describe that sense of being held by something so comprehensive that it includes everything all at once, ending and continuing communally, eternally.</p>
         <p>"Come, sit on the heater," I say.</p>
       </div>
-      <span class="pg-num verso">13</span>
+      <span class="pg-num verso">15</span>
     `,
     right: `
       <div class="running-head">A Rapture in Three Acts</div>
@@ -1860,7 +1865,7 @@ const PAGES = [
         <p>"It's quite an effective effect," I say, and I'm not only talking about the dust:</p>
         <p>I'm talking about all of the magic of this morning <strong>WE'RE NAKED!</strong> together in. The way your dusty body looks in <em>THIS dreamy light</em>.</p>
       </div>
-      <span class="pg-num recto">14</span>
+      <span class="pg-num recto">16</span>
     `
   },
 
@@ -1875,7 +1880,7 @@ const PAGES = [
         <p>"But here's the thing: we still hung out and partied on! We were together in the dust, and we couldn't see each other for all of it swirling around, but we could feel each other vibing, you know? Such a strange truncated immediacy. Through it we were all expressing this collective awe with what was going on.</p>
         <p>We were all saying things like 'Wow, this is all pretty weird', or 'Interesting sensation!' and 'Not at all what I expected'. There was this tone—this feeling—that was almost… grateful? Groovy is the word my dream-self kept thinking. 'Ohhh yeahhhh!.'"</p>
       </div>
-      <span class="pg-num verso">15</span>
+      <span class="pg-num verso">17</span>
     `,
     right: `
       <div class="running-head">A Rapture in Three Acts</div>
@@ -1885,7 +1890,7 @@ const PAGES = [
         <p><em>The fan hums. The dust swirls.</em></p>
         <p>"It was very peaceful… like your hand on my face waking me up just now. Welcoming me home"</p>
       </div>
-      <span class="pg-num recto">16</span>
+      <span class="pg-num recto">18</span>
     `
   },
 
@@ -3678,7 +3683,7 @@ function curlNoise(x, y) {
       if(paused)stopNar();
       _btnState('voice',!paused);
     }else if(key==='sfx'){
-      if(paused){document.querySelectorAll('[id^="a-sfx-"],.fw-clone,.outdoor-loop-clone').forEach(el=>{if(!el.paused){el.pause();el.currentTime=0;}});if(typeof stopOutdoorAmbient==='function')stopOutdoorAmbient();}
+      document.querySelectorAll('[id^="a-sfx-"],.fw-clone,.outdoor-loop-clone').forEach(el=>{ el.muted=paused; });
       _btnState('sfx',!paused);
     }
     if(window._pianoMixToggle)window._pianoMixToggle(key,paused,audOn);
@@ -4188,6 +4193,11 @@ function curlNoise(x, y) {
     const src = c.createBufferSource();
     src.buffer = buf;
     src.playbackRate.value = opt.rate || 1;
+    if (opt.pitchEnd !== undefined) {
+      const pDur = opt.dur || buf.duration / (opt.rate || 1);
+      src.playbackRate.setValueAtTime(opt.rate || 1, when);
+      src.playbackRate.linearRampToValueAtTime(opt.pitchEnd, when + pDur * 0.90);
+    }
 
     const sg = c.createGain();
     sg.gain.value = opt.vol !== undefined ? opt.vol : sfxV();
@@ -4562,9 +4572,53 @@ function curlNoise(x, y) {
     });
   }
 
+  // ── EXTENDED 4 REVERSE LAYER — backwards + pitch glide ───
+  // Sparser than the forward layers; 75% reversed sounds each with a pitch glide.
+  function runExt4Rev(mg, volScale, timeOffset) {
+    const c = ac(), t = c.currentTime + 0.1 + (timeOffset || 0), base = sfxV() * 0.50 * (volScale || 1);
+    const laughKeys  = ['m1','m2','f1','f2','f3','g3','g4','g9','g10','sg','lf','cl','sl','sw'];
+    const doorKeys   = ['d1','d2','d3'];
+    const whooshKeys = ['w1','w2','qw','qs'];
+    const r    = Math.random.bind(Math);
+    const rng  = (lo, hi) => lo + r() * (hi - lo);
+    const pick = arr => arr[Math.floor(r() * arr.length)];
+
+    const count = 10 + Math.floor(r() * 8);
+    const events = [];
+    for (let i = 0; i < count; i++) {
+      const roll = r();
+      let key, type;
+      if (roll < 0.55)      { key = pick(laughKeys);  type = 'laugh';  }
+      else if (roll < 0.78) { key = pick(doorKeys);   type = 'door';   }
+      else                   { key = pick(whooshKeys); type = 'whoosh'; }
+
+      const dt  = rng(0.0, 28.0);
+      const pan = rng(-0.95, 0.95);
+
+      // Pitch glide: start at one rate, drift to another
+      const rateStart = rng(0.55, 1.30);
+      const pitchEnd  = Math.max(0.25, Math.min(2.0, rateStart + rng(-0.50, 0.50)));
+
+      let delay = 0, fb = 0;
+      const fx = r();
+      if (fx < 0.35)      { delay = rng(0.015, 0.065); fb = rng(0.70, 0.85); }
+      else if (fx < 0.65) { delay = rng(0.10,  0.32);  fb = rng(0.30, 0.58); }
+
+      const rev  = r() < 0.75;
+      const dur  = type === 'laugh' ? rng(0.9, 1.7) : undefined;
+      const vMul = rng(0.35, 0.88);
+      events.push([key, dt, pan, rateStart, pitchEnd, delay, fb, dur, vMul, rev]);
+    }
+    events.sort((a, b) => a[1] - b[1]);
+    events.forEach(([k, dt, pan, rateStart, pitchEnd, delay, fb, dur, vMul, rev]) => {
+      pb(k, t + dt, { vol: base * vMul, pan, rate: rateStart, pitchEnd, delay, fb, dur, reverse: rev }, mg);
+    });
+  }
+
   function runExt4Double(mg) {
     runExt4(mg, 0.68, 0);
     runExt4(mg, 0.68, 4.5);
+    runExt4Rev(mg, 1, 9.0);
   }
 
   const extRunners = [runExt1, runExt2, runExt3, runExt4Double];
@@ -5088,7 +5142,7 @@ function curlNoise(x, y) {
 
   <div class="im-section">
     <div class="im-head">The Lighter</div>
-    <p>Early in the story a <button style="background:none;border:1px solid rgba(100,80,60,0.3);border-radius:2px;cursor:default;font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--ink-faint);font-size:0.78em;padding:1px 7px;vertical-align:middle;pointer-events:none;">▶ …<em>click</em>… …<em>fssschhh.</em>…</button> button appears in the text — the click and hiss of the morning's first light.</p>
+    <p>Early in the story a <button style="background:rgba(200,169,106,0.18);border:1px solid rgba(200,169,106,0.72);border-radius:2px;cursor:default;font-family:'Cormorant Garamond',serif;font-style:italic;color:rgba(232,208,158,0.97);font-size:0.78em;padding:2px 8px;vertical-align:middle;pointer-events:none;box-shadow:0 2px 8px rgba(0,0,0,0.55),inset 0 1px 0 rgba(255,240,200,0.10);text-shadow:0 1px 3px rgba(0,0,0,0.65);">▶ …<em style="all:unset;font-style:italic;">click</em>… …<em style="all:unset;font-style:italic;">fssschhh.</em>…</button> button appears in the text — the click and hiss of the morning's first light.</p>
   </div>
 
   <div class="im-section">
@@ -5205,7 +5259,18 @@ function curlNoise(x, y) {
   text-shadow: 0 1px 5px rgba(0,0,0,0.75);
 }
 #info-modal-inner strong { color: rgba(255,244,224,1.0); font-weight: 600; }
-#info-modal-inner em { font-style: italic; }
+#info-modal-inner em {
+  font-style: italic;
+  background: rgba(200,169,106,0.15);
+  border: 1px solid rgba(200,169,106,0.50);
+  border-radius: 2px;
+  padding: 0px 6px;
+  color: rgba(232,208,158,0.97);
+  box-shadow: 0 1px 5px rgba(0,0,0,0.50), inset 0 1px 0 rgba(255,240,200,0.07);
+  text-shadow: 0 1px 3px rgba(0,0,0,0.65);
+  white-space: nowrap;
+  display: inline-block;
+}
 /* Desktop info button */
 #info-btn-desk {
   position: fixed;
