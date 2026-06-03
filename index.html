@@ -3780,17 +3780,12 @@ function curlNoise(x, y) {
       function scheduleXfade() {
         if (!outdoorActive) return;
         const dur = el.duration;
-        if (!dur || isNaN(dur) || dur <= 0) {
-          const t = setTimeout(scheduleXfade, 300);
-          outdoorTimers.push(t);
-          return;
-        }
-
-        // Compute from "now" and enforce enough runway for full in/out overlap.
+        if (!dur || isNaN(dur) || dur <= 0) return;
+        // Cross-fade starts a bit before the end; ±400ms jitter so two layers
+        // never loop at the exact same moment
         const jitter = (Math.random() - 0.5) * 1600;
         const msLeft = Math.max(0, (dur - el.currentTime) * 1000);
-        const delay = Math.max(xFadeMs * 2, msLeft - xFadeMs + jitter);
-
+        const delay  = Math.max(100, msLeft - xFadeMs + jitter);
         const t = setTimeout(() => {
           if (!outdoorActive) return;
           // Slight per-iteration volume variation (±6%) for organic feel
@@ -3800,7 +3795,10 @@ function curlNoise(x, y) {
         }, delay);
         outdoorTimers.push(t);
       }
-      scheduleXfade();
+      el.addEventListener('canplaythrough', function onReady() {
+        el.removeEventListener('canplaythrough', onReady);
+        scheduleXfade();
+      }, { once: true });
     }
 
     if (delayMs) {
@@ -3886,7 +3884,7 @@ function curlNoise(x, y) {
     outdoorActive = false;
     outdoorTimers.forEach(t => clearTimeout(t));
     outdoorTimers.length = 0;
-    const ms = typeof fadeMs === 'number' ? fadeMs : 3500;
+    const ms = typeof fadeMs === 'number' ? fadeMs : 1400;
     const city  = document.getElementById('a-sfx-city');
     const birds = document.getElementById('a-sfx-birds');
     [city, birds].forEach(el => {
