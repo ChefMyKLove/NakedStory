@@ -3785,11 +3785,12 @@ function curlNoise(x, y) {
           outdoorTimers.push(t);
           return;
         }
-        // Cross-fade starts a bit before the end; ±400ms jitter so two layers
-        // never loop at the exact same moment
+
+        // Compute from "now" and enforce enough runway for full in/out overlap.
         const jitter = (Math.random() - 0.5) * 1600;
         const msLeft = Math.max(0, (dur - el.currentTime) * 1000);
-        const delay  = Math.max(100, msLeft - xFadeMs + jitter);
+        const delay = Math.max(xFadeMs * 2, msLeft - xFadeMs + jitter);
+
         const t = setTimeout(() => {
           if (!outdoorActive) return;
           // Slight per-iteration volume variation (±6%) for organic feel
@@ -3885,7 +3886,7 @@ function curlNoise(x, y) {
     outdoorActive = false;
     outdoorTimers.forEach(t => clearTimeout(t));
     outdoorTimers.length = 0;
-    const ms = typeof fadeMs === 'number' ? fadeMs : 1400;
+    const ms = typeof fadeMs === 'number' ? fadeMs : 3500;
     const city  = document.getElementById('a-sfx-city');
     const birds = document.getElementById('a-sfx-birds');
     [city, birds].forEach(el => {
