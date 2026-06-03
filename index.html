@@ -3863,24 +3863,55 @@ function curlNoise(x, y) {
     scheduleFadeOut();
   }
 
+  function fadeOutdoorClones(targets, ms) {
+    document.querySelectorAll('.outdoor-loop-clone').forEach(el => {
+      if (!el || el.paused) return;
+      const key = el.dataset.ambientLayer || '';
+      if (typeof targets[key] === 'number') {
+        fadeVol(el, targets[key], ms);
+      }
+    });
+  }
+  function duckOutdoorAmbient() {
+    if (!outdoorActive) return;
+    fadeOutdoorClones({
+      'city-main': VOL.sfx * 0.12,
+      'city-mask': VOL.sfx * 0.09,
+      'city-fill': VOL.sfx * 0.07
+    }, 2400);
+    const birds = document.getElementById('a-sfx-birds');
+    if (birds && !birds.paused) fadeVol(birds, VOL.sfx * 0.16, 2400);
+  }
+  function unduckOutdoorAmbient() {
+    if (!outdoorActive) return;
+    fadeOutdoorClones({
+      'city-main': VOL.sfx * 0.42,
+      'city-mask': VOL.sfx * 0.30,
+      'city-fill': VOL.sfx * 0.20
+    }, 3800);
+    const birds = document.getElementById('a-sfx-birds');
+    if (birds && !birds.paused) fadeVol(birds, VOL.sfx * 0.42, 3800);
+  }
   function startOutdoorAmbient() {
     if (outdoorActive) return;
     outdoorActive = true;
-    const city  = document.getElementById('a-sfx-city');
+    const city = document.getElementById('a-sfx-city');
     const birds = document.getElementById('a-sfx-birds');
-    // City bed: layered crossfade loops with irregular launch spacing.
     if (city) {
       city.pause();
       city.currentTime = 0;
       city.loop = false;
       city.volume = 0;
-      startAmbientLayer('city-main',  'a-sfx-city', VOL.sfx * 0.54, 1600, 0);
-      startAmbientLayer('city-mask',  'a-sfx-city', VOL.sfx * 0.34, 1900, 1800 + Math.random() * 2200);
-      startAmbientLayer('city-fill',  'a-sfx-city', VOL.sfx * 0.24, 2200, 4200 + Math.random() * 3200);
     }
+    startAmbientLayer('city-main', 'a-sfx-city', VOL.sfx * 0.42, 2600, 0);
+    startAmbientLayer('city-mask', 'a-sfx-city', VOL.sfx * 0.30, 3200, 180 + Math.random() * 420);
+    startAmbientLayer('city-fill', 'a-sfx-city', VOL.sfx * 0.20, 3600, 900 + Math.random() * 900);
     if (birds) {
-      birds.loop = true; birds.currentTime = 0;
-      const tb0 = setTimeout(() => { if (outdoorActive) fIn(birds, VOL.sfx * 0.48, 2800); }, 1200 + Math.random() * 800);
+      birds.loop = true;
+      birds.currentTime = 0;
+      const tb0 = setTimeout(() => {
+        if (outdoorActive) fIn(birds, VOL.sfx * 0.42, 3200);
+      }, 700 + Math.random() * 400);
       outdoorTimers.push(tb0);
     }
     function scheduleCarPass() {
@@ -3888,7 +3919,7 @@ function curlNoise(x, y) {
       const t = setTimeout(() => {
         if (!outdoorActive) return;
         const src = document.getElementById('a-sfx-carpass');
-        if (src) playOneShotFaded(src, VOL.sfx * (0.38 + Math.random() * 0.34), 350, 1400);
+        if (src) playOneShotFaded(src, VOL.sfx * (0.26 + Math.random() * 0.18), 350, 1400);
         scheduleCarPass();
       }, 22000 + Math.random() * 33000);
       outdoorTimers.push(t);
@@ -3898,12 +3929,12 @@ function curlNoise(x, y) {
       const t = setTimeout(() => {
         if (!outdoorActive) return;
         const src = document.getElementById('a-sfx-chirp');
-        if (src) playOneShotFaded(src, VOL.sfx * (0.28 + Math.random() * 0.46), 180, 900);
+        if (src) playOneShotFaded(src, VOL.sfx * (0.18 + Math.random() * 0.16), 180, 900);
         scheduleBirdChirp();
       }, 12000 + Math.random() * 28000);
       outdoorTimers.push(t);
     }
-    const tc = setTimeout(scheduleCarPass,   9000 + Math.random() * 11000);
+    const tc = setTimeout(scheduleCarPass, 9000 + Math.random() * 11000);
     const tb = setTimeout(scheduleBirdChirp, 3000 + Math.random() * 8000);
     outdoorTimers.push(tc, tb);
   }
@@ -3927,13 +3958,18 @@ function curlNoise(x, y) {
     });
   }
 
-  // Door: slide sound → then outdoor ambient fades in when it ends
   window.playDoor = function() {
     if (!audOn || CH_PAUSED.sfx) return;
     const d = document.getElementById('a-sfx-door');
     if (!d) return;
-    d.currentTime = 0; d.volume = VOL.sfx; d.play().catch(() => {});
-    d.onended = () => { startOutdoorAmbient(); };
+    d.onended = null;
+    d.currentTime = 0;
+    d.volume = VOL.sfx;
+    d.play().catch(() => {});
+    const t = setTimeout(() => {
+      if (!outdoorActive) startOutdoorAmbient();
+    }, 180);
+    outdoorTimers.push(t);
   };
   // ── FAN AMBIENT SYSTEM ──────────────────────────────────────
   // Adjust this if the startup sound is longer/shorter than ~1.8s
@@ -4006,19 +4042,6 @@ function curlNoise(x, y) {
     }, ms / steps);
   }
   // Fan button: duck outdoor ambient → start fan
-  function duckOutdoorAmbient() {
-    const city  = document.getElementById('a-sfx-city');
-    const birds = document.getElementById('a-sfx-birds');
-    if (city  && !city.paused)  fadeVol(city,  VOL.sfx * 0.18, 2500);
-    if (birds && !birds.paused) fadeVol(birds, VOL.sfx * 0.18, 2500);
-  }
-  function unduckOutdoorAmbient() {
-    if (!outdoorActive) return;
-    const city  = document.getElementById('a-sfx-city');
-    const birds = document.getElementById('a-sfx-birds');
-    if (city  && !city.paused)  fadeVol(city,  VOL.sfx * 0.60, 4000);
-    if (birds && !birds.paused) fadeVol(birds, VOL.sfx * 0.48, 4000);
-  }
   window.playFan = function() {
     duckOutdoorAmbient();
     startFanAmbient();
