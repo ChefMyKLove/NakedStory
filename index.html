@@ -3563,6 +3563,7 @@ function curlNoise(x, y) {
   const audTgl=document.getElementById('aud-toggle'),mixBtn=document.getElementById('mix-btn');
   const mixPanel=document.getElementById('mix-panel'),narInd=document.getElementById('aud-nar-ind');
   let audOn=false,mixOpen=false,curNar=null;
+  let sfxPrimed=false;
   const VOL={music:0.28,atmos:0.50,voice:0.50,sfx:0.50,youtube:0.50};
   const CH_PAUSED={music:false,atmos:false,voice:false,sfx:false,youtube:false};
 
@@ -3588,6 +3589,39 @@ function curlNoise(x, y) {
 
   function fIn(el,v,ms){if(!el)return;el.volume=0;if(el.paused)el.play().catch(()=>{});const s=40,d=ms/s;let i=0;const iv=setInterval(()=>{el.volume=Math.min(v,el.volume+v/s);if(++i>=s)clearInterval(iv);},d);}
   function fOut(el,ms,cb){if(!el||el.paused){cb&&cb();return;}const sv=el.volume,s=30,d=ms/s;let i=0;const iv=setInterval(()=>{el.volume=Math.max(0,el.volume-sv/s);if(++i>=s){clearInterval(iv);el.pause();el.volume=sv;cb&&cb();}},d);}
+
+  function primeOutdoorSfxDecode() {
+    if (sfxPrimed) return;
+    sfxPrimed = true;
+    ['a-sfx-door','a-sfx-city','a-sfx-city-alt','a-sfx-birds','a-sfx-carpass','a-sfx-chirp'].forEach(id => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      try { el.load(); } catch (e) {}
+      const prevMuted = el.muted;
+      const prevVol = el.volume;
+      let prevTime = 0;
+      try { prevTime = el.currentTime || 0; } catch (e) {}
+      el.muted = true;
+      el.volume = 0;
+      const p = el.play();
+      if (p && typeof p.then === 'function') {
+        p.then(() => {
+          setTimeout(() => {
+            el.pause();
+            try { el.currentTime = prevTime; } catch (e) {}
+            el.volume = prevVol;
+            el.muted = prevMuted;
+          }, 30);
+        }).catch(() => {
+          el.volume = prevVol;
+          el.muted = prevMuted;
+        });
+      } else {
+        el.volume = prevVol;
+        el.muted = prevMuted;
+      }
+    });
+  }
 
   // ── AMBIENT MUSIC LOOP SYSTEM ─────────────────────────────────
   // Two staggered layers of ambient_loop.mp3, each natively looping so
@@ -3982,17 +4016,21 @@ function curlNoise(x, y) {
 
   function duckOutdoorAmbient() {
     if (!outdoorActive) return;
-    fadeOutdoorLayer('city-main', VOL.sfx * 0.16, 2400);
-    fadeOutdoorLayer('city-alt', VOL.sfx * 0.10, 2400);
+    const city  = document.getElementById('a-sfx-city');
+    const cityAlt = document.getElementById('a-sfx-city-alt');
     const birds = document.getElementById('a-sfx-birds');
+    if (city && !city.paused) fadeVol(city, VOL.sfx * 0.16, 2400);
+    if (cityAlt && !cityAlt.paused) fadeVol(cityAlt, VOL.sfx * 0.12, 2400);
     if (birds && !birds.paused) fadeVol(birds, VOL.sfx * 0.16, 2400);
   }
 
   function unduckOutdoorAmbient() {
     if (!outdoorActive) return;
-    fadeOutdoorLayer('city-main', VOL.sfx * 0.42, 3800);
-    fadeOutdoorLayer('city-alt', VOL.sfx * 0.30, 3800);
+    const city  = document.getElementById('a-sfx-city');
+    const cityAlt = document.getElementById('a-sfx-city-alt');
     const birds = document.getElementById('a-sfx-birds');
+    if (city && !city.paused) fadeVol(city, VOL.sfx * 0.42, 3800);
+    if (cityAlt && !cityAlt.paused) fadeVol(cityAlt, VOL.sfx * 0.34, 3800);
     if (birds && !birds.paused) fadeVol(birds, VOL.sfx * 0.42, 3800);
   }
 
@@ -4000,6 +4038,8 @@ function curlNoise(x, y) {
     if (outdoorActive) return;
     outdoorActive = true;
 
+    const city  = document.getElementById('a-sfx-city');
+    const cityAlt = document.getElementById('a-sfx-city-alt');
     const birds = document.getElementById('a-sfx-birds');
 
     // Kill any leftover clone system completely
@@ -4008,29 +4048,29 @@ function curlNoise(x, y) {
       if (el.parentNode) el.parentNode.removeChild(el);
     });
 
-    startSeamlessOutdoorLayer('city-main', 'a-sfx-city', VOL.sfx * 0.42, {
-      attackMs: 420,
-      releaseMs: 1200,
-      leadInMs: 1700,
-      offMin: 0.14,
-      offMax: 0.36,
-      rateBase: 0.998,
-      rateVar: 0.008,
-      seedFrac: 0.18 + Math.random() * 0.18,
-      startDelay: 0
-    });
+    if (city) {
+      city.pause();
+      const d = city.duration || 0;
+      if (d && isFinite(d) && d > 8) city.currentTime = Math.max(0.8, Math.min(d - 0.8, d * (0.14 + Math.random() * 0.22)));
+      else city.currentTime = 0;
+      city.loop = true;
+      city.volume = VOL.sfx * 0.30;
+      city.playbackRate = 0.998 + Math.random() * 0.006;
+      city.play().catch(() => {});
+      fadeVol(city, VOL.sfx * 0.42, 320);
+    }
 
-    startSeamlessOutdoorLayer('city-alt', 'a-sfx-city-alt', VOL.sfx * 0.30, {
-      attackMs: 1200,
-      releaseMs: 1400,
-      leadInMs: 1900,
-      offMin: 0.46,
-      offMax: 0.82,
-      rateBase: 0.990,
-      rateVar: 0.014,
-      seedFrac: 0.52 + Math.random() * 0.22,
-      startDelay: 90
-    });
+    if (cityAlt) {
+      cityAlt.pause();
+      const d2 = cityAlt.duration || 0;
+      if (d2 && isFinite(d2) && d2 > 8) cityAlt.currentTime = Math.max(0.8, Math.min(d2 - 0.8, d2 * (0.48 + Math.random() * 0.30)));
+      else cityAlt.currentTime = 0;
+      cityAlt.loop = true;
+      cityAlt.volume = VOL.sfx * 0.18;
+      cityAlt.playbackRate = 0.988 + Math.random() * 0.014;
+      cityAlt.play().catch(() => {});
+      fadeVol(cityAlt, VOL.sfx * 0.34, 900);
+    }
 
     if (birds) {
       birds.pause();
@@ -4113,13 +4153,15 @@ function curlNoise(x, y) {
     const d = document.getElementById('a-sfx-door');
     if (!d) return;
 
-    // Start outdoor immediately on the same click as the door.
-    if (!outdoorActive) startOutdoorAmbient();
+    if (!sfxPrimed) primeOutdoorSfxDecode();
 
     d.onended = null;
     d.currentTime = 0;
     d.volume = VOL.sfx;
     d.play().catch(() => {});
+
+    // Start outdoor on the same click, directly after door play call.
+    if (!outdoorActive) startOutdoorAmbient();
   };
   // ── FAN AMBIENT SYSTEM ──────────────────────────────────────
   // Adjust this if the startup sound is longer/shorter than ~1.8s
@@ -4255,6 +4297,7 @@ function curlNoise(x, y) {
         if (!el) return;
         try { el.load(); } catch (e) {}
       });
+      primeOutdoorSfxDecode();
       if(!CH_PAUSED.youtube){ytActivate();setTimeout(ytActivate,900);}
       if(window._pianoStartIfNeeded)window._pianoStartIfNeeded();
       const pid=window._getAudioPageId?window._getAudioPageId():null;
