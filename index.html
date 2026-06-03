@@ -3760,9 +3760,8 @@ function curlNoise(x, y) {
   const outdoorTimers = [];
 
   // Start a crossfade-looping ambient layer (no HTML loop attr — we own the loop).
-  // Each iteration fades into a fresh clone before the current one ends,
-  // so the boundary is inaudible.
-  function startAmbientLayer(layerKey, srcId, baseVol, xFadeMs, delayMs) {
+  // Every instance gets a guaranteed attack and release envelope.
+  function startAmbientLayer(layerKey, srcId, baseVol, fadeMs, delayMs) {
     function playInstance(vol) {
       if (!outdoorActive) return;
       const src = document.getElementById(srcId);
@@ -3773,44 +3772,49 @@ function curlNoise(x, y) {
       el.dataset.ambientLayer = layerKey;
       el.classList.add('outdoor-loop-clone');
       document.getElementById('audio-engine').appendChild(el);
-      el.play().catch(() => {});
-      fIn(el, vol, xFadeMs);
 
-      // Wait for duration, then schedule the crossfade
-      function scheduleXfade(fadeMs) {
+      function beginPlayback() {
         if (!outdoorActive) return;
+        el.currentTime = 0;
+        el.play().catch(() => {});
+
         const dur = el.duration;
-        if (!dur || isNaN(dur) || dur <= 0) return;
-        // Cross-fade starts a bit before the end; ±400ms jitter so two layers
-        // never loop at the exact same moment
-        const jitter = (Math.random() - 0.5) * 1600;
-        const msLeft = Math.max(0, (dur - el.currentTime) * 1000);
-        const delay  = Math.max(100, msLeft - fadeMs + jitter);
+        if (!dur || isNaN(dur) || dur <= 0) {
+          fIn(el, vol, fadeMs);
+          return;
+        }
+
+        const safeFade = Math.max(600, Math.min(fadeMs, dur * 0.30 * 1000));
+        fIn(el, vol, safeFade);
+
+        const msDur = dur * 1000;
+        const fadeOutAt = Math.max(120, msDur - safeFade);
         const t = setTimeout(() => {
           if (!outdoorActive) return;
-          // Slight per-iteration volume variation (±6%) for organic feel
-          const nextVol = baseVol * (0.94 + Math.random() * 0.12);
-          playInstance(nextVol);
-          fOut(el, fadeMs, () => { if (el.parentNode) el.parentNode.removeChild(el); });
-        }, delay);
+
+          // Launch replacement before releasing this instance.
+          playInstance(baseVol * (0.94 + Math.random() * 0.12));
+
+          // Guaranteed release envelope on every cycle.
+          fOut(el, safeFade, () => { if (el.parentNode) el.parentNode.removeChild(el); });
+        }, fadeOutAt);
         outdoorTimers.push(t);
       }
 
+      let started = false;
       function onReady() {
-        el.removeEventListener('canplaythrough', onReady);
+        if (started) return;
+        started = true;
         el.removeEventListener('loadedmetadata', onReady);
         el.removeEventListener('canplay', onReady);
-        if (!outdoorActive) return;
-        const dur = el.duration;
-        if (!dur || isNaN(dur) || dur <= 0) return;
-        // Keep crossfades proportional on short files to avoid silence windows.
-        const safeFade = Math.max(600, Math.min(xFadeMs, dur * 0.30 * 1000));
-        scheduleXfade(safeFade);
+        el.removeEventListener('canplaythrough', onReady);
+        beginPlayback();
       }
 
-      el.addEventListener('canplaythrough', onReady, { once: true });
       el.addEventListener('loadedmetadata', onReady, { once: true });
       el.addEventListener('canplay', onReady, { once: true });
+      el.addEventListener('canplaythrough', onReady, { once: true });
+      el.load();
     }
 
     if (delayMs) {
@@ -3858,9 +3862,9 @@ function curlNoise(x, y) {
       city.currentTime = 0;
       city.loop = false;
       city.volume = 0;
-      startAmbientLayer('city-main',  'a-sfx-city', VOL.sfx * 0.54, 2000, 0);
-      startAmbientLayer('city-mask',  'a-sfx-city', VOL.sfx * 0.30, 2000, 4000 + Math.random() * 3000);
-      startAmbientLayer('city-fill',  'a-sfx-city', VOL.sfx * 0.22, 2000, 10000 + Math.random() * 4000);
+      startAmbientLayer('city-main',  'a-sfx-city', VOL.sfx * 0.54, 1800, 0);
+      startAmbientLayer('city-mask',  'a-sfx-city', VOL.sfx * 0.30, 1800, 4000 + Math.random() * 3000);
+      startAmbientLayer('city-fill',  'a-sfx-city', VOL.sfx * 0.22, 1800, 10000 + Math.random() * 4000);
     }
     if (birds) {
       birds.loop = true; birds.currentTime = 0;
