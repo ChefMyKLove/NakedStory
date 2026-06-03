@@ -3932,10 +3932,9 @@ function curlNoise(x, y) {
       if (d && isFinite(d) && d > 8) city.currentTime = Math.max(0.8, Math.min(d - 0.8, d * (0.14 + Math.random() * 0.22)));
       else city.currentTime = 0;
       city.loop = true;
-      city.volume = VOL.sfx * 0.03;
+      city.volume = 0;
       city.playbackRate = 0.996 + Math.random() * 0.012;
-      city.play().catch(() => {});
-      fadeVol(city, VOL.sfx * 0.42, 1400);
+      fIn(city, VOL.sfx * 0.42, 900);
     }
 
     if (cityAlt) {
@@ -3948,9 +3947,8 @@ function curlNoise(x, y) {
       cityAlt.playbackRate = 0.988 + Math.random() * 0.018;
       const tAlt = setTimeout(() => {
         if (!outdoorActive) return;
-        cityAlt.play().catch(() => {});
-        fadeVol(cityAlt, VOL.sfx * 0.24, 2600);
-      }, 260 + Math.random() * 260);
+        fIn(cityAlt, VOL.sfx * 0.30, 1600);
+      }, 80 + Math.random() * 120);
       outdoorTimers.push(tAlt);
     }
 
@@ -4004,13 +4002,14 @@ function curlNoise(x, y) {
 
     [city, cityAlt, birds].forEach(el => {
       if (!el) return;
-      el.loop = false;
       if (ms === 0) {
+        el.loop = false;
         el.pause();
         el.currentTime = 0;
         el.volume = 0;
       } else {
         fOut(el, ms, () => {
+          el.loop = false;
           el.currentTime = 0;
         });
       }
@@ -4040,23 +4039,23 @@ function curlNoise(x, y) {
     d.play().catch(() => {});
 
     let outdoorQueued = false;
-    function queueOutdoorAtHalf() {
+    function queueOutdoorDuringOpen() {
       if (outdoorQueued) return;
       outdoorQueued = true;
-      const halfMs = Math.max(70, (d.duration || 0) * 320);
-      const tHalf = setTimeout(() => {
+      const startMs = Math.max(45, Math.min(120, (d.duration || 0) * 120));
+      const tDoor = setTimeout(() => {
         if (!outdoorActive) startOutdoorAmbient();
-      }, halfMs);
-      outdoorTimers.push(tHalf);
+      }, startMs);
+      outdoorTimers.push(tDoor);
     }
 
     if (d.duration && isFinite(d.duration) && d.duration > 0) {
-      queueOutdoorAtHalf();
+      queueOutdoorDuringOpen();
     } else {
-      d.addEventListener('loadedmetadata', queueOutdoorAtHalf, { once: true });
+      d.addEventListener('loadedmetadata', queueOutdoorDuringOpen, { once: true });
       const tFallback = setTimeout(() => {
         if (!outdoorQueued && !outdoorActive) startOutdoorAmbient();
-      }, 220);
+      }, 90);
       outdoorTimers.push(tFallback);
     }
   };
@@ -4189,6 +4188,11 @@ function curlNoise(x, y) {
     }
     else{
       document.querySelectorAll('audio').forEach(el=>{ el.muted=false; });
+      ['a-sfx-door','a-sfx-city','a-sfx-city-alt','a-sfx-birds','a-sfx-carpass','a-sfx-chirp'].forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        try { el.load(); } catch (e) {}
+      });
       if(!CH_PAUSED.youtube){ytActivate();setTimeout(ytActivate,900);}
       if(window._pianoStartIfNeeded)window._pianoStartIfNeeded();
       const pid=window._getAudioPageId?window._getAudioPageId():null;
