@@ -3759,9 +3759,13 @@ function curlNoise(x, y) {
   let outdoorActive = false;
   const outdoorTimers = [];
 
-  // Start a crossfade-looping ambient layer (no HTML loop attr — we own the loop).
-  // Every instance gets a guaranteed attack and release envelope.
   function startAmbientLayer(layerKey, srcId, baseVol, fadeMs, delayMs) {
+    const ENGINE = document.getElementById('audio-engine');
+    if (!ENGINE) return;
+    const ATTACK = 2000;
+    const HOLD = 4000;
+    const RELEASE = 2000;
+
     function playInstance(vol) {
       if (!outdoorActive) return;
       const src = document.getElementById(srcId);
@@ -3771,66 +3775,52 @@ function curlNoise(x, y) {
       el.volume = 0;
       el.dataset.ambientLayer = layerKey;
       el.classList.add('outdoor-loop-clone');
-      document.getElementById('audio-engine').appendChild(el);
+      ENGINE.appendChild(el);
 
-      function beginPlayback() {
-        if (!outdoorActive) return;
-        const dur = el.duration;
-        if (!dur || isNaN(dur) || dur <= 0) {
-          // Duration can still be late on some devices; retry briefly.
-          const tr = setTimeout(beginPlayback, 120);
-          outdoorTimers.push(tr);
-          return;
+      function cleanup() {
+        el.onended = null;
+        if (el.parentNode) el.parentNode.removeChild(el);
+      }
+
+      function scheduleNext() {
+        if (!outdoorActive) { cleanup(); return; }
+        const tNext = setTimeout(() => {
+          if (outdoorActive) playInstance(vol);
+        }, 0);
+        outdoorTimers.push(tNext);
+      }
+
+      el.addEventListener('canplaythrough', function onReady() {
+        el.removeEventListener('canplaythrough', onReady);
+        if (!outdoorActive) { cleanup(); return; }
+
+        el.currentTime = 0;
+        el.play().catch(() => {});
+        fIn(el, vol, ATTACK);
+
+        let holdMs = HOLD;
+        const dur = el.duration || 0;
+        if (dur && dur * 1000 < ATTACK + HOLD + RELEASE + 200) {
+          holdMs = Math.max(0, dur * 1000 - ATTACK - RELEASE - 200);
         }
 
-        const safeFade = Math.max(600, Math.min(fadeMs, dur * 0.30 * 1000));
-        const fileMs = dur * 1000;
+        const tHold = setTimeout(() => {
+          if (!outdoorActive) { cleanup(); return; }
+          fOut(el, RELEASE, () => {
+            cleanup();
+            scheduleNext();
+          });
+        }, ATTACK + holdMs);
+        outdoorTimers.push(tHold);
+      }, { once: true });
 
-        // Enter from inside the bed (not always frame 0) so layered copies
-        // do not reinforce the same opening transient.
-        const edgeSec = Math.min(2, Math.max(0.35, dur * 0.10));
-        const minOffset = edgeSec;
-        const maxOffset = Math.max(minOffset, dur - edgeSec - safeFade / 1000);
-        const offset = maxOffset > minOffset
-          ? minOffset + Math.random() * (maxOffset - minOffset)
-          : 0;
-
-        el.currentTime = offset;
-        el.play().catch(() => {});
-        fIn(el, vol, safeFade);
-
-        const msLeft = Math.max(300, fileMs - offset * 1000);
-        const fadeOutAt = Math.max(120, msLeft - safeFade);
-        const t = setTimeout(() => {
-          if (!outdoorActive) return;
-
-          // Launch replacement before releasing this instance.
-          playInstance(baseVol * (0.94 + Math.random() * 0.12));
-
-          // Guaranteed release envelope on every cycle.
-          fOut(el, safeFade, () => { if (el.parentNode) el.parentNode.removeChild(el); });
-        }, fadeOutAt);
-        outdoorTimers.push(t);
-      }
-
-      let started = false;
-      function onReady() {
-        if (started) return;
-        started = true;
-        el.removeEventListener('loadedmetadata', onReady);
-        el.removeEventListener('canplay', onReady);
-        el.removeEventListener('canplaythrough', onReady);
-        beginPlayback();
-      }
-
-      el.addEventListener('loadedmetadata', onReady, { once: true });
-      el.addEventListener('canplay', onReady, { once: true });
-      el.addEventListener('canplaythrough', onReady, { once: true });
       el.load();
     }
 
-    if (delayMs) {
-      const t = setTimeout(() => playInstance(baseVol), delayMs);
+    if (delayMs && delayMs > 0) {
+      const t = setTimeout(() => {
+        if (outdoorActive) playInstance(baseVol);
+      }, delayMs);
       outdoorTimers.push(t);
     } else {
       playInstance(baseVol);
