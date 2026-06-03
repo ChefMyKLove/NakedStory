@@ -2043,7 +2043,7 @@ const MPAGES = (function() {
       if (p.id === 'epigraph') {
         pages.push({
           ...p,
-          html: p.html.replace(/<div class="epi-yt-wrap">[\s\S]*?<\/div>\s*/m, '')
+          html: p.html.replace(/<div class="epi-yt-wrap">[\s\S]*?<\/iframe>\s*<\/div>\s*/m, '')
         });
       } else {
         pages.push(p);
@@ -3991,6 +3991,24 @@ function curlNoise(x, y) {
   function ytActivate(){ytCmd('unMute');}
   let _audTglRevealed=false;
   function revealAudTgl(){if(_audTglRevealed)return;_audTglRevealed=true;audTgl.style.opacity='1';audTgl.style.pointerEvents='';}
+  function syncStoryAudioUI(){
+    var on=!audTgl.classList.contains('off');
+    var strip=document.getElementById('mob-snd-strip');
+    if(strip){
+      strip.textContent=on?'♪ on':'♪ off';
+      strip.classList.toggle('snd-on',on);
+      strip.setAttribute('aria-label',on?'Sound on':'Sound off');
+      strip.setAttribute('title',on?'Sound on':'Sound off');
+    }
+    var tray=document.getElementById('mct-sound');
+    if(tray){
+      tray.classList.toggle('off',!on);
+      tray.setAttribute('aria-label',on?'Sound on':'Sound off');
+      tray.setAttribute('title',on?'Sound on':'Sound off');
+      var trayLbl=tray.querySelector('.mct-lbl');
+      if(trayLbl)trayLbl.textContent=on?'on':'off';
+    }
+  }
   function setAudioEnabled(nextOn){
     if(audOn===nextOn)return audOn;
     audOn=nextOn;
@@ -4009,12 +4027,14 @@ function curlNoise(x, y) {
       const pid=window._getAudioPageId?window._getAudioPageId():null;
       if(pid&&window.onAudioPageChange)window.onAudioPageChange(pid);
     }
+    syncStoryAudioUI();
     return audOn;
   }
   window.toggleStoryAudio=function(forceOn){
     if(typeof forceOn==='boolean')return setAudioEnabled(forceOn);
     return setAudioEnabled(!audOn);
   };
+  window.syncStoryAudioUI=syncStoryAudioUI;
   audTgl.addEventListener('click',()=>{window.toggleStoryAudio();});
   mixBtn.addEventListener('click',()=>{mixOpen=!mixOpen;mixPanel.classList.toggle('open',mixOpen);mixBtn.classList.toggle('open',mixOpen);});
   window.toggleMixPanel=function(){mixOpen=!mixOpen;mixPanel.classList.toggle('open',mixOpen);mixBtn.classList.toggle('open',mixOpen);};
@@ -4052,6 +4072,7 @@ function curlNoise(x, y) {
   window.stopOutdoorAmbient = stopOutdoorAmbient;
   window.startOutdoorAmbient = startOutdoorAmbient;
   window.outdoorIsActive = function() { return outdoorActive; };
+  syncStoryAudioUI();
   // Show the sound button as soon as the audio engine is ready (cover page)
   setTimeout(revealAudTgl, 600);
 })();
@@ -4086,13 +4107,8 @@ function curlNoise(x, y) {
         ctx.resume().then(function() { ctx.close(); });
       }
     } catch(e) {}
-    // Turn sound on automatically — tap to begin = tap to hear
-    if (window.toggleStoryAudio) {
-      window.toggleStoryAudio(true);
-    } else {
-      var t = document.getElementById('aud-toggle');
-      if (t && t.classList.contains('off')) { t.click(); }
-    }
+    // Keep audio off by default; user explicitly turns sound on.
+    if (window.syncStoryAudioUI) window.syncStoryAudioUI();
     setTimeout(function() { splash.style.display = 'none'; }, 700);
   }
 
@@ -4108,6 +4124,7 @@ function curlNoise(x, y) {
         var t = document.getElementById('aud-toggle');
         if (t) { t.style.opacity = '1'; t.style.pointerEvents = ''; }
       }
+      if (window.syncStoryAudioUI) window.syncStoryAudioUI();
     }, 900);
   }
 })();
@@ -6044,7 +6061,18 @@ function curlNoise(x, y) {
     var r = document.getElementById(realId);
     if (p && r) p.addEventListener('click', function() { r.click(); closeTray(); });
   }
-  wire('mct-sound',    'aud-toggle');
+  var mctSoundBtn = document.getElementById('mct-sound');
+  if (mctSoundBtn) {
+    mctSoundBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      if (window.toggleStoryAudio) window.toggleStoryAudio();
+      else {
+        var t = document.getElementById('aud-toggle');
+        if (t) t.click();
+      }
+      closeTray();
+    });
+  }
   document.getElementById('mct-mix').addEventListener('click', function(e){ e.stopPropagation(); if(window.toggleMixPanel) window.toggleMixPanel(); closeTray(); });
   wire('mct-fw',       'replay-fireworks');
   wire('mct-dust-tgl', 'dust-toggle');
@@ -6066,10 +6094,12 @@ function curlNoise(x, y) {
   var audTgl  = document.getElementById('aud-toggle');
   var mctSnd  = document.getElementById('mct-sound');
   if (audTgl && mctSnd) {
+    mctSnd.classList.toggle('off', audTgl.classList.contains('off'));
     new MutationObserver(function() {
       mctSnd.classList.toggle('off', audTgl.classList.contains('off'));
     }).observe(audTgl, { attributes: true, attributeFilter: ['class'] });
   }
+  if (window.syncStoryAudioUI) window.syncStoryAudioUI();
 })();
 </script>
 </body>
