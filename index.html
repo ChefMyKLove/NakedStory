@@ -5722,6 +5722,7 @@ function curlNoise(x, y) {
   <button id="mct-sound" class="mct-btn off" aria-label="Toggle sound" title="Sound on/off">♪<span class="mct-lbl">sound</span></button>
   <div id="mob-ctrl-drawer">
     <button id="mct-mix"      class="mct-btn" aria-label="Mix panel"     title="Volume mixer">≡<span class="mct-lbl">mixer</span></button>
+    <button id="mct-sndtrack" class="mct-btn" aria-label="Soundtrack"    title="Open soundtrack">♫<span class="mct-lbl">songs</span></button>
     <button id="mct-fw"       class="mct-btn mct-hidden" aria-label="Replay fireworks" title="Replay fireworks">✦<span class="mct-lbl">sparks</span></button>
     <button id="mct-dust-tgl" class="mct-btn" aria-label="Toggle dust"   title="Dust on/off">◎<span class="mct-lbl">dust</span></button>
     <button id="mct-dust-rep" class="mct-btn mct-hidden" aria-label="Replay dust" title="Replay dust">↻<span class="mct-lbl">replay</span></button>
@@ -6350,6 +6351,14 @@ function curlNoise(x, y) {
     });
   }
   document.getElementById('mct-mix').addEventListener('click', function(e){ e.stopPropagation(); if(window.toggleMixPanel) window.toggleMixPanel(); closeTray(); });
+  var mctSndtrack = document.getElementById('mct-sndtrack');
+  if (mctSndtrack) {
+    mctSndtrack.addEventListener('click', function(e) {
+      e.stopPropagation();
+      window.open('https://naked.chefmyklove.com/soundtrack/', '_blank', 'noopener,noreferrer');
+      closeTray();
+    });
+  }
   wire('mct-fw',       'replay-fireworks');
   wire('mct-dust-tgl', 'dust-toggle');
   wire('mct-dust-rep', 'replay-dust');

@@ -98,68 +98,37 @@ header {
   letter-spacing: 0.5px;
 }
 
-/* ── Embedded Deck ── */
-.embed-player {
-  margin: 28px 0 20px;
-  padding: 14px;
-  border: 0.5px solid rgba(200,169,106,0.24);
-  border-radius: 3px;
-  background: linear-gradient(180deg, rgba(18,10,5,0.35) 0%, rgba(10,6,3,0.22) 100%);
+/* ── Per-Track Embeds ── */
+.track-player {
+  margin-top: 12px;
 }
 
-.embed-head {
-  font-size: 0.64em;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  color: rgba(236,210,166,0.90);
-  margin-bottom: 10px;
-}
-
-.embed-tabs {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 12px;
-  flex-wrap: wrap;
-}
-
-.embed-tab {
-  appearance: none;
-  border: 1px solid rgba(200,169,106,0.46);
-  background: rgba(200,169,106,0.12);
-  color: rgba(240,214,172,0.92);
-  padding: 7px 11px;
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 0.78em;
-  letter-spacing: 0.6px;
-  cursor: pointer;
-}
-
-.embed-tab.active {
-  background: rgba(200,169,106,0.26);
-  border-color: rgba(200,169,106,0.80);
-  color: rgba(252,236,206,0.98);
-}
-
-.embed-pane {
-  display: none;
-}
-
-.embed-pane.active {
-  display: block;
-}
-
-.embed-frame {
+.track-player-frame {
   border: 0;
   width: 100%;
   height: 120px;
 }
 
-.embed-note {
-  margin-top: 8px;
-  font-size: 0.64em;
-  letter-spacing: 1.2px;
+.track-player-placeholder {
+  border: 0.5px dashed rgba(200,169,106,0.48);
+  border-radius: 2px;
+  background: rgba(18,10,5,0.24);
+  color: rgba(236,210,166,0.88);
+  font-size: 0.62em;
+  letter-spacing: 1.3px;
   text-transform: uppercase;
-  color: rgba(232,206,160,0.76);
+  min-height: 82px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 10px 12px;
+}
+
+.track-player-placeholder.bandcamp-blank {
+  border-style: solid;
+  border-color: rgba(200,169,106,0.64);
+  background: rgba(200,169,106,0.08);
 }
 
 /* ── Tracklist ── */
@@ -273,28 +242,6 @@ footer {
     <p class="header-sub">fourteen tracks for the end of the world</p>
   </header>
 
-  <section class="embed-player" aria-label="Bandcamp embedded player deck">
-    <div class="embed-head">Embedded Player Deck</div>
-    <div class="embed-tabs" aria-label="Choose source">
-      <button class="embed-tab active" type="button" data-pane="pane-maria">Maria in the Shower</button>
-      <button class="embed-tab" type="button" data-pane="pane-kathleen">Kathleen Yearwood</button>
-    </div>
-
-    <div id="pane-maria" class="embed-pane active">
-      <iframe class="embed-frame" title="Bandcamp player: Maria in the Shower - Come Never" src="https://bandcamp.com/EmbeddedPlayer/album=1319609412/size=large/bgcol=ffffff/linkcol=0687f5/tracklist=false/artwork=small/track=387046027/transparent=true/" seamless>
-        <a href="https://mariaintheshower.bandcamp.com/album/come-never">Come Never by Maria in the Shower</a>
-      </iframe>
-    </div>
-
-    <div id="pane-kathleen" class="embed-pane">
-      <iframe class="embed-frame" title="Bandcamp player: Kathleen Yearwood Ordeal - Book of Hate" src="https://bandcamp.com/EmbeddedPlayer/album=2490071129/size=large/bgcol=ffffff/linkcol=0687f5/tracklist=false/artwork=small/track=968228206/transparent=true/" seamless>
-        <a href="https://kathleenyearwoodordeal.bandcamp.com/album/book-of-hate">Book of Hate by Kathleen Yearwood Ordeal</a>
-      </iframe>
-    </div>
-
-    <p class="embed-note">Switch source above. Playback controls remain inside the Bandcamp embed.</p>
-  </section>
-
   <ol class="tracklist">
 
     <li class="track soon">
@@ -313,6 +260,16 @@ footer {
         <div class="track-title">The Story of Willy</div>
         <div class="track-artist">King Missile</div>
         <div class="track-annotation">The epigraph. Willy&rsquo;s last morning is the story&rsquo;s first breath &mdash; unhurried, absurd, tender. The whole rapture is already here.</div>
+        <div class="track-player">
+          <iframe
+            class="track-player-frame"
+            src="https://www.youtube.com/embed/EmIRvXPzh58?si=2pasmjlfJe9mv-km&autoplay=1&mute=1&enablejsapi=1"
+            title="The Story of Willy — King Missile"
+            allow="autoplay; encrypted-media"
+            referrerpolicy="strict-origin-when-cross-origin"
+            allowfullscreen>
+          </iframe>
+        </div>
       </div>
     </li>
 
@@ -358,6 +315,11 @@ footer {
         <div class="track-title">Pastorale</div>
         <div class="track-artist">Kathleen Yearwood</div>
         <div class="track-annotation">Grim, haunting, and horrifying &mdash; like we anticipate the apocalypse to be. Who will survive the bloodbath? Who will perish?</div>
+        <div class="track-player">
+          <iframe class="track-player-frame" title="Bandcamp player: Kathleen Yearwood Ordeal - Book of Hate" src="https://bandcamp.com/EmbeddedPlayer/album=2490071129/size=large/bgcol=ffffff/linkcol=0687f5/tracklist=false/artwork=small/track=968228206/transparent=true/" seamless>
+            <a href="https://kathleenyearwoodordeal.bandcamp.com/album/book-of-hate">Book of Hate by Kathleen Yearwood Ordeal</a>
+          </iframe>
+        </div>
       </div>
     </li>
 
@@ -404,6 +366,11 @@ footer {
         <div class="track-title">Amour Fou</div>
         <div class="track-artist">Maria in the Shower</div>
         <div class="track-annotation">The dust settles on your face, on your hair, on mine. Strange love in the swirl &mdash; the most beautiful effect.</div>
+        <div class="track-player">
+          <iframe class="track-player-frame" title="Bandcamp player: Maria in the Shower - Come Never" src="https://bandcamp.com/EmbeddedPlayer/album=1319609412/size=large/bgcol=ffffff/linkcol=0687f5/tracklist=false/artwork=small/track=387046027/transparent=true/" seamless>
+            <a href="https://mariaintheshower.bandcamp.com/album/come-never">Come Never by Maria in the Shower</a>
+          </iframe>
+        </div>
       </div>
     </li>
 
@@ -435,20 +402,29 @@ footer {
 </div>
 <script>
 (function() {
-  const tabs = Array.from(document.querySelectorAll('.embed-tab'));
-  const panes = Array.from(document.querySelectorAll('.embed-pane'));
-  if (!tabs.length || !panes.length) return;
+  const tracks = Array.from(document.querySelectorAll('.track'));
+  tracks.forEach(track => {
+    const numEl = track.querySelector('.track-num');
+    const body = track.querySelector('.track-body');
+    if (!numEl || !body) return;
+    const n = parseInt(numEl.textContent.trim(), 10);
+    if (!n || body.querySelector('.track-player')) return;
 
-  function activate(id) {
-    tabs.forEach(btn => {
-      const on = btn.dataset.pane === id;
-      btn.classList.toggle('active', on);
-    });
-    panes.forEach(p => p.classList.toggle('active', p.id === id));
-  }
+    const wrap = document.createElement('div');
+    wrap.className = 'track-player';
 
-  tabs.forEach(btn => {
-    btn.addEventListener('click', () => activate(btn.dataset.pane));
+    const box = document.createElement('div');
+    box.className = 'track-player-placeholder';
+
+    if (n === 1 || n === 11) {
+      box.classList.add('bandcamp-blank');
+      box.textContent = 'Bandcamp Blank — Composition Slot';
+    } else {
+      box.textContent = 'YouTube Embed Placeholder — Paste YouTube Embed URL';
+    }
+
+    wrap.appendChild(box);
+    body.appendChild(wrap);
   });
 })();
 </script>
