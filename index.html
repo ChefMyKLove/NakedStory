@@ -3777,7 +3777,7 @@ function curlNoise(x, y) {
       fIn(el, vol, xFadeMs);
 
       // Wait for duration, then schedule the crossfade
-      function scheduleXfade() {
+      function scheduleXfade(fadeMs) {
         if (!outdoorActive) return;
         const dur = el.duration;
         if (!dur || isNaN(dur) || dur <= 0) return;
@@ -3785,20 +3785,32 @@ function curlNoise(x, y) {
         // never loop at the exact same moment
         const jitter = (Math.random() - 0.5) * 1600;
         const msLeft = Math.max(0, (dur - el.currentTime) * 1000);
-        const delay  = Math.max(100, msLeft - xFadeMs + jitter);
+        const delay  = Math.max(100, msLeft - fadeMs + jitter);
         const t = setTimeout(() => {
           if (!outdoorActive) return;
           // Slight per-iteration volume variation (±6%) for organic feel
           const nextVol = baseVol * (0.94 + Math.random() * 0.12);
           playInstance(nextVol);
-          fOut(el, xFadeMs, () => { if (el.parentNode) el.parentNode.removeChild(el); });
+          fOut(el, fadeMs, () => { if (el.parentNode) el.parentNode.removeChild(el); });
         }, delay);
         outdoorTimers.push(t);
       }
-      el.addEventListener('canplaythrough', function onReady() {
+
+      function onReady() {
         el.removeEventListener('canplaythrough', onReady);
-        scheduleXfade();
-      }, { once: true });
+        el.removeEventListener('loadedmetadata', onReady);
+        el.removeEventListener('canplay', onReady);
+        if (!outdoorActive) return;
+        const dur = el.duration;
+        if (!dur || isNaN(dur) || dur <= 0) return;
+        // Keep crossfades proportional on short files to avoid silence windows.
+        const safeFade = Math.max(600, Math.min(xFadeMs, dur * 0.30 * 1000));
+        scheduleXfade(safeFade);
+      }
+
+      el.addEventListener('canplaythrough', onReady, { once: true });
+      el.addEventListener('loadedmetadata', onReady, { once: true });
+      el.addEventListener('canplay', onReady, { once: true });
     }
 
     if (delayMs) {
@@ -3846,9 +3858,9 @@ function curlNoise(x, y) {
       city.currentTime = 0;
       city.loop = false;
       city.volume = 0;
-      startAmbientLayer('city-main',  'a-sfx-city', VOL.sfx * 0.54, 4000, 0);
-      startAmbientLayer('city-mask',  'a-sfx-city', VOL.sfx * 0.30, 4000, 4000 + Math.random() * 3000);
-      startAmbientLayer('city-fill',  'a-sfx-city', VOL.sfx * 0.22, 4000, 10000 + Math.random() * 4000);
+      startAmbientLayer('city-main',  'a-sfx-city', VOL.sfx * 0.54, 2000, 0);
+      startAmbientLayer('city-mask',  'a-sfx-city', VOL.sfx * 0.30, 2000, 4000 + Math.random() * 3000);
+      startAmbientLayer('city-fill',  'a-sfx-city', VOL.sfx * 0.22, 2000, 10000 + Math.random() * 4000);
     }
     if (birds) {
       birds.loop = true; birds.currentTime = 0;
