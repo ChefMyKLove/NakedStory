@@ -18,7 +18,7 @@ body {
   min-height: 100%;
   background: radial-gradient(ellipse at 40% 20%, #1e1007 0%, #080402 100%);
   font-family: 'Cormorant Garamond', serif;
-  color: rgba(200,169,106,0.85);
+  color: rgba(228,202,150,0.94);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -58,7 +58,7 @@ header {
   font-size: 0.62em;
   letter-spacing: 4px;
   text-transform: uppercase;
-  color: rgba(200,169,106,0.45);
+  color: rgba(236,208,160,0.82);
   margin-bottom: 16px;
 }
 
@@ -74,27 +74,27 @@ header {
 .header-sub {
   font-style: italic;
   font-size: 1.0em;
-  color: rgba(200,169,106,0.55);
+  color: rgba(236,210,166,0.86);
   letter-spacing: 1px;
   margin-bottom: 36px;
 }
 
 .coming-soon-badge {
   display: inline-block;
-  border: 1px solid rgba(200,169,106,0.35);
+  border: 1px solid rgba(236,208,160,0.72);
   border-radius: 2px;
   padding: 8px 24px;
   font-size: 0.70em;
   letter-spacing: 3px;
   text-transform: uppercase;
-  color: rgba(200,169,106,0.60);
+  color: rgba(241,216,173,0.92);
   margin-bottom: 12px;
 }
 
 .coming-soon-note {
   font-style: italic;
   font-size: 0.78em;
-  color: rgba(200,169,106,0.38);
+  color: rgba(232,206,160,0.8);
   letter-spacing: 0.5px;
 }
 
@@ -119,13 +119,13 @@ header {
 }
 
 .track.soon {
-  opacity: 0.38;
+  opacity: 1;
 }
 
 .track-num {
   font-size: 0.62em;
   letter-spacing: 1px;
-  color: rgba(200,169,106,0.35);
+  color: rgba(236,210,166,0.9);
   padding-top: 3px;
   text-align: right;
 }
@@ -145,7 +145,7 @@ header {
   font-size: 0.65em;
   letter-spacing: 1.5px;
   text-transform: uppercase;
-  color: rgba(200,169,106,0.55);
+  color: rgba(240,214,172,0.92);
   margin-bottom: 10px;
 }
 
@@ -154,7 +154,7 @@ header {
   font-style: italic;
   font-size: 0.90em;
   line-height: 1.7;
-  color: rgba(200,169,106,0.65);
+  color: rgba(232,209,166,0.9);
   letter-spacing: 0.2px;
 }
 
@@ -162,7 +162,7 @@ header {
   font-size: 0.60em;
   letter-spacing: 2px;
   text-transform: uppercase;
-  color: rgba(200,169,106,0.40);
+  color: rgba(239,214,174,0.9);
   margin-top: 6px;
   font-style: normal;
 }
@@ -178,7 +178,7 @@ footer {
 .footer-title {
   font-style: italic;
   font-size: 1.1em;
-  color: rgba(200,169,106,0.45);
+  color: rgba(236,210,166,0.86);
   letter-spacing: 1px;
   margin-bottom: 6px;
 }
@@ -187,16 +187,16 @@ footer {
   font-size: 0.65em;
   letter-spacing: 2px;
   text-transform: uppercase;
-  color: rgba(200,169,106,0.35);
+  color: rgba(233,207,163,0.82);
   text-decoration: none;
-  border-bottom: 0.5px solid rgba(200,169,106,0.20);
+  border-bottom: 0.5px solid rgba(233,207,163,0.62);
   padding-bottom: 1px;
   transition: color 0.2s, border-color 0.2s;
 }
 
 .footer-back:hover {
-  color: rgba(200,169,106,0.65);
-  border-color: rgba(200,169,106,0.45);
+  color: rgba(247,223,184,0.98);
+  border-color: rgba(247,223,184,0.9);
 }
 </style>
 </head>
@@ -206,15 +206,23 @@ footer {
   <header>
     <div class="header-eyebrow">We&rsquo;re Naked! &mdash; A Rapture in Three Acts</div>
     <h1 class="header-title">A Rapture Soundtrack</h1>
-    <p class="header-sub">thirteen tracks for the end of the world</p>
-    <div class="coming-soon-badge">player coming soon</div>
-    <p class="coming-soon-note">check back later &mdash; a full multi-platform player is on its way</p>
+    <p class="header-sub">fourteen tracks for the end of the world</p>
   </header>
 
   <ol class="tracklist">
 
-    <li class="track">
+    <li class="track soon">
       <span class="track-num">1</span>
+      <div class="track-body">
+        <div class="track-title">composition i &mdash; melancholy piano loop 1</div>
+        <div class="track-artist">original composition</div>
+        <div class="track-annotation">The opening background piece from the title page. A melancholy piano drift held for the full opening mood.</div>
+        <div class="track-soon-label">original composition &mdash; 5:00 loop</div>
+      </div>
+    </li>
+
+    <li class="track">
+      <span class="track-num">2</span>
       <div class="track-body">
         <div class="track-title">The Story of Willy</div>
         <div class="track-artist">King Missile</div>
@@ -223,16 +231,16 @@ footer {
     </li>
 
     <li class="track">
-      <span class="track-num">2</span>
+      <span class="track-num">3</span>
       <div class="track-body">
         <div class="track-title">Good Morning Good Morning</div>
         <div class="track-artist">The Beatles</div>
-        <div class="track-annotation">The waking. The record clicks on and morning floods the room &mdash; cannabis smoke, Beatles noise, the ordinary made sacred.</div>
+        <div class="track-annotation">The waking. The tapedeck clicks on and morning floods the room &mdash; cannabis smoke, Beatles noise, the ordinary made sacred.</div>
       </div>
     </li>
 
     <li class="track">
-      <span class="track-num">3</span>
+      <span class="track-num">4</span>
       <div class="track-body">
         <div class="track-title">Nuclear War</div>
         <div class="track-artist">Yo La Tengo</div>
@@ -241,7 +249,7 @@ footer {
     </li>
 
     <li class="track">
-      <span class="track-num">4</span>
+      <span class="track-num">5</span>
       <div class="track-body">
         <div class="track-title">It&rsquo;s the End of the World as We Know It</div>
         <div class="track-artist">R.E.M.</div>
@@ -250,7 +258,7 @@ footer {
     </li>
 
     <li class="track">
-      <span class="track-num">5</span>
+      <span class="track-num">6</span>
       <div class="track-body">
         <div class="track-title">Avant Gardener</div>
         <div class="track-artist">Courtney Barnett</div>
@@ -258,18 +266,17 @@ footer {
       </div>
     </li>
 
-    <li class="track soon">
-      <span class="track-num">6</span>
+    <li class="track">
+      <span class="track-num">7</span>
       <div class="track-body">
         <div class="track-title">Pastorale</div>
         <div class="track-artist">Kathleen Yearwood</div>
-        <div class="track-annotation">The hinge. Haunting pastoral breath between Barnett&rsquo;s anxiety and Delt&rsquo;s dissolution. A track you lean toward.</div>
-        <div class="track-soon-label">original composition &mdash; coming soon</div>
+        <div class="track-annotation">Grim, haunting, and horrifying &mdash; like we anticipate the apocalypse to be. Who will survive the bloodbath? Who will perish?</div>
       </div>
     </li>
 
     <li class="track">
-      <span class="track-num">7</span>
+      <span class="track-num">8</span>
       <div class="track-body">
         <div class="track-title">Some Sunsick Day</div>
         <div class="track-artist">Morgan Delt</div>
@@ -278,7 +285,7 @@ footer {
     </li>
 
     <li class="track">
-      <span class="track-num">8</span>
+      <span class="track-num">9</span>
       <div class="track-body">
         <div class="track-title">Chemtrails</div>
         <div class="track-artist">Beck</div>
@@ -287,7 +294,7 @@ footer {
     </li>
 
     <li class="track">
-      <span class="track-num">9</span>
+      <span class="track-num">10</span>
       <div class="track-body">
         <div class="track-title">1999</div>
         <div class="track-artist">Prince</div>
@@ -295,8 +302,18 @@ footer {
       </div>
     </li>
 
+    <li class="track soon">
+      <span class="track-num">11</span>
+      <div class="track-body">
+        <div class="track-title">composition ii &mdash; rapture loop</div>
+        <div class="track-artist">original composition</div>
+        <div class="track-annotation">Swirling piano loop like the dust that envelops us.</div>
+        <div class="track-soon-label">original composition &mdash; 5:00 loop</div>
+      </div>
+    </li>
+
     <li class="track">
-      <span class="track-num">10</span>
+      <span class="track-num">12</span>
       <div class="track-body">
         <div class="track-title">Amour Fou</div>
         <div class="track-artist">Maria in the Shower</div>
@@ -305,7 +322,7 @@ footer {
     </li>
 
     <li class="track">
-      <span class="track-num">11</span>
+      <span class="track-num">13</span>
       <div class="track-body">
         <div class="track-title">Hide and Seek</div>
         <div class="track-artist">Imogen Heap</div>
@@ -313,18 +330,8 @@ footer {
       </div>
     </li>
 
-    <li class="track soon">
-      <span class="track-num">12</span>
-      <div class="track-body">
-        <div class="track-title">[ composition ]</div>
-        <div class="track-artist">coming soon</div>
-        <div class="track-annotation">A second original composition is on its way. Its place in the sequence is held.</div>
-        <div class="track-soon-label">original composition &mdash; coming soon</div>
-      </div>
-    </li>
-
     <li class="track">
-      <span class="track-num">13</span>
+      <span class="track-num">14</span>
       <div class="track-body">
         <div class="track-title">Fade Into You</div>
         <div class="track-artist">Mazzy Star</div>

@@ -1308,6 +1308,7 @@ body::before {
   .page-frame > .page-surface .pg-num { bottom: 20px; }
   /* Allow full-height page containers to grow beyond viewport on mobile */
   .epigraph-page, .contents-page { height: auto; min-height: 100%; }
+  .epi-yt-wrap { display: none !important; }
 }
 
 /* ── MIX PANEL ──────────────────────────────────── */
@@ -1438,7 +1439,7 @@ body::before {
 
   <!-- ── Sticky audio controls strip ── -->
   <div id="mob-audio-strip">
-    <button class="mob-strip-btn" id="mob-snd-strip" onclick="(function(btn){var t=document.getElementById('aud-toggle');if(t){t.click();var on=!t.classList.contains('off');btn.textContent=on?'♪ on':'♪ off';btn.classList.toggle('snd-on',on);}})(this)">♪ off</button>
+    <button class="mob-strip-btn" id="mob-snd-strip" onclick="(function(btn){var on=false;if(window.toggleStoryAudio){on=window.toggleStoryAudio();}else{var t=document.getElementById('aud-toggle');if(t){t.click();on=!t.classList.contains('off');}}btn.textContent=on?'♪ on':'♪ off';btn.classList.toggle('snd-on',on);})(this)">♪ off</button>
     <button class="mob-strip-btn" onclick="var m=document.getElementById('mix-btn');if(m)m.click();">≡ mix</button>
   </div>
 
@@ -2039,7 +2040,14 @@ const MPAGES = (function() {
   const pages = [];
   for (const p of PAGES) {
     if (p.type !== 'spread') {
-      pages.push(p);
+      if (p.id === 'epigraph') {
+        pages.push({
+          ...p,
+          html: p.html.replace(/<div class="epi-yt-wrap">[\s\S]*?<\/div>\s*/m, '')
+        });
+      } else {
+        pages.push(p);
+      }
     } else {
       const lFlags = {};
       const rFlags = {};
@@ -3983,8 +3991,9 @@ function curlNoise(x, y) {
   function ytActivate(){ytCmd('unMute');}
   let _audTglRevealed=false;
   function revealAudTgl(){if(_audTglRevealed)return;_audTglRevealed=true;audTgl.style.opacity='1';audTgl.style.pointerEvents='';}
-  audTgl.addEventListener('click',()=>{
-    audOn=!audOn;
+  function setAudioEnabled(nextOn){
+    if(audOn===nextOn)return audOn;
+    audOn=nextOn;
     audTgl.classList.toggle('off',!audOn);
     audTgl.textContent=audOn?'♪ click to mute':'♪ click for sound';
     if(!audOn){
@@ -4000,7 +4009,13 @@ function curlNoise(x, y) {
       const pid=window._getAudioPageId?window._getAudioPageId():null;
       if(pid&&window.onAudioPageChange)window.onAudioPageChange(pid);
     }
-  });
+    return audOn;
+  }
+  window.toggleStoryAudio=function(forceOn){
+    if(typeof forceOn==='boolean')return setAudioEnabled(forceOn);
+    return setAudioEnabled(!audOn);
+  };
+  audTgl.addEventListener('click',()=>{window.toggleStoryAudio();});
   mixBtn.addEventListener('click',()=>{mixOpen=!mixOpen;mixPanel.classList.toggle('open',mixOpen);mixBtn.classList.toggle('open',mixOpen);});
   window.toggleMixPanel=function(){mixOpen=!mixOpen;mixPanel.classList.toggle('open',mixOpen);mixBtn.classList.toggle('open',mixOpen);};
   document.addEventListener('click',e=>{if(mixOpen&&!mixPanel.contains(e.target)&&e.target!==mixBtn){mixOpen=false;mixPanel.classList.remove('open');mixBtn.classList.remove('open');}});
@@ -4072,8 +4087,12 @@ function curlNoise(x, y) {
       }
     } catch(e) {}
     // Turn sound on automatically — tap to begin = tap to hear
-    var t = document.getElementById('aud-toggle');
-    if (t && t.classList.contains('off')) { t.click(); }
+    if (window.toggleStoryAudio) {
+      window.toggleStoryAudio(true);
+    } else {
+      var t = document.getElementById('aud-toggle');
+      if (t && t.classList.contains('off')) { t.click(); }
+    }
     setTimeout(function() { splash.style.display = 'none'; }, 700);
   }
 
