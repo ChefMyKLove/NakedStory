@@ -98,6 +98,70 @@ header {
   letter-spacing: 0.5px;
 }
 
+/* ── Embedded Deck ── */
+.embed-player {
+  margin: 28px 0 20px;
+  padding: 14px;
+  border: 0.5px solid rgba(200,169,106,0.24);
+  border-radius: 3px;
+  background: linear-gradient(180deg, rgba(18,10,5,0.35) 0%, rgba(10,6,3,0.22) 100%);
+}
+
+.embed-head {
+  font-size: 0.64em;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: rgba(236,210,166,0.90);
+  margin-bottom: 10px;
+}
+
+.embed-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.embed-tab {
+  appearance: none;
+  border: 1px solid rgba(200,169,106,0.46);
+  background: rgba(200,169,106,0.12);
+  color: rgba(240,214,172,0.92);
+  padding: 7px 11px;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.78em;
+  letter-spacing: 0.6px;
+  cursor: pointer;
+}
+
+.embed-tab.active {
+  background: rgba(200,169,106,0.26);
+  border-color: rgba(200,169,106,0.80);
+  color: rgba(252,236,206,0.98);
+}
+
+.embed-pane {
+  display: none;
+}
+
+.embed-pane.active {
+  display: block;
+}
+
+.embed-frame {
+  border: 0;
+  width: 100%;
+  height: 120px;
+}
+
+.embed-note {
+  margin-top: 8px;
+  font-size: 0.64em;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: rgba(232,206,160,0.76);
+}
+
 /* ── Tracklist ── */
 .tracklist {
   list-style: none;
@@ -208,6 +272,28 @@ footer {
     <h1 class="header-title">A Rapture Soundtrack</h1>
     <p class="header-sub">fourteen tracks for the end of the world</p>
   </header>
+
+  <section class="embed-player" aria-label="Bandcamp embedded player deck">
+    <div class="embed-head">Embedded Player Deck</div>
+    <div class="embed-tabs" aria-label="Choose source">
+      <button class="embed-tab active" type="button" data-pane="pane-maria">Maria in the Shower</button>
+      <button class="embed-tab" type="button" data-pane="pane-kathleen">Kathleen Yearwood</button>
+    </div>
+
+    <div id="pane-maria" class="embed-pane active">
+      <iframe class="embed-frame" title="Bandcamp player: Maria in the Shower - Come Never" src="https://bandcamp.com/EmbeddedPlayer/album=1319609412/size=large/bgcol=ffffff/linkcol=0687f5/tracklist=false/artwork=small/track=387046027/transparent=true/" seamless>
+        <a href="https://mariaintheshower.bandcamp.com/album/come-never">Come Never by Maria in the Shower</a>
+      </iframe>
+    </div>
+
+    <div id="pane-kathleen" class="embed-pane">
+      <iframe class="embed-frame" title="Bandcamp player: Kathleen Yearwood Ordeal - Book of Hate" src="https://bandcamp.com/EmbeddedPlayer/album=2490071129/size=large/bgcol=ffffff/linkcol=0687f5/tracklist=false/artwork=small/track=968228206/transparent=true/" seamless>
+        <a href="https://kathleenyearwoodordeal.bandcamp.com/album/book-of-hate">Book of Hate by Kathleen Yearwood Ordeal</a>
+      </iframe>
+    </div>
+
+    <p class="embed-note">Switch source above. Playback controls remain inside the Bandcamp embed.</p>
+  </section>
 
   <ol class="tracklist">
 
@@ -347,5 +433,24 @@ footer {
   </footer>
 
 </div>
+<script>
+(function() {
+  const tabs = Array.from(document.querySelectorAll('.embed-tab'));
+  const panes = Array.from(document.querySelectorAll('.embed-pane'));
+  if (!tabs.length || !panes.length) return;
+
+  function activate(id) {
+    tabs.forEach(btn => {
+      const on = btn.dataset.pane === id;
+      btn.classList.toggle('active', on);
+    });
+    panes.forEach(p => p.classList.toggle('active', p.id === id));
+  }
+
+  tabs.forEach(btn => {
+    btn.addEventListener('click', () => activate(btn.dataset.pane));
+  });
+})();
+</script>
 </body>
 </html>
