@@ -3766,6 +3766,12 @@ function curlNoise(x, y) {
     const HOLD = 4000;
     const RELEASE = 2000;
 
+    const LAYER_PROFILE = {
+      'city-main': { rateBase: 1.000, rateVar: 0.014, offMin: 0.12, offMax: 0.42 },
+      'city-mask': { rateBase: 0.985, rateVar: 0.018, offMin: 0.22, offMax: 0.66 },
+      'city-fill': { rateBase: 1.018, rateVar: 0.018, offMin: 0.34, offMax: 0.84 },
+    };
+
     function playInstance(vol) {
       if (!outdoorActive) return;
       const src = document.getElementById(srcId);
@@ -3782,7 +3788,10 @@ function curlNoise(x, y) {
         if (el.parentNode) el.parentNode.removeChild(el);
       }
 
+      let nextQueued = false;
       function scheduleNext() {
+        if (nextQueued) return;
+        nextQueued = true;
         if (!outdoorActive) { cleanup(); return; }
         const tNext = setTimeout(() => {
           if (outdoorActive) playInstance(vol);
@@ -3790,31 +3799,60 @@ function curlNoise(x, y) {
         outdoorTimers.push(tNext);
       }
 
-      el.addEventListener('canplaythrough', function onReady() {
+      let started = false;
+      function onReady() {
+        if (started) return;
+        started = true;
+        el.removeEventListener('loadedmetadata', onReady);
+        el.removeEventListener('canplay', onReady);
         el.removeEventListener('canplaythrough', onReady);
         if (!outdoorActive) { cleanup(); return; }
 
-        el.currentTime = 0;
+        const profile = LAYER_PROFILE[layerKey] || { rateBase: 1, rateVar: 0.012, offMin: 0.18, offMax: 0.78 };
+        el.playbackRate = profile.rateBase + (Math.random() * 2 - 1) * profile.rateVar;
+
+        const dur = el.duration || 0;
+        if (dur && isFinite(dur) && dur > 0) {
+          const low = Math.max(0, Math.min(profile.offMin, 0.92));
+          const hi = Math.max(low, Math.min(profile.offMax, 0.95));
+          const frac = low + Math.random() * (hi - low);
+          const target = frac * dur;
+          const edgePad = Math.min(1.0, dur * 0.08);
+          el.currentTime = Math.max(edgePad, Math.min(dur - edgePad, target));
+        } else {
+          el.currentTime = 0;
+        }
+
         el.play().catch(() => {});
         fIn(el, vol, ATTACK);
 
         let holdMs = HOLD;
-        const dur = el.duration || 0;
         if (dur && dur * 1000 < ATTACK + HOLD + RELEASE + 200) {
           holdMs = Math.max(0, dur * 1000 - ATTACK - RELEASE - 200);
         }
 
         const tHold = setTimeout(() => {
           if (!outdoorActive) { cleanup(); return; }
+          // Start replacement when release starts so handoff overlaps.
+          scheduleNext();
           fOut(el, RELEASE, () => {
             cleanup();
-            scheduleNext();
           });
         }, ATTACK + holdMs);
         outdoorTimers.push(tHold);
-      }, { once: true });
+      }
+
+      el.addEventListener('loadedmetadata', onReady, { once: true });
+      el.addEventListener('canplay', onReady, { once: true });
+      el.addEventListener('canplaythrough', onReady, { once: true });
 
       el.load();
+
+      // Safety fallback if readiness events are delayed or skipped.
+      const tReadyFallback = setTimeout(() => {
+        if (!started) onReady();
+      }, 700);
+      outdoorTimers.push(tReadyFallback);
     }
 
     if (delayMs && delayMs > 0) {
@@ -3956,10 +3994,28 @@ function curlNoise(x, y) {
     d.currentTime = 0;
     d.volume = VOL.sfx;
     d.play().catch(() => {});
-    const t = setTimeout(() => {
-      if (!outdoorActive) startOutdoorAmbient();
-    }, 180);
-    outdoorTimers.push(t);
+
+    let outdoorQueued = false;
+    function queueOutdoorAtHalf() {
+      if (outdoorQueued) return;
+      outdoorQueued = true;
+      const halfMs = Math.max(120, (d.duration || 0) * 500);
+      const tHalf = setTimeout(() => {
+        if (!outdoorActive) startOutdoorAmbient();
+      }, halfMs);
+      outdoorTimers.push(tHalf);
+    }
+
+    if (d.duration && isFinite(d.duration) && d.duration > 0) {
+      queueOutdoorAtHalf();
+    } else {
+      d.addEventListener('loadedmetadata', queueOutdoorAtHalf, { once: true });
+      // Fallback in case metadata is late.
+      const tFallback = setTimeout(() => {
+        if (!outdoorQueued && !outdoorActive) startOutdoorAmbient();
+      }, 450);
+      outdoorTimers.push(tFallback);
+    }
   };
   // ── FAN AMBIENT SYSTEM ──────────────────────────────────────
   // Adjust this if the startup sound is longer/shorter than ~1.8s
