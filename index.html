@@ -3774,7 +3774,7 @@ function curlNoise(x, y) {
       el.classList.add('outdoor-loop-clone');
       document.getElementById('audio-engine').appendChild(el);
       el.play().catch(() => {});
-      fIn(el, vol, Math.min(xFadeMs, 2800));
+      fIn(el, vol, xFadeMs);
 
       // Wait for duration, then schedule the crossfade
       function scheduleXfade() {
@@ -3787,7 +3787,7 @@ function curlNoise(x, y) {
         }
         // Cross-fade starts a bit before the end; ±400ms jitter so two layers
         // never loop at the exact same moment
-        const jitter = (Math.random() - 0.5) * 800;
+        const jitter = (Math.random() - 0.5) * 1600;
         const msLeft = Math.max(0, (dur - el.currentTime) * 1000);
         const delay  = Math.max(100, msLeft - xFadeMs + jitter);
         const t = setTimeout(() => {
@@ -3841,15 +3841,15 @@ function curlNoise(x, y) {
     outdoorActive = true;
     const city  = document.getElementById('a-sfx-city');
     const birds = document.getElementById('a-sfx-birds');
-    // City bed: layered crossfade loops with 1s fade-in/out to remove hard loop seams.
-    // Second layer starts offset to mask any boundary artifacts from a single source file.
+    // City bed: layered crossfade loops with long fades and staggered offsets.
     if (city) {
       city.pause();
       city.currentTime = 0;
       city.loop = false;
       city.volume = 0;
-      startAmbientLayer('city-main', 'a-sfx-city', VOL.sfx * 0.54, 1000, 0);
-      startAmbientLayer('city-mask', 'a-sfx-city', VOL.sfx * 0.28, 1000, 9000 + Math.random() * 5000);
+      startAmbientLayer('city-main',  'a-sfx-city', VOL.sfx * 0.54, 4000, 0);
+      startAmbientLayer('city-mask',  'a-sfx-city', VOL.sfx * 0.30, 4000, 4000 + Math.random() * 3000);
+      startAmbientLayer('city-fill',  'a-sfx-city', VOL.sfx * 0.22, 4000, 10000 + Math.random() * 4000);
     }
     if (birds) {
       birds.loop = true; birds.currentTime = 0;
