@@ -182,12 +182,17 @@ body::before {
   width: 100%; height: 100%;
   background: var(--paper);
   padding: 36px 36px 58px;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: hidden;
   position: relative;
   display: flex;
   flex-direction: column;
   box-shadow: inset 0 0 45px rgba(0,0,0,0.28);
   transition: box-shadow 0.38s ease;
+}
+
+.page-surface.page-scrollable {
+  overflow-y: auto;
 }
 
 /* Verso (left) pages get slightly different shade */
@@ -2138,6 +2143,16 @@ function curlNoise(x, y) {
     navN.style.right = inset + 'px';
   }
 
+  function updateDesktopPageOverflow() {
+    if (window.innerWidth <= 800) return;
+    const surfaces = book.querySelectorAll('.page-surface');
+    surfaces.forEach((surface) => {
+      // Toggle scroll only when text/content truly exceeds the page viewport.
+      const overflow = surface.scrollHeight > surface.clientHeight + 1;
+      surface.classList.toggle('page-scrollable', overflow);
+    });
+  }
+
   // ── BUILD LEAF ─────────────────────────────────────
   function buildLeaf(page, index) {
     const leaf = document.createElement('div');
@@ -2220,6 +2235,8 @@ function curlNoise(x, y) {
       book.appendChild(leaf);
       leaves.push(leaf);
     }
+
+    requestAnimationFrame(updateDesktopPageOverflow);
 
     updateNav();
     updateIndicator();
@@ -2712,6 +2729,9 @@ function curlNoise(x, y) {
   let settleVelocityScale = 1;
   let particles = [], burstParticles = [], flashRings = [], dustMode = 'normal';
   let coverClipRect = null;
+  function dustVisualFactor() {
+    return window.innerWidth <= 800 ? 0.5 : 1;
+  }
 
   // ── FINE DUST PARTICLE ──────────────────────────────
   class DustParticle {
@@ -2778,7 +2798,7 @@ function curlNoise(x, y) {
       return true;
     }
     draw() {
-      const a = this.life * globalOpacity * (this.micro ? 0.55 : (this.cover ? 0.80 : 0.93));
+      const a = this.life * globalOpacity * (this.micro ? 0.55 : (this.cover ? 0.80 : 0.93)) * dustVisualFactor();
       if (a <= 0.01) return;
       const r = Math.round(195+this.warm*35), g2 = Math.round(168+this.warm*22), b = Math.round(128+this.warm*12);
       const spd = Math.sqrt(this.vx*this.vx+this.vy*this.vy);
@@ -3128,7 +3148,7 @@ function curlNoise(x, y) {
         const py = this.cy + p.oy + Math.sin(p.angle) * p.orbit * p.orbitY;
         const sn = Math.sin(p.angle * 1.7 + p.warm * Math.PI * 2);
         const pulse = 0.70 + 0.30 * (sn > 0 ? Math.pow(sn, 0.35) : -Math.pow(-sn, 2.2));
-        const a = p.alpha * globalOpacity * pulse;
+        const a = p.alpha * globalOpacity * pulse * dustVisualFactor();
         if (a < 0.01) return;
 
         // Core: warm cream/gold; edges: cooler amber — gives each puff visible contrast
@@ -3223,7 +3243,7 @@ function curlNoise(x, y) {
     // Subtle warm ambient tint — just enough to unify the palette, doesn't flatten motes
     if (dustMode === 'normal' && hazeOpacity > 0) {
       ctx.globalAlpha = 1;
-      ctx.fillStyle = `rgba(205, 172, 118, ${hazeOpacity * 0.10})`;
+      ctx.fillStyle = `rgba(205, 172, 118, ${hazeOpacity * 0.10 * dustVisualFactor()})`;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
     }
 
@@ -3821,8 +3841,16 @@ function curlNoise(x, y) {
     outdoorActive = true;
     const city  = document.getElementById('a-sfx-city');
     const birds = document.getElementById('a-sfx-birds');
-    // Use native loop — reliable on all browsers including mobile
-    if (city)  { city.loop  = true; city.currentTime  = 0; fIn(city,  VOL.sfx * 0.60, 2800); }
+    // City bed: layered crossfade loops with 1s fade-in/out to remove hard loop seams.
+    // Second layer starts offset to mask any boundary artifacts from a single source file.
+    if (city) {
+      city.pause();
+      city.currentTime = 0;
+      city.loop = false;
+      city.volume = 0;
+      startAmbientLayer('city-main', 'a-sfx-city', VOL.sfx * 0.54, 1000, 0);
+      startAmbientLayer('city-mask', 'a-sfx-city', VOL.sfx * 0.28, 1000, 9000 + Math.random() * 5000);
+    }
     if (birds) {
       birds.loop = true; birds.currentTime = 0;
       const tb0 = setTimeout(() => { if (outdoorActive) fIn(birds, VOL.sfx * 0.48, 2800); }, 1200 + Math.random() * 800);
