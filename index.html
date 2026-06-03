@@ -3544,6 +3544,7 @@ function curlNoise(x, y) {
   <audio id="a-sfx-fan-c"    src="freesound_community-fan-73532.mp3"            loop preload="none"></audio>
   <audio id="a-sfx-door"    src="freesound_community-open-sliding-door-105746.mp3"                                        preload="none"></audio>
   <audio id="a-sfx-city"   src="patolenin-sounds-of-cars-and-people-moving-around-in-the-urban-area-of-the-city-439094.mp3" preload="none"></audio>
+  <audio id="a-sfx-city-alt" src="mixkit-city-traffic-ambience-2931.wav" preload="none"></audio>
   <audio id="a-sfx-birds"  src="freesound_community-birds-chirping-98527.mp3"                                               preload="none"></audio>
   <audio id="a-sfx-carpass" src="tanweraman-car-pass-by-337871.mp3"                                                         preload="none"></audio>
   <audio id="a-sfx-chirp"  src="freesound_community-bird-chirps-short-96913.mp3"                                            preload="none"></audio>
@@ -3894,16 +3895,20 @@ function curlNoise(x, y) {
   function duckOutdoorAmbient() {
     if (!outdoorActive) return;
     const city  = document.getElementById('a-sfx-city');
+    const cityAlt = document.getElementById('a-sfx-city-alt');
     const birds = document.getElementById('a-sfx-birds');
     if (city  && !city.paused)  fadeVol(city,  VOL.sfx * 0.16, 2400);
+    if (cityAlt && !cityAlt.paused) fadeVol(cityAlt, VOL.sfx * 0.10, 2400);
     if (birds && !birds.paused) fadeVol(birds, VOL.sfx * 0.16, 2400);
   }
 
   function unduckOutdoorAmbient() {
     if (!outdoorActive) return;
     const city  = document.getElementById('a-sfx-city');
+    const cityAlt = document.getElementById('a-sfx-city-alt');
     const birds = document.getElementById('a-sfx-birds');
     if (city  && !city.paused)  fadeVol(city,  VOL.sfx * 0.42, 3800);
+    if (cityAlt && !cityAlt.paused) fadeVol(cityAlt, VOL.sfx * 0.24, 3800);
     if (birds && !birds.paused) fadeVol(birds, VOL.sfx * 0.42, 3800);
   }
 
@@ -3912,6 +3917,7 @@ function curlNoise(x, y) {
     outdoorActive = true;
 
     const city  = document.getElementById('a-sfx-city');
+    const cityAlt = document.getElementById('a-sfx-city-alt');
     const birds = document.getElementById('a-sfx-birds');
 
     // Kill any leftover clone system completely
@@ -3922,13 +3928,30 @@ function curlNoise(x, y) {
 
     if (city) {
       city.pause();
-      city.currentTime = 0;
+      const d = city.duration || 0;
+      if (d && isFinite(d) && d > 8) city.currentTime = Math.max(0.8, Math.min(d - 0.8, d * (0.14 + Math.random() * 0.22)));
+      else city.currentTime = 0;
       city.loop = true;
-      city.volume = 0;
-      const tc0 = setTimeout(() => {
-        if (outdoorActive) fIn(city, VOL.sfx * 0.42, 2200);
-      }, 80);
-      outdoorTimers.push(tc0);
+      city.volume = VOL.sfx * 0.03;
+      city.playbackRate = 0.996 + Math.random() * 0.012;
+      city.play().catch(() => {});
+      fadeVol(city, VOL.sfx * 0.42, 1400);
+    }
+
+    if (cityAlt) {
+      cityAlt.pause();
+      const d2 = cityAlt.duration || 0;
+      if (d2 && isFinite(d2) && d2 > 8) cityAlt.currentTime = Math.max(0.8, Math.min(d2 - 0.8, d2 * (0.48 + Math.random() * 0.30)));
+      else cityAlt.currentTime = 0;
+      cityAlt.loop = true;
+      cityAlt.volume = 0;
+      cityAlt.playbackRate = 0.988 + Math.random() * 0.018;
+      const tAlt = setTimeout(() => {
+        if (!outdoorActive) return;
+        cityAlt.play().catch(() => {});
+        fadeVol(cityAlt, VOL.sfx * 0.24, 2600);
+      }, 260 + Math.random() * 260);
+      outdoorTimers.push(tAlt);
     }
 
     if (birds) {
@@ -3976,9 +3999,10 @@ function curlNoise(x, y) {
 
     const ms = typeof fadeMs === 'number' ? fadeMs : 1800;
     const city  = document.getElementById('a-sfx-city');
+    const cityAlt = document.getElementById('a-sfx-city-alt');
     const birds = document.getElementById('a-sfx-birds');
 
-    [city, birds].forEach(el => {
+    [city, cityAlt, birds].forEach(el => {
       if (!el) return;
       el.loop = false;
       if (ms === 0) {
@@ -4019,7 +4043,7 @@ function curlNoise(x, y) {
     function queueOutdoorAtHalf() {
       if (outdoorQueued) return;
       outdoorQueued = true;
-      const halfMs = Math.max(120, (d.duration || 0) * 500);
+      const halfMs = Math.max(70, (d.duration || 0) * 320);
       const tHalf = setTimeout(() => {
         if (!outdoorActive) startOutdoorAmbient();
       }, halfMs);
@@ -4032,7 +4056,7 @@ function curlNoise(x, y) {
       d.addEventListener('loadedmetadata', queueOutdoorAtHalf, { once: true });
       const tFallback = setTimeout(() => {
         if (!outdoorQueued && !outdoorActive) startOutdoorAmbient();
-      }, 450);
+      }, 220);
       outdoorTimers.push(tFallback);
     }
   };
@@ -4994,7 +5018,7 @@ function curlNoise(x, y) {
     const doorEl = document.getElementById('a-sfx-door');
     if (doorEl && !doorEl.paused) { doorEl.pause(); doorEl.currentTime = 0; }
     // Hard-stop city/birds base elements just in case
-    ['a-sfx-city','a-sfx-birds'].forEach(id => {
+    ['a-sfx-city','a-sfx-city-alt','a-sfx-birds'].forEach(id => {
       const el = document.getElementById(id);
       if (el && !el.paused) { el.pause(); el.currentTime = 0; }
     });
