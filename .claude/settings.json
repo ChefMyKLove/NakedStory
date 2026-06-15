@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Skill(bopen-tools:prime)",
+      "Skill(bopen-tools:prime:*)"
+    ]
+  }
+}

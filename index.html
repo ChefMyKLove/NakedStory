@@ -1222,8 +1222,16 @@ body::before {
   font-family: 'Cormorant Garamond', serif;
   font-style: italic; font-size: 0.95em;
   color: rgba(200,175,130,0.60); letter-spacing: 1.5px;
-  margin-bottom: 80px;
+  margin-bottom: 28px;
 }
+.mob-splash-tips {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.72em; letter-spacing: 0.8px;
+  color: rgba(200,169,106,0.45);
+  margin-bottom: 44px;
+  line-height: 1.6;
+}
+.mob-splash-tips strong { color: rgba(200,169,106,0.70); font-weight: 400; }
 .mob-splash-hint {
   font-family: 'Cormorant Garamond', serif;
   font-size: 0.62em; letter-spacing: 4px; text-transform: uppercase;
@@ -1333,6 +1341,11 @@ body::before {
 .mix-val{font-family:'Cormorant Garamond',serif;font-size:0.72em;color:rgba(200,169,106,0.38);width:26px;text-align:right;flex-shrink:0;}
 
 /* ── MIX BUTTON ─── visible immediately ─────────── */
+#piano-btn{position:fixed;bottom:156px;right:28px;z-index:400;background:rgba(200,169,106,0.12);border:1px solid rgba(200,169,106,0.35);color:rgba(200,169,106,0.8);padding:10px 22px;font-family:'Cormorant Garamond',serif;font-size:0.82em;letter-spacing:1.5px;cursor:pointer;border-radius:2px;transition:background 0.3s,border-color 0.3s,color 0.3s,opacity 0.3s;backdrop-filter:blur(4px);opacity:0;pointer-events:none;}
+#piano-btn.visible{opacity:1;pointer-events:auto;}
+#piano-btn:hover{background:rgba(200,169,106,0.22);border-color:rgba(200,169,106,0.65);color:rgba(200,169,106,1);}
+#piano-btn.off{color:rgba(200,169,106,0.38);border-color:rgba(200,169,106,0.20);background:rgba(0,0,0,0.18);}
+@media (max-width: 800px) { #piano-btn { display: none !important; } }
 #mix-btn{position:fixed;bottom:112px;right:28px;z-index:400;background:rgba(200,169,106,0.12);border:1px solid rgba(200,169,106,0.35);color:rgba(200,169,106,0.8);padding:10px 22px;font-family:'Cormorant Garamond',serif;font-size:0.82em;letter-spacing:1.5px;cursor:pointer;border-radius:2px;transition:background 0.3s,border-color 0.3s;backdrop-filter:blur(4px);}
 #mix-btn:hover,#mix-btn.open{background:rgba(200,169,106,0.22);border-color:rgba(200,169,106,0.65);color:rgba(200,169,106,1);}
 
@@ -1558,6 +1571,7 @@ body::before {
 <div id="mob-splash">
   <div class="mob-splash-ttl">We&rsquo;re Naked!</div>
   <div class="mob-splash-stl">A Rapture in Three Acts</div>
+  <div class="mob-splash-tips">tap <strong>♪</strong> to enable sound &nbsp;·&nbsp; tap <strong>⋮</strong> then <strong>?</strong> for the guide</div>
   <div class="mob-splash-hint">tap to begin</div>
 </div>
 
@@ -3515,6 +3529,7 @@ function curlNoise(x, y) {
   <div class="mix-row"><button class="mix-pp" id="mp-sfx" title="pause sounds">⏸</button><div class="mix-lbl">sounds</div><input class="mix-slider" type="range" min="0" max="100" value="50" step="1" id="ms-sfx"><div class="mix-val" id="mv-sfx">50</div></div>
   <div class="mix-row"><button class="mix-pp" id="mp-youtube" title="pause video">⏸</button><div class="mix-lbl">video</div><input class="mix-slider" type="range" min="0" max="100" value="50" step="1" id="ms-youtube"><div class="mix-val" id="mv-youtube">50</div></div>
 </div>
+<button id="piano-btn" title="Stop or resume the background piano music">♫ piano</button>
 <button id="mix-btn" title="Volume mixer">≡ mix</button>
 <div id="aud-nar-ind"></div>
 <button id="aud-toggle" class="off" style="opacity:0;pointer-events:none;transition:opacity 0.8s ease;" title="Toggle sound">♪ click for sound</button>
@@ -5573,7 +5588,7 @@ function curlNoise(x, y) {
     return function(pid) {
       if (prev) prev(pid);
       var musicOk = window._musicOn ? window._musicOn() : false;
-      if (musicOk && !PL[1].playing) startPiano(1);
+      if (musicOk && !PL[1].playing && !window._pianoUserStopped) startPiano(1);
     };
   }(window.onAudioPageChange));
 
@@ -5643,7 +5658,19 @@ function curlNoise(x, y) {
 
   window._pianoStopAll = function() { stopPiano(1); stopPiano(2); };
 
-  window._pianoStartIfNeeded = function() { if (!PL[1].playing) startPiano(1); };
+  window._pianoStartIfNeeded = function() { if (!PL[1].playing && !window._pianoUserStopped) startPiano(1); };
+
+  window._pianoUserStopped = false;
+  window._pianoToggleMusic = function() {
+    window._pianoUserStopped = !window._pianoUserStopped;
+    if (window._pianoUserStopped) {
+      fadePiano(1, 0, 800);
+    } else {
+      var ok = window._musicOn ? window._musicOn() : true;
+      if (ok && !PL[1].playing) startPiano(1);
+    }
+    return window._pianoUserStopped;
+  };
 
   prefetch();
 })();
@@ -5798,6 +5825,156 @@ function curlNoise(x, y) {
   </div>
 </div>
 </div>
+
+<!-- ── DESKTOP WELCOME SPLASH ─────────────────────────── -->
+<div id="welcome-splash">
+  <div id="welcome-inner">
+    <div class="ws-eyebrow">A Rapture in Three Acts</div>
+    <h2 class="ws-title">We&rsquo;re Naked!</h2>
+    <div class="ws-rule"></div>
+    <div class="ws-tips">
+      <div class="ws-tip"><span class="ws-key">‹ ›</span> arrows on each side (or <span class="ws-key">← →</span> keys) turn the pages</div>
+      <div class="ws-tip"><span class="ws-key">♪ click for sound</span> in the bottom-right corner enables all audio</div>
+      <div class="ws-tip"><span class="ws-key">♫ piano</span> (just above that) stops or restarts the background music alone</div>
+      <div class="ws-tip"><span class="ws-key">? guide</span> in the bottom-left explains every interactive element in detail</div>
+    </div>
+    <div class="ws-rule"></div>
+    <div class="ws-actions">
+      <button id="welcome-begin">Begin Reading</button>
+      <button id="welcome-guide">Open Full Guide</button>
+    </div>
+  </div>
+</div>
+
+<style>
+#welcome-splash {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 900;
+  background: rgba(8,4,2,0.88);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  align-items: center;
+  justify-content: center;
+}
+#welcome-splash.open { display: flex; }
+@media (max-width: 800px) { #welcome-splash { display: none !important; } }
+
+#welcome-inner {
+  background: rgba(20,12,6,0.96);
+  border: 1px solid rgba(200,169,106,0.28);
+  border-radius: 3px;
+  padding: 38px 44px 34px;
+  max-width: 520px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 8px 48px rgba(0,0,0,0.7);
+}
+
+.ws-eyebrow {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.72em;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: rgba(200,169,106,0.55);
+  margin-bottom: 10px;
+}
+.ws-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 300;
+  font-size: 2.2em;
+  color: rgba(232,212,168,0.95);
+  letter-spacing: 0.5px;
+  margin: 0;
+}
+.ws-rule {
+  width: 60px;
+  height: 1px;
+  background: rgba(200,169,106,0.28);
+  margin: 20px auto;
+}
+.ws-tips {
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+.ws-tip {
+  font-family: 'Crimson Text', Georgia, serif;
+  font-size: 0.93em;
+  color: rgba(220,200,168,0.82);
+  line-height: 1.5;
+  padding-left: 12px;
+  border-left: 2px solid rgba(200,169,106,0.22);
+}
+.ws-key {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  color: rgba(200,169,106,0.9);
+  background: rgba(200,169,106,0.10);
+  border: 1px solid rgba(200,169,106,0.30);
+  border-radius: 2px;
+  padding: 1px 6px;
+  font-size: 0.97em;
+  white-space: nowrap;
+}
+.ws-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 4px;
+}
+#welcome-begin {
+  background: rgba(200,169,106,0.18);
+  border: 1px solid rgba(200,169,106,0.65);
+  color: rgba(200,169,106,0.95);
+  padding: 10px 28px;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.88em;
+  letter-spacing: 1.6px;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: all 0.22s;
+  text-transform: uppercase;
+}
+#welcome-begin:hover { background: rgba(200,169,106,0.32); color: rgba(232,208,158,1); }
+#welcome-guide {
+  background: transparent;
+  border: 1px solid rgba(200,169,106,0.26);
+  color: rgba(200,169,106,0.55);
+  padding: 10px 22px;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.88em;
+  letter-spacing: 1.2px;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: all 0.22s;
+  text-transform: uppercase;
+}
+#welcome-guide:hover { border-color: rgba(200,169,106,0.5); color: rgba(200,169,106,0.85); }
+</style>
+
+<script>
+(function() {
+  var splash = document.getElementById('welcome-splash');
+  if (!splash) return;
+  if (window.innerWidth <= 800) return;
+  splash.classList.add('open');
+
+  document.getElementById('welcome-begin').addEventListener('click', function() {
+    splash.classList.remove('open');
+  });
+  document.getElementById('welcome-guide').addEventListener('click', function() {
+    splash.classList.remove('open');
+    document.getElementById('info-modal').classList.add('open');
+  });
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && splash.classList.contains('open')) splash.classList.remove('open');
+  });
+})();
+</script>
 
 <!-- ── CITY AIR MIX MODAL ───────────────────────── -->
 <div id="ca-mix-modal" role="dialog" aria-label="City Air Mixer">
@@ -6305,6 +6482,41 @@ function curlNoise(x, y) {
   if (mctInfo)  mctInfo.addEventListener('click', function() { openModal(); });
   modal.addEventListener('click', function(e) { if (e.target === modal) closeModal(); });
   document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeModal(); });
+})();
+</script>
+<script>
+(function() {
+  var btn = document.getElementById('piano-btn');
+  if (!btn || window.innerWidth <= 800) return;
+
+  function sync() {
+    var stopped = !!window._pianoUserStopped;
+    btn.textContent = stopped ? '♫ piano off' : '♫ piano';
+    btn.classList.toggle('off', stopped);
+  }
+
+  btn.addEventListener('click', function() {
+    if (window._pianoToggleMusic) window._pianoToggleMusic();
+    sync();
+  });
+
+  // Reveal the button once the audio system is unlocked (same timing as aud-toggle)
+  var _revealed = false;
+  function revealPianoBtn() {
+    if (_revealed) return;
+    _revealed = true;
+    btn.classList.add('visible');
+  }
+  // Watch for the aud-toggle to become visible as the unlock signal
+  var watcher = setInterval(function() {
+    var audTgl = document.getElementById('aud-toggle');
+    if (audTgl && parseFloat(audTgl.style.opacity || '0') > 0) {
+      revealPianoBtn();
+      clearInterval(watcher);
+    }
+  }, 400);
+
+  sync();
 })();
 </script>
 <script>
