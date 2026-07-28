@@ -2741,6 +2741,7 @@ function curlNoise(x, y) {
   let dustPhase = 'hidden', globalOpacity = 0, hazeOpacity = 0, dustClock = 0;
   let masses = [], animId = null, dustStarted = false;
   let settleVelocityScale = 1;
+  let aliveFrames = 0;
   let particles = [], burstParticles = [], flashRings = [], dustMode = 'normal';
   let coverClipRect = null;
   function dustVisualFactor() {
@@ -3218,17 +3219,25 @@ function curlNoise(x, y) {
     const coverCap = (dustMode === 'cover' || dustMode === 'back-cover') ? 0.78 : 1.0;
 
     if (dustPhase === 'rising') {
-      globalOpacity = Math.min(coverCap, globalOpacity + 0.040); // reach peak in ~0.4s
+      // Page-triggered dust fades in gently over ~2s; cover/back-cover keep the snappy fade-in.
+      const riseStep = (dustMode === 'normal') ? (coverCap / 120) : 0.040;
+      globalOpacity = Math.min(coverCap, globalOpacity + riseStep);
       hazeOpacity   = Math.min(1.0, hazeOpacity + 0.040);
-      if (globalOpacity >= coverCap) dustPhase = 'alive';
+      if (globalOpacity >= coverCap) { dustPhase = 'alive'; aliveFrames = 0; }
     } else if (dustPhase === 'alive') {
       hazeOpacity = Math.max(0, hazeOpacity - 0.006);
-      const readFloor = (dustMode === 'cover' || dustMode === 'back-cover') ? coverCap : 0.38;
-      if (globalOpacity > readFloor) globalOpacity = Math.max(readFloor, globalOpacity - 0.008);
+      const readFloor = (dustMode === 'cover' || dustMode === 'back-cover') ? coverCap : 0.25;
+      // Page-triggered dust holds at full exposure for ~0.75s before easing to the resting swirl.
+      const holdFrames = (dustMode === 'normal') ? 45 : 0;
+      if (aliveFrames < holdFrames) {
+        aliveFrames++;
+      } else if (globalOpacity > readFloor) {
+        globalOpacity = Math.max(readFloor, globalOpacity - 0.008);
+      }
     } else if (dustPhase === 'settling') {
       settleVelocityScale = Math.max(0, settleVelocityScale - 0.001019);
-      if (globalOpacity > 0.38) {
-        globalOpacity = Math.max(0.38, globalOpacity - 0.001019);
+      if (globalOpacity > 0.25) {
+        globalOpacity = Math.max(0.25, globalOpacity - 0.001019);
       } else {
         globalOpacity = Math.max(0, globalOpacity - 0.000581); // ~10.9s fade at 60fps
         if (globalOpacity <= 0) {
